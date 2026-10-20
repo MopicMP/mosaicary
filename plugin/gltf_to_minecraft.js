@@ -15649,10 +15649,22 @@ function isSiteId(id) {
 	return typeof id === 'string' && /^[0-9A-Za-z]{12}$/.test(id);
 }
 
-/** The models in a catalogue answer, or null when it is not one. A malformed entry is left out, not mended. */
+/**
+ * The formats that are builds rather than models (BUILD_FORMATS in site/shared/modelRules.ts):
+ * blocks placed in a world by Axiom, Litematica or WorldEdit. The site keeps them on a
+ * shelf of their own; Blockbench cannot open one, so the plugin does not list them at
+ * all. tools/verify-bbmodel-copy.mjs holds this copy to the site's.
+ */
+const SITE_BUILD_FORMATS = ['axiom_blueprint', 'litematica', 'sponge_schematic'];
+
+/**
+ * The models in a catalogue answer, or null when it is not one. A malformed entry is
+ * left out, not mended, and so is a build: every shelf of the plugin comes through here.
+ */
 function siteModelsOf(data) {
 	if (!Array.isArray(data)) return null;
-	return data.filter(m => m && typeof m === 'object' && isSiteId(m.id) && typeof m.name === 'string');
+	return data.filter(m => m && typeof m === 'object' && isSiteId(m.id) && typeof m.name === 'string'
+		&& !SITE_BUILD_FORMATS.includes(m.format));
 }
 
 /** When a model came into the catalogue: when it was published, or made if never. */
@@ -19448,7 +19460,7 @@ if (typeof Plugin === 'undefined') {
 			qMul, qConj, qRotate, boneDeltaRotation, boneDeltaPosition, sampleChannel, qSlerp, qAngle, eulerFromQuat, quatFromEuler, eulerNear, rotationKeyframes, keyframeGrid, KEYFRAME_RATE_MAX, PLAYBACK_TOLERANCE, boneReach, rotationTolerance, boneScale, pickScale, snapScale, texelScale, correctionQuat, packAtlas, splitComponents, insideOutShells, enclosedVolume, boxFromBounds, TRIANGULATE, isDegenerate, imageSize, sniffMime, axisRotationOf, quatFromMat, triangleNormal, snapGrid, snapVec, snapAngle, isIdentityBasis, placeCoords, snapSafely, tidyVec, hasGltfArchive, sketchfabSearchURL, SKETCHFAB_SORTS, sketchfabPageURL, sketchfabArchives, sketchfabCredit, sketchfabDownload, hasAlphaChannel, resolveCoplanar, cubeFaces, faceRectsOverlap,
 			SF_LOCKED_SHARE, SF_PAGE, mixResults, isLockedModel,
 			JAVA_BOX, fitJavaBox, applyFit, javaFormatFor, versionBelow, tidyHierarchy, GENERIC_NODE, cubeHint,
-			SITE_ORIGIN, SITE_SORTS, cleanOrigin, isSiteKey, isSiteId, siteModelsOf, siteCameAt, siftSiteModels, sitePreviewURL, siteFileURL, sitePageURL, siteMineURL, withSiteLang, siteFileName, siteLicence,
+			SITE_ORIGIN, SITE_SORTS, cleanOrigin, isSiteKey, isSiteId, SITE_BUILD_FORMATS, siteModelsOf, siteCameAt, siftSiteModels, sitePreviewURL, siteFileURL, sitePageURL, siteMineURL, withSiteLang, siteFileName, siteLicence,
 			NO_SITE_FILTERS, siteNarrowed, siteTagsOf, siteFormatsOf, siteSizesOf, siteLicencesOf, siteFormatName,
 			SITE_LINK_FIELD, cleanSiteLink, siteLinkOf,
 			SITE_ACCOUNTS_MOST, SITE_LINK_SECONDS, SITE_LINK_MINUTES, SITE_QUOTA_BYTES, isLinkSecret, isLinkCode, webAddress,
@@ -24823,11 +24835,14 @@ function mountSitePane(pane, host) {
 	const narrowed = () => (state.shelf === 'recent'
 		? state.filters.query.trim() !== ''
 		: siteNarrowed(state.filters));
+	// The liked shelf counted by what it shows, not by the site's list of likes: that list
+	// also holds builds, which the plugin leaves out, and models put back to private since.
+	const lovedShown = () => {
+		const ids = new Set(state.loved || []);
+		return state.all.filter(m => ids.has(m.id));
+	};
 	const source = () => {
-		if (state.shelf === 'loved') {
-			const ids = new Set(state.loved || []);
-			return state.all.filter(m => ids.has(m.id));
-		}
+		if (state.shelf === 'loved') return lovedShown();
 		if (state.shelf === 'mine') return state.mine || [];
 		if (state.shelf === 'recent') return state.recent || [];
 		return state.all;
@@ -25315,7 +25330,7 @@ function mountSitePane(pane, host) {
 				const ids = new Set(state.loved);
 				if (what.liked) ids.add(what.id); else ids.delete(what.id);
 				state.loved = [...ids];
-				shelves.count('loved', state.loved.length);
+				shelves.count('loved', lovedShown().length);
 				if (state.shelf === 'loved') refresh();
 			}
 		},
@@ -25581,7 +25596,7 @@ function mountSitePane(pane, host) {
 			say(T('site.loading'));
 			fetch(state.origin + '/api/models/liked', siteAsk(SITE_WAIT_LIST))
 				.then(siteAnswer)
-				.then(ids => { state.loved = Array.isArray(ids) ? ids.filter(isSiteId) : []; shelves.count('loved', state.loved.length); ready(); })
+				.then(ids => { state.loved = Array.isArray(ids) ? ids.filter(isSiteId) : []; shelves.count('loved', lovedShown().length); ready(); })
 				.catch(e => { state.loved = []; say(T('site.failed', { reason: siteFailure(e, SITE_WAIT_LIST) })); });
 			return;
 		}
@@ -28510,7 +28525,11 @@ function stagePlace(camera, aim, look, distance, radius) {
 	camera.position.copy(aim).addScaledVector(stageTowards(look), distance);
 	camera.up.set(0, 1, 0);
 	camera.lookAt(aim);
-	camera.near = Math.max(0.01, distance - radius * 2) / 4;
+	// Never nearer than a fiftieth of the model. Once the camera comes inside the ball the
+	// first term goes below nought, and a fixed floor of a hundredth of a unit let layers a
+	// hair apart (eyes painted over a face, a decal over a sleeve) fight in stripes: the
+	// depth buffer's steps grow as the near plane shrinks.
+	camera.near = Math.max(radius * 0.02, (distance - radius * 2) / 4);
 	camera.far = distance + radius * 4;
 	camera.updateProjectionMatrix();
 	camera.updateMatrixWorld();
