@@ -9,6 +9,11 @@ and none of those formats can take it. This plugin rebuilds the model out of
 The converter core does not depend on Blockbench, so most of what is described
 here is covered by Node tests in [`tools/`](../tools).
 
+This page is the conversion. The catalogue the plugin opens, the account, and
+putting a model up are a separate matter, described in
+[the catalogue](the-catalogue.md); what the plugin adds to the editor and what
+leaves the computer is in [what it touches](what-it-touches.md).
+
 ## 1. Reading the model
 
 **Archive or folder.** Unpacking a ZIP only fills a map of file name to bytes;
@@ -79,6 +84,19 @@ Two float32 traps are avoided on purpose:
   longest edges, orthogonalised, and the third is their cross product;
 - orthogonality is checked in units of length, not by angle, because the angle
   of a short edge is pure noise.
+
+**Meshes instead of cubes.** The top of the import window offers the other
+answer: leave the geometry as the author made it, and let Blockbench's own mesh
+tools take it from there. Bones, textures and animations come across exactly as
+they do on the cube path; nothing is split, solved or rebuilt. Cubes stay the
+default, because cubes are what the game renders, and a format that cannot hold a
+mesh is not offered for one. Where the model is heavy enough to make editing
+uncomfortable the window says so before the import rather than after: the
+threshold is 10,000 triangles, measured by building models in a live editor and
+working on them — up to about ten thousand the editor answers at once, past it
+dragging vertices begins to lag, and by twenty thousand the viewport draws about
+25 frames a second. It is said only on the mesh path, since the cube path does
+not keep a triangle count.
 
 **Degenerate fragments** are dropped. **Objects that are not boxes** — wedges,
 bevels, rounded shapes — are rebuilt from plates, see
@@ -162,8 +180,40 @@ sixteen by comparing the resulting pose with the true one from glTF
 Keyframe values are cleaned before they are written: anything below 1e-4 becomes
 zero, the rest is rounded to four digits. Blockbench parses keyframe values as
 Molang, and a float32 zero such as `4.76e-8` in scientific notation broke the
-parse and threw the whole bone — 220 of 1479 values on one model. Scale channels
-are skipped: GeckoLib does not animate them.
+parse and threw the whole bone — 220 of 1479 values on one model.
+
+**All three channels come across.** Rotation, position and scale: a part that
+grows, shrinks or folds away keeps doing so, in Blockbench and in the CPM export
+alike. A bone scaled along axes that are slanted in its rest pose can only be
+matched closely, not exactly, and the report names such bones.
+
+**Offsets are in the model's own pixels.** They used to be computed as if every
+model had been built at ×16, so at ×8 every offset came out twice as long and the
+parts flew apart while an animation played, though the model itself stood whole.
+
+**Each animation gets a frame grid that holds its keyframes.** Blockbench puts
+every keyframe on its animation's grid — 24 a second unless told otherwise — and
+a keyframe landing on another replaces it. A model animated at 25 or 50 a second
+therefore had its keyframes moved, and the keyframes added to ease a rotation
+wiped out the ones beside them. Where no grid Blockbench offers holds them all,
+they move by at most one step, and the report says how many.
+
+**Animated bones keep their exact pivots.** Pivots were rounded to the 0.25 px
+grid along with everything else, so a bone that turns swung its part a little off
+at every turn.
+
+**Long turns are eased the short way round.** Blockbench and CPM interpolate each
+angle in a straight line, so a bone that turns most of the way round between two
+keyframes, or all the way, threw parts out of place while it played. The nearest
+of the equal angles is written, and in Blockbench extra keyframes are added
+wherever that straight line would stray from the real turn; the report says how
+many were added. In CPM, a looping animation whose bone makes a whole turn is
+given a frame of its own at the end to close it, or it wound back on the last
+frame.
+
+**How a channel interpolates is read, not assumed.** Step channels hold each
+keyframe until the next instead of easing between them, and a cubic-spline
+channel's tangents are tangents: they used to be read as poses of their own.
 
 ## 6. Customizable Player Models
 
@@ -217,6 +267,21 @@ Only the project's format changes:
 
 Modded Entity and OptiFine are not offered: both require box UV or whole-pixel
 sizes, and neither can turn a single cube.
+
+**GeckoLib without the GeckoLib plugin.** Of the four, only GeckoLib's format
+comes from a plugin of its own, and choosing it without that plugin used to end
+in a message about installing one. So where nothing has registered that format
+id, this plugin registers it — at load, not when an import asks for it, because a
+`.bbmodel` that arrives from somebody else never passes through our import.
+Measured in a live editor: such a file opens as a Generic project instead of
+itself, losing bones, animation files and every format flag, with Blockbench's own
+line sending the reader after a plugin; in the desktop editor that load breaks off
+partway. Along with the format, *Export GeckoLib Geometry* appears beside the
+other exports and writes the `.geo.json` the mod reads — the animation files
+Blockbench writes itself, as it always did — and the keyframes that plugin writes
+become readable. Where the GeckoLib plugin is installed, none of this shows: its
+format object is the one in the registry, our export entry is hidden, and
+`onunload` removes our registration only while it is still ours.
 
 **Java block and item models** take the cubes too, but have no bones and do not
 animate: animations are left out and the report counts them. Two more things
@@ -330,3 +395,81 @@ nothing is culled. *Cancel import* leaves the project as it was.
 The pieces are covered by [`tools/verify-rounded.mjs`](../tools/verify-rounded.mjs)
 — a prism, a near-box, the texel budget, culling, finishing early and cancelling —
 and the whole path by [`tools/smoke-plugin.mjs`](../tools/smoke-plugin.mjs).
+
+## 10. What a file is not allowed to ask for
+
+A model file is input from elsewhere: downloaded from Sketchfab, taken from a
+catalogue, handed over by somebody. So every count it declares is a budget before
+it is a number, and the budget is checked **before the allocation it would cause**:
+
+| Budget | Limit |
+|---|---|
+| nodes, and scene roots | 20 000 each |
+| hierarchy depth | 256 |
+| child references, taken together | 40 000 |
+| one accessor's count | 1 000 000 |
+| decoded accessor components, over the file | 4 000 000 |
+| archive bytes as they arrive | 64 MiB |
+| archive entries | 4 096 |
+| one entry expanded, and all of them | 64 MiB, 128 MiB |
+| one image | 8 192 a side, 16 M pixels |
+| decoded image pixels, over the file | 32 M |
+
+The archive figures are counted from what actually comes out of the stream, never
+from the sizes the ZIP's own table claims, which is the whole of the trick a ZIP
+bomb turns. An accessor with no `bufferView` at all declares a run of zeros and is
+counted the same as one with bytes behind it, because the array it produces is
+just as real. A cyclic hierarchy is found without recursion, by a walk with its
+own stack — the regression is run inside a VM with a timeout, so a return of the
+old infinite loop fails the check rather than hanging it. Reported by
+HadesScience (report #2), and the budgets go wider than the report did.
+
+**A file past a budget and a damaged file are different things, and are told
+apart on purpose.** Too large gets a sentence naming the limit and what to change
+about the model; damaged keeps the plain error it threw, which is what lets the
+places built to tolerate damage go on tolerating it — a broken animation channel
+is skipped and the model imports, an unreadable PNG goes to Blockbench's own
+decoder. Two more consequences of the same rule: only colour textures count
+towards the image budget, so a normal map too large is left out as such maps
+always were instead of stopping the import, and animations past the data limit are
+dropped with a line in the report while the model itself arrives. On the Sketchfab
+side an archive too large is marked on its card and is not downloaded at all.
+
+[`tools/verify-import-limits.mjs`](../tools/verify-import-limits.mjs) runs each
+budget from both sides — the hostile input, and a legitimate model just inside the
+same limit, since a budget that refuses real work is a worse defect than no budget.
+
+## 11. The window that asks, and the window that answers
+
+**The import window** holds the settings in a column on the left and the model
+itself on the right, turned from the file's own triangles. The picture comes out of
+the same probe parse the import begins with, so the figures it shows and the scale
+it offers are the ones the import will use rather than a second opinion about them;
+the rotation and the centring are shown as they will be applied, where this window
+used to ask which way to turn a model nobody had seen yet. What the import would
+refuse — a file with no usable picture in it — is said while the settings are still
+open, not after the window is confirmed.
+
+It is built by hand rather than out of a Dialog form, because the form was the
+defect: it put every name at the left edge and its control at the right with the
+window's whole width in between, cut the longer drop-down options off mid-word, and
+could take a long explanation only as a paragraph in the flow — of which this
+window had five, making it a screen and a half. Here a setting is one line, icon,
+name and control, and each explanation waits behind the question mark on its icon
+until the pointer is on it. The tooltip is fixed to the screen rather than placed in
+the column, which scrolls and would cut it off at its own edge. The levers for
+diagnosing a bad import sit behind one line instead of standing in a row like a
+cockpit.
+
+**The report** says which model and what it became, with a tick in front, or the
+same amber its warnings are drawn in. The counts are in an icon grid — cubes or
+meshes, bones, texture, animations, scale, and where they apply, how many parts
+were approximated and what the rebuild made — in the same grid the import window's
+own card and the model windows use, so the window that asked and the window that
+answers read as one pair. Anything that has to be read without being asked for
+stands under them in words: a model where three parts in ten are not really boxes,
+materials whose picture never arrived. The log is folded behind *Import details*,
+with *Save log…* and *Copy* beside it; where the clipboard is unavailable it says
+so rather than quietly doing nothing. The log stays folded because it is several
+times the height of everything else in the window, which is no way to greet an
+import that went fine — and it stays, because it is how a breakage is diagnosed.
