@@ -298,11 +298,3 @@ that mirrors it.
 **What to do:** nothing has been lost; the file on the site is simply older than
 yours. Upload it as a new model, or update it on the site. The line is said once
 per project and per reason, not on every Ctrl+S.
-
-### "Upload Model to Mosaicary" in the image editor
-
-**Known, and not fixed yet.** The entry is offered in an image project
-(*New > Image*), where there is no model to upload. The condition it asks is
-whether a project is open, and an image project is a project.
-
-**What to do:** ignore it there, and upload from a model project.

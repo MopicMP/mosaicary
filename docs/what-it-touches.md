@@ -48,7 +48,7 @@ without opening Blockbench.
 | Import glTF as Customizable Player Model | File > Import | always |
 | Import from Sketchfab | File > Import | always |
 | Browse Mosaicary Models | File, beside Open Model | always |
-| Upload Model to Mosaicary | File, beside the exports | while a project is open |
+| Upload Model to Mosaicary | File, beside the exports | while a model project is open; not in the image editor |
 | Export GeckoLib Geometry | File, beside the exports | only where the GeckoLib plugin is absent |
 | Convert Meshes to Cubes | Tools | while the project holds a mesh |
 | Leave a Review | Help | always |
@@ -65,7 +65,10 @@ The two reviews-and-language entries are under Help because they are about the
 plugin rather than about the model in front of you.
 
 The conditions hide rather than grey out, the way Blockbench hides Save and its
-own exports. Where a reason can be given instead — the upload button in the
+own exports. The image editor (*New > Image*) is a project too, with no model in
+it, so only the entries that make a project of their own, or are about the plugin
+itself, are offered there. Each entry is asked in a live Blockbench what the menu
+asks it, with nothing open, in an image project and in a model project. Where a reason can be given instead — the upload button in the
 profile, which stays while a project closes — it is given there.
 
 Besides the menu it registers: one panel, for the catalogue once a project is
@@ -144,12 +147,6 @@ The account key lives there because that is the only store a plugin has in both
 builds. Any other plugin can read it, which is why a key made this way may
 publish and update but never delete, and why signing out here does not take the
 key away on the site.
-
-## Known, and not yet fixed
-
-*Upload Model to Mosaicary* is offered in the image editor (*New > Image*), where
-there is no model to upload: the entry asks whether a project is open, and an
-image project is a project. It is one condition, and it is not in this file yet.
 
 ## Running the checks
 

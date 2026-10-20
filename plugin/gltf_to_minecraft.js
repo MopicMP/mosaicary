@@ -854,6 +854,7 @@ const I18N = {
 		'put.title': 'Putting a model up',
 		'put.open': 'Put the open project up',
 		'put.need_project': 'No project is open',
+		'put.not_model': 'An image is open, not a model: there is nothing to put up',
 		'put.reread': 'Read the project again',
 		'put.look_hint': 'Turn the model and move it: this is the picture on its card',
 		'put.pose': 'Animation for the picture',
@@ -1779,6 +1780,7 @@ const I18N = {
 		'put.title': 'Загрузка модели',
 		'put.open': 'Загрузить открытый проект',
 		'put.need_project': 'Ни один проект не открыт',
+		'put.not_model': 'Открыто изображение, а не модель: загружать нечего',
 		'put.reread': 'Перечитать проект',
 		'put.look_hint': 'Поверни и подвинь модель: это картинка на её карточке',
 		'put.pose': 'Анимация для картинки',
@@ -2696,6 +2698,7 @@ const I18N = {
 		'put.title': '上传模型',
 		'put.open': '上传当前项目',
 		'put.need_project': '没有打开的项目',
+		'put.not_model': '打开的是图片，不是模型：没有可上传的内容',
 		'put.reread': '重新读取项目',
 		'put.look_hint': '转动并移动模型：这就是卡片上的图片',
 		'put.pose': '图片所用动画',
@@ -3612,6 +3615,7 @@ const I18N = {
 		'put.title': 'Subir un modelo',
 		'put.open': 'Subir el proyecto abierto',
 		'put.need_project': 'No hay ningún proyecto abierto',
+		'put.not_model': 'Hay una imagen abierta, no un modelo: no hay nada que subir',
 		'put.reread': 'Volver a leer el proyecto',
 		'put.look_hint': 'Gira y mueve el modelo: esta es la imagen de su tarjeta',
 		'put.pose': 'Animación para la imagen',
@@ -4528,6 +4532,7 @@ const I18N = {
 		'put.title': 'Enviar um modelo',
 		'put.open': 'Enviar o projeto aberto',
 		'put.need_project': 'Nenhum projeto está aberto',
+		'put.not_model': 'Há uma imagem aberta, não um modelo: não há nada para enviar',
 		'put.reread': 'Ler o projeto de novo',
 		'put.look_hint': 'Gire e mova o modelo: esta é a imagem do cartão dele',
 		'put.pose': 'Animação para a imagem',
@@ -5444,6 +5449,7 @@ const I18N = {
 		'put.title': 'Modell hochladen',
 		'put.open': 'Offenes Projekt hochladen',
 		'put.need_project': 'Kein Projekt ist offen',
+		'put.not_model': 'Offen ist ein Bild, kein Modell: Es gibt nichts hochzuladen',
 		'put.reread': 'Projekt neu einlesen',
 		'put.look_hint': 'Dreh und verschieb das Modell: das ist das Bild auf seiner Karte',
 		'put.pose': 'Animation für das Bild',
@@ -6361,6 +6367,7 @@ const I18N = {
 		'put.title': 'Envoi d\'un modèle',
 		'put.open': 'Envoyer le projet ouvert',
 		'put.need_project': 'Aucun projet n\'est ouvert',
+		'put.not_model': 'C\'est une image qui est ouverte, pas un modèle : il n\'y a rien à envoyer',
 		'put.reread': 'Relire le projet',
 		'put.look_hint': 'Tourne et déplace le modèle : c\'est l\'image de sa carte',
 		'put.pose': 'Animation pour l\'image',
@@ -7278,6 +7285,7 @@ const I18N = {
 		'put.title': 'モデルのアップロード',
 		'put.open': '開いているプロジェクトをアップロード',
 		'put.need_project': '開いているプロジェクトがありません',
+		'put.not_model': '開いているのはモデルではなく画像です。アップロードするものがありません',
 		'put.reread': 'プロジェクトを読み直す',
 		'put.look_hint': 'モデルを回して動かして決める。これがカードの絵になる',
 		'put.pose': '絵にするアニメーション',
@@ -8194,6 +8202,7 @@ const I18N = {
 		'put.title': '모델 올리기',
 		'put.open': '열려 있는 프로젝트 올리기',
 		'put.need_project': '열려 있는 프로젝트가 없습니다',
+		'put.not_model': '열려 있는 것은 모델이 아니라 이미지입니다. 올릴 것이 없습니다',
 		'put.reread': '프로젝트 다시 읽기',
 		'put.look_hint': '모델을 돌리고 옮겨 보세요. 이것이 카드에 실리는 그림입니다',
 		'put.pose': '그림에 쓸 애니메이션',
@@ -9110,6 +9119,7 @@ const I18N = {
 		'put.title': 'Завантаження моделі',
 		'put.open': 'Завантажити відкритий проєкт',
 		'put.need_project': 'Жоден проєкт не відкрито',
+		'put.not_model': 'Відкрито зображення, а не модель: завантажувати нічого',
 		'put.reread': 'Перечитати проєкт',
 		'put.look_hint': 'Поверни й посунь модель: це картинка на її картці',
 		'put.pose': 'Анімація для картинки',
@@ -10026,6 +10036,7 @@ const I18N = {
 		'put.title': 'Model yükleme',
 		'put.open': 'Açık projeyi yükle',
 		'put.need_project': 'Açık proje yok',
+		'put.not_model': 'Açık olan bir model değil, bir görsel: yüklenecek bir şey yok',
 		'put.reread': 'Projeyi yeniden oku',
 		'put.look_hint': 'Modeli çevir ve kaydır: kartındaki resim bu',
 		'put.pose': 'Resim için animasyon',
@@ -10942,6 +10953,7 @@ const I18N = {
 		'put.title': 'Wysyłanie modelu',
 		'put.open': 'Wyślij otwarty projekt',
 		'put.need_project': 'Żaden projekt nie jest otwarty',
+		'put.not_model': 'Otwarty jest obraz, a nie model: nie ma czego wysłać',
 		'put.reread': 'Przeczytaj projekt ponownie',
 		'put.look_hint': 'Obróć i przesuń model: to obrazek na jego karcie',
 		'put.pose': 'Animacja do obrazka',
@@ -11858,6 +11870,7 @@ const I18N = {
 		'put.title': 'Caricamento di un modello',
 		'put.open': 'Carica il progetto aperto',
 		'put.need_project': 'Nessun progetto aperto',
+		'put.not_model': 'È aperta un\'immagine, non un modello: non c\'è niente da caricare',
 		'put.reread': 'Rileggi il progetto',
 		'put.look_hint': 'Gira e sposta il modello: questa è l\'immagine della sua scheda',
 		'put.pose': 'Animazione per l\'immagine',
@@ -12774,6 +12787,7 @@ const I18N = {
 		'put.title': 'Model uploaden',
 		'put.open': 'Open project uploaden',
 		'put.need_project': 'Er is geen project open',
+		'put.not_model': 'Er is een afbeelding open, geen model: er valt niets te uploaden',
 		'put.reread': 'Project opnieuw inlezen',
 		'put.look_hint': 'Draai en verschuif het model: dit is de afbeelding op de kaart',
 		'put.pose': 'Animatie voor de afbeelding',
@@ -24900,9 +24914,10 @@ function mountSitePane(pane, host) {
 		// wherever it was started, through MtcBrowser.siteFresh — and asking for her shelf
 		// on top of that would read the site twice over for one model.
 		const putting = mkIconButton('cloud_upload', T('put.open'), () => openSitePublishWindow());
-		if (typeof Project === 'undefined' || !Project) {
+		const putRefusal = putUpRefusal();
+		if (putRefusal) {
 			putting.disabled = true;
-			putting.title = T('put.need_project');
+			putting.title = putRefusal;
 		}
 		profile.appendChild(putting);
 		profile.appendChild(mkIconButton('open_in_new', T('site.open_on_site'), () => openLink(siteMineURL(state.origin))));
@@ -29694,6 +29709,22 @@ function embedProjectTextures() {
 }
 
 /**
+ * Why the open project cannot be put up, in words for the screen, or '' when it can.
+ *
+ * An image project from New > Image is a project to Blockbench like any other, and has no
+ * model in it. Its format carries `image_editor`, the flag Blockbench itself reads to tell
+ * the two apart, and an entry offered there has nothing to act on — which the plugin
+ * catalogue's review counts as a fault in its own right. The menu entry hides on this
+ * answer and the button in the profile shows it on hover.
+ */
+function putUpRefusal() {
+	if (typeof Project === 'undefined' || !Project) return T('put.need_project');
+	const format = Project.format || (typeof Format !== 'undefined' ? Format : null);
+	if (format && format.image_editor) return T('put.not_model');
+	return '';
+}
+
+/**
  * The window that puts the open project on the site: the model as its card will show
  * it, what the site will be told about it, and the one act that sends it.
  *
@@ -29715,11 +29746,12 @@ function embedProjectTextures() {
 function openSitePublishWindow(ctx) {
 	const already = MtcWindows.open.find(win => win.publishing);
 	if (already) { MtcWindows.raise(already); return; }
-	const project = typeof Project !== 'undefined' ? Project : null;
-	if (!project) {
-		if (typeof Blockbench !== 'undefined' && Blockbench.showQuickMessage) Blockbench.showQuickMessage(T('put.need_project'));
+	const refusal = putUpRefusal();
+	if (refusal) {
+		if (typeof Blockbench !== 'undefined' && Blockbench.showQuickMessage) Blockbench.showQuickMessage(refusal);
 		return;
 	}
+	const project = Project;
 	const where = ctx || {};
 
 	/** What the window has been told, in the shape `modelDeclaration` reads. */
@@ -32916,6 +32948,8 @@ function syncSaved(event) {
 	if (!event || event.saved !== true) return;
 	const project = event.project;
 	if (!project || !project.uuid) return;
+	// An image saved in the image editor is not a model, and has no draft to keep.
+	if (project.format && project.format.image_editor) return;
 	// Nobody signed in has nowhere to put anything, and a queue kept for a key that may
 	// never come would send a file an hour after it was saved.
 	if (!siteKey()) return;
@@ -33434,16 +33468,17 @@ Plugin.register(PLUGIN_ID, {
 		});
 		MenuBar.addAction(langAction, 'help');
 
-		// Putting the open project on the site. The entry is there only while something
+		// Putting the open project on the site. The entry is there only while a model
 		// is open, the way Blockbench hides Save and its own exports: a menu condition
 		// hides rather than greys out, so there is no hover to say why. Where a reason
 		// can be said — the button in the profile, which stays while a project closes —
-		// it is said there.
+		// it is said there. An image project from New > Image is a project too, with no
+		// model to put up, so the image editor does not offer the entry: see putUpRefusal.
 		putAction = new Action(PLUGIN_ID + '_put', {
 			name: T('action.put'),
 			description: T('action.put.description'),
 			icon: 'cloud_upload',
-			condition: () => typeof Project !== 'undefined' && !!Project,
+			condition: () => !putUpRefusal(),
 			click: () => openSitePublishWindow(),
 		});
 		MenuBar.addAction(putAction, besideExport());

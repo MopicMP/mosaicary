@@ -352,8 +352,8 @@ typos in names, calls to functions that do not exist.
   its shelves, finding a model, looking one over, Sketchfab and the models that
   cannot be downloaded, signing in, uploading, reviews, drafts that follow saving.
 - [What the plugin touches](docs/what-it-touches.md) — every entry it adds to
-  Blockbench, what it calls, what leaves this computer, what it keeps on it, and what
-  is known to be wrong.
+  Blockbench and where it is offered, what it calls, what leaves this computer, and
+  what it keeps on it.
 - [Why a model comes out wrong](docs/troubleshooting.md) — the common symptoms, what
   causes them and what to do, for the conversion and for the catalogue alike.
 
