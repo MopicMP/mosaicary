@@ -164,5 +164,17 @@
 				]
 			}
 		]
+	},
+	"0.1.5": {
+		"title": "0.1.5",
+		"author": "MopicMP",
+		"categories": [
+			{
+				"title": "Fixes",
+				"list": [
+					"A model on an armature — a skinned mesh, as Blender exports one — comes apart by bone, so its animations move it. It used to arrive as one piece beside an empty skeleton: the bones moved and the model stood still. Where a vertex is shared between bones, the part follows its strongest one, and the report says how much of the mesh that is."
+				]
+			}
+		]
 	}
 }

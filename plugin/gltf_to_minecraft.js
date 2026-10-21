@@ -38,6 +38,12 @@ const I18N = {
 		'action.env.description': 'Shows what is available inside Blockbench: ZIP, formats, codecs',
 		'action.lang': 'Mosaicary language',
 		'action.lang.description': 'Which language the plugin\'s own windows speak, when it should not be the one Blockbench is set to',
+		'action.notice': 'Licence Notice',
+		'action.notice.description': 'The licence this model came with, where it was taken from and the licence texts, as the file carries them',
+		'notice.licence': 'Licence',
+		'notice.source': 'Source',
+		'notice.changes': 'Changes',
+		'notice.note': 'Note',
 
 		// Choosing that language
 		'lang.label': 'Language',
@@ -206,6 +212,7 @@ const I18N = {
 		'warn.wrapper_axis': 'wrapper “{name}”: axis rotation kept, offset discarded',
 		'warn.wrapper_drop': 'wrapper “{name}”: showcase placement discarded',
 		'warn.node_matrix': 'node “{name}” uses a matrix — rest rotation for animations was not extracted',
+		'warn.skin_blended': 'skinned mesh “{name}”: {share}% of its vertices are shared between bones — each triangle follows its strongest bone, so bends there are approximate',
 		'warn.primitive_mode': '{name}: primitive mode {mode} skipped (points and lines are not geometry)',
 		'sf.no_token': 'no API token set',
 		'sf.requesting': 'requesting link…',
@@ -669,6 +676,7 @@ const I18N = {
 		'flt.except': 'Except',
 		'flt.fold': 'Collapse',
 		'flt.for_what': 'What for',
+		'flt.category': 'Category',
 		'flt.format': 'Exact format',
 		'flt.found': 'Found: {count}',
 		'flt.inside': 'What is inside',
@@ -879,6 +887,19 @@ const I18N = {
 		'put.licence': 'Licence',
 		'put.licence_hint': 'What others may do with the model. A published model needs one',
 		'put.licence_none': 'Not chosen',
+		'put.category': 'Category',
+		'put.category_hint': 'What the model is. The catalogue and the game mod sort models by it',
+		'put.category_none': 'Not chosen',
+		'cat.characters': 'Characters',
+		'cat.creatures': 'Creatures',
+		'cat.weapons': 'Weapons and tools',
+		'cat.wearables': 'Armour and clothing',
+		'cat.vehicles': 'Vehicles',
+		'cat.furniture': 'Furniture and decor',
+		'cat.blocks': 'Blocks and buildings',
+		'cat.machines': 'Machines',
+		'cat.items': 'Food and items',
+		'cat.figura': 'Figura avatars',
 		'put.author': 'Author',
 		'put.author_hint': 'Whoever made the model, if that is not you',
 		'put.url': 'Where it came from',
@@ -932,6 +953,7 @@ const I18N = {
 		'no.adult_closed_here': 'models for adults are closed in your country, so this one cannot be marked 18+',
 		'no.confirm_18_to_mark': 'to mark a model 18+ you have to confirm on the site that you are 18',
 		'no.no_such_license': 'there is no such licence on the site',
+		'no.no_such_category': 'there is no such category on the site',
 		'no.odd_background': 'a background colour is six digits after a hash, like #f2f2f2',
 		'no.odd_look': 'a view is two angles in radians, with the tilt no more than 1.4',
 		'no.length_mismatch': 'the size of the file did not match the one declared',
@@ -981,6 +1003,12 @@ const I18N = {
 		'action.env.description': 'Что доступно в этой сборке Blockbench: ZIP, форматы, кодеки',
 		'action.lang': 'Язык Mosaicary',
 		'action.lang.description': 'На каком языке говорят окна плагина, если это не язык Blockbench',
+		'action.notice': 'Уведомление о лицензии',
+		'action.notice.description': 'Лицензия, с которой пришла модель, откуда она взята и тексты лицензии — так, как они записаны в самом файле',
+		'notice.licence': 'Лицензия',
+		'notice.source': 'Источник',
+		'notice.changes': 'Изменения',
+		'notice.note': 'Примечание',
 		'lang.label': 'Язык',
 		'lang.same': 'Как в Blockbench — {name}',
 		'lang.note': 'Окна плагина закроются, и каталог откроется заново: окно остаётся на том языке, на котором собрано. Слова самого Blockbench не меняются.',
@@ -1138,6 +1166,7 @@ const I18N = {
 		'warn.wrapper_axis': 'обёртка «{name}»: поворот осей сохранён, смещение отброшено',
 		'warn.wrapper_drop': 'обёртка «{name}»: размещение для показа отброшено',
 		'warn.node_matrix': 'узел «{name}» задан матрицей — поворот позы покоя для анимаций не извлечён',
+		'warn.skin_blended': 'меш со скелетом «{name}»: {share}% вершин поделены между костями — каждый треугольник следует за самой сильной костью, поэтому изгибы там приблизительные',
 		'warn.primitive_mode': '{name}: режим примитива {mode} пропущен (точки и линии — не геометрия)',
 		'sf.no_token': 'API-токен не задан',
 		'sf.requesting': 'запрос ссылки…',
@@ -1595,6 +1624,7 @@ const I18N = {
 		'flt.except': 'Кроме',
 		'flt.fold': 'Свернуть',
 		'flt.for_what': 'Для чего',
+		'flt.category': 'Категория',
 		'flt.format': 'Точный формат',
 		'flt.found': 'Нашлось: {count}',
 		'flt.inside': 'Что внутри',
@@ -1805,6 +1835,19 @@ const I18N = {
 		'put.licence': 'Лицензия',
 		'put.licence_hint': 'Что другие могут делать с моделью. Для публикации нужна',
 		'put.licence_none': 'Не выбрана',
+		'put.category': 'Категория',
+		'put.category_hint': 'Что это за модель. По ней каталог и мод для игры раскладывают модели',
+		'put.category_none': 'Не выбрана',
+		'cat.characters': 'Персонажи',
+		'cat.creatures': 'Существа',
+		'cat.weapons': 'Оружие и инструменты',
+		'cat.wearables': 'Броня и одежда',
+		'cat.vehicles': 'Транспорт',
+		'cat.furniture': 'Мебель и декор',
+		'cat.blocks': 'Блоки и постройки',
+		'cat.machines': 'Техника',
+		'cat.items': 'Еда и предметы',
+		'cat.figura': 'Аватары Figura',
 		'put.author': 'Автор',
 		'put.author_hint': 'Кто сделал модель, если это не ты',
 		'put.url': 'Откуда модель',
@@ -1858,6 +1901,7 @@ const I18N = {
 		'no.adult_closed_here': 'в твоей стране модели 18+ закрыты, поэтому эту пометку поставить нельзя',
 		'no.confirm_18_to_mark': 'чтобы пометить модель 18+, надо подтвердить на сайте, что тебе есть 18',
 		'no.no_such_license': 'такой лицензии на сайте нет',
+		'no.no_such_category': 'такой категории на сайте нет',
 		'no.odd_background': 'цвет фона — шесть цифр после решётки, как #f2f2f2',
 		'no.odd_look': 'ракурс — два угла в радианах, наклон не больше 1,4',
 		'no.length_mismatch': 'размер файла не совпал с заявленным',
@@ -1906,6 +1950,12 @@ const I18N = {
 		'action.env.description': '显示此 Blockbench 版本中可用的功能：ZIP、格式、编解码器',
 		'action.lang': 'Mosaicary 语言',
 		'action.lang.description': '插件自己的窗口使用哪种语言，当它不应跟随 Blockbench 时',
+		'action.notice': '许可声明',
+		'action.notice.description': '这个模型附带的许可证、它的来源和许可证文本，按文件里写的内容显示',
+		'notice.licence': '许可证',
+		'notice.source': '来源',
+		'notice.changes': '修改',
+		'notice.note': '备注',
 		'lang.label': '语言',
 		'lang.same': '与 Blockbench 相同（{name}）',
 		'lang.note': '插件的窗口会关闭，目录会重新打开：窗口保留它构建时的语言。Blockbench 自己的文字不会改变。',
@@ -2055,6 +2105,7 @@ const I18N = {
 		'warn.wrapper_axis': '包装节点“{name}”：保留轴向旋转，丢弃偏移',
 		'warn.wrapper_drop': '包装节点“{name}”：已丢弃展示用的摆放',
 		'warn.node_matrix': '节点“{name}”使用矩阵——未提取动画所用的静止姿态旋转',
+		'warn.skin_blended': '带骨骼的网格“{name}”：{share}% 的顶点由多根骨骼共享——每个三角形跟随权重最大的骨骼，因此该处的弯曲是近似的',
 		'warn.primitive_mode': '{name}：已跳过图元模式 {mode}（点和线不是几何体）',
 		'sf.no_token': '未设置 API 令牌',
 		'sf.requesting': '正在请求链接…',
@@ -2513,6 +2564,7 @@ const I18N = {
 		'flt.except': '排除',
 		'flt.fold': '收起',
 		'flt.for_what': '用于什么',
+		'flt.category': '分类',
 		'flt.format': '具体格式',
 		'flt.found': '找到：{count}',
 		'flt.inside': '内容',
@@ -2723,6 +2775,19 @@ const I18N = {
 		'put.licence': '许可',
 		'put.licence_hint': '别人可以怎样使用这个模型。公开发布必须选一个',
 		'put.licence_none': '未选择',
+		'put.category': '分类',
+		'put.category_hint': '模型是什么。目录和游戏模组按它整理模型',
+		'put.category_none': '未选择',
+		'cat.characters': '角色',
+		'cat.creatures': '生物',
+		'cat.weapons': '武器和工具',
+		'cat.wearables': '盔甲和服装',
+		'cat.vehicles': '载具',
+		'cat.furniture': '家具和装饰',
+		'cat.blocks': '方块和建筑',
+		'cat.machines': '机械',
+		'cat.items': '食物和物品',
+		'cat.figura': 'Figura 化身',
 		'put.author': '作者',
 		'put.author_hint': '模型的作者，如果不是你',
 		'put.url': '模型的出处',
@@ -2776,6 +2841,7 @@ const I18N = {
 		'no.adult_closed_here': '在你所在的国家不提供 18+ 模型，所以不能加上这个标记',
 		'no.confirm_18_to_mark': '要把模型标记为 18+，需要先在站点上确认你已满 18 岁',
 		'no.no_such_license': '站点上没有这种许可',
+		'no.no_such_category': '站点上没有这个分类',
 		'no.odd_background': '背景颜色是井号后的六位，像 #f2f2f2',
 		'no.odd_look': '视角是两个弧度角，俯仰不超过 1.4',
 		'no.length_mismatch': '文件大小与声明的不一致',
@@ -2824,6 +2890,12 @@ const I18N = {
 		'action.env.description': 'Muestra lo disponible en esta versión de Blockbench: ZIP, formatos, códecs',
 		'action.lang': 'Idioma de Mosaicary',
 		'action.lang.description': 'En qué idioma hablan las ventanas del plugin, cuando no debe ser el de Blockbench',
+		'action.notice': 'Aviso de licencia',
+		'action.notice.description': 'La licencia con la que llegó este modelo, de dónde se tomó y los textos de la licencia, tal como van dentro del archivo',
+		'notice.licence': 'Licencia',
+		'notice.source': 'Origen',
+		'notice.changes': 'Cambios',
+		'notice.note': 'Nota',
 		'lang.label': 'Idioma',
 		'lang.same': 'Igual que en Blockbench — {name}',
 		'lang.note': 'Las ventanas del plugin se cierran y el catálogo se abre de nuevo: una ventana conserva el idioma con el que se construyó. Las palabras propias de Blockbench no cambian.',
@@ -2973,6 +3045,7 @@ const I18N = {
 		'warn.wrapper_axis': 'envoltorio «{name}»: rotación de ejes conservada, desplazamiento descartado',
 		'warn.wrapper_drop': 'envoltorio «{name}»: colocación de presentación descartada',
 		'warn.node_matrix': 'el nodo «{name}» usa una matriz — no se extrajo la rotación de reposo para las animaciones',
+		'warn.skin_blended': 'malla con esqueleto «{name}»: el {share}% de sus vértices se reparte entre huesos — cada triángulo sigue a su hueso más fuerte, así que ahí las curvas son aproximadas',
 		'warn.primitive_mode': '{name}: modo de primitiva {mode} omitido (los puntos y las líneas no son geometría)',
 		'sf.no_token': 'no hay ningún token de API configurado',
 		'sf.requesting': 'solicitando el enlace…',
@@ -3430,6 +3503,7 @@ const I18N = {
 		'flt.except': 'Excepto',
 		'flt.fold': 'Plegar',
 		'flt.for_what': 'Para qué',
+		'flt.category': 'Categoría',
 		'flt.format': 'Formato exacto',
 		'flt.found': 'Encontrados: {count}',
 		'flt.inside': 'Qué hay dentro',
@@ -3640,6 +3714,19 @@ const I18N = {
 		'put.licence': 'Licencia',
 		'put.licence_hint': 'Qué pueden hacer otros con el modelo. Hace falta para publicar',
 		'put.licence_none': 'Sin elegir',
+		'put.category': 'Categoría',
+		'put.category_hint': 'Qué es el modelo. El catálogo y el mod del juego ordenan los modelos por ella',
+		'put.category_none': 'Sin elegir',
+		'cat.characters': 'Personajes',
+		'cat.creatures': 'Criaturas',
+		'cat.weapons': 'Armas y herramientas',
+		'cat.wearables': 'Armaduras y ropa',
+		'cat.vehicles': 'Vehículos',
+		'cat.furniture': 'Muebles y decoración',
+		'cat.blocks': 'Bloques y construcciones',
+		'cat.machines': 'Máquinas',
+		'cat.items': 'Comida y objetos',
+		'cat.figura': 'Avatares de Figura',
 		'put.author': 'Autor',
 		'put.author_hint': 'Quién hizo el modelo, si no eres tú',
 		'put.url': 'De dónde viene',
@@ -3693,6 +3780,7 @@ const I18N = {
 		'no.adult_closed_here': 'en tu país los modelos 18+ están cerrados, así que no se puede poner esa marca',
 		'no.confirm_18_to_mark': 'para marcar un modelo como 18+ hay que confirmar en el sitio que tienes 18 años',
 		'no.no_such_license': 'no existe esa licencia en el sitio',
+		'no.no_such_category': 'no existe esa categoría en el sitio',
 		'no.odd_background': 'un color de fondo son seis dígitos tras una almohadilla, como #f2f2f2',
 		'no.odd_look': 'una vista son dos ángulos en radianes, con la inclinación no mayor que 1,4',
 		'no.length_mismatch': 'el tamaño del archivo no coincidió con el declarado',
@@ -3741,6 +3829,12 @@ const I18N = {
 		'action.env.description': 'Mostra o que está disponível nesta versão do Blockbench: ZIP, formatos, codecs',
 		'action.lang': 'Idioma do Mosaicary',
 		'action.lang.description': 'Em que idioma falam as janelas do plugin, quando não deve ser o do Blockbench',
+		'action.notice': 'Aviso de licença',
+		'action.notice.description': 'A licença com que este modelo veio, de onde foi tirado e os textos da licença, como estão dentro do arquivo',
+		'notice.licence': 'Licença',
+		'notice.source': 'Origem',
+		'notice.changes': 'Alterações',
+		'notice.note': 'Nota',
 		'lang.label': 'Idioma',
 		'lang.same': 'Igual ao Blockbench — {name}',
 		'lang.note': 'As janelas do plugin fecham e o catálogo abre de novo: uma janela mantém o idioma com que foi construída. As palavras do próprio Blockbench não mudam.',
@@ -3890,6 +3984,7 @@ const I18N = {
 		'warn.wrapper_axis': 'invólucro «{name}»: rotação dos eixos mantida, deslocamento descartado',
 		'warn.wrapper_drop': 'invólucro «{name}»: posicionamento de exibição descartado',
 		'warn.node_matrix': 'o nó «{name}» usa uma matriz — a rotação de repouso para as animações não foi extraída',
+		'warn.skin_blended': 'malha com esqueleto «{name}»: {share}% dos vértices são partilhados entre ossos — cada triângulo segue o osso mais forte, por isso as dobras aí são aproximadas',
 		'warn.primitive_mode': '{name}: modo de primitiva {mode} ignorado (pontos e linhas não são geometria)',
 		'sf.no_token': 'nenhum token de API definido',
 		'sf.requesting': 'solicitando o link…',
@@ -4347,6 +4442,7 @@ const I18N = {
 		'flt.except': 'Exceto',
 		'flt.fold': 'Recolher',
 		'flt.for_what': 'Para quê',
+		'flt.category': 'Categoria',
 		'flt.format': 'Formato exato',
 		'flt.found': 'Encontrados: {count}',
 		'flt.inside': 'O que tem dentro',
@@ -4557,6 +4653,19 @@ const I18N = {
 		'put.licence': 'Licença',
 		'put.licence_hint': 'O que os outros podem fazer com o modelo. É preciso para publicar',
 		'put.licence_none': 'Não escolhida',
+		'put.category': 'Categoria',
+		'put.category_hint': 'O que o modelo é. O catálogo e o mod do jogo organizam os modelos por ela',
+		'put.category_none': 'Não escolhida',
+		'cat.characters': 'Personagens',
+		'cat.creatures': 'Criaturas',
+		'cat.weapons': 'Armas e ferramentas',
+		'cat.wearables': 'Armaduras e roupas',
+		'cat.vehicles': 'Veículos',
+		'cat.furniture': 'Móveis e decoração',
+		'cat.blocks': 'Blocos e construções',
+		'cat.machines': 'Máquinas',
+		'cat.items': 'Comida e itens',
+		'cat.figura': 'Avatares do Figura',
 		'put.author': 'Autor',
 		'put.author_hint': 'Quem fez o modelo, se não foi você',
 		'put.url': 'De onde veio',
@@ -4610,6 +4719,7 @@ const I18N = {
 		'no.adult_closed_here': 'no seu país os modelos 18+ estão fechados, então não dá para pôr essa marca',
 		'no.confirm_18_to_mark': 'para marcar um modelo como 18+ é preciso confirmar no site que você tem 18 anos',
 		'no.no_such_license': 'não existe essa licença no site',
+		'no.no_such_category': 'não existe essa categoria no site',
 		'no.odd_background': 'uma cor de fundo são seis dígitos depois do sinal #, como #f2f2f2',
 		'no.odd_look': 'uma vista são dois ângulos em radianos, com a inclinação não maior que 1,4',
 		'no.length_mismatch': 'o tamanho do arquivo não coincidiu com o declarado',
@@ -4658,6 +4768,12 @@ const I18N = {
 		'action.env.description': 'Zeigt, was in diesem Blockbench verfügbar ist: ZIP, Formate, Codecs',
 		'action.lang': 'Sprache von Mosaicary',
 		'action.lang.description': 'In welcher Sprache die Fenster des Plugins sprechen, wenn es nicht die von Blockbench sein soll',
+		'action.notice': 'Lizenzhinweis',
+		'action.notice.description': 'Die Lizenz, mit der dieses Modell kam, woher es stammt und die Lizenztexte, so wie sie in der Datei stehen',
+		'notice.licence': 'Lizenz',
+		'notice.source': 'Quelle',
+		'notice.changes': 'Änderungen',
+		'notice.note': 'Hinweis',
 		'lang.label': 'Sprache',
 		'lang.same': 'Wie in Blockbench — {name}',
 		'lang.note': 'Die Fenster des Plugins werden geschlossen und der Katalog wird neu geöffnet: ein Fenster behält die Sprache, in der es gebaut wurde. Blockbenchs eigene Wörter ändern sich nicht.',
@@ -4807,6 +4923,7 @@ const I18N = {
 		'warn.wrapper_axis': 'Hüllknoten „{name}“: Achsendrehung behalten, Versatz verworfen',
 		'warn.wrapper_drop': 'Hüllknoten „{name}“: Präsentationsplatzierung verworfen',
 		'warn.node_matrix': 'Knoten „{name}“ verwendet eine Matrix — die Ruhedrehung für Animationen wurde nicht extrahiert',
+		'warn.skin_blended': 'Mesh mit Skelett „{name}“: {share} % der Vertices sind auf mehrere Knochen verteilt — jedes Dreieck folgt seinem stärksten Knochen, Biegungen dort sind daher nur angenähert',
 		'warn.primitive_mode': '{name}: Primitivmodus {mode} übersprungen (Punkte und Linien sind keine Geometrie)',
 		'sf.no_token': 'kein API-Token gesetzt',
 		'sf.requesting': 'Link wird angefordert…',
@@ -5264,6 +5381,7 @@ const I18N = {
 		'flt.except': 'Außer',
 		'flt.fold': 'Einklappen',
 		'flt.for_what': 'Wofür',
+		'flt.category': 'Kategorie',
 		'flt.format': 'Genaues Format',
 		'flt.found': 'Gefunden: {count}',
 		'flt.inside': 'Was drin ist',
@@ -5474,6 +5592,19 @@ const I18N = {
 		'put.licence': 'Lizenz',
 		'put.licence_hint': 'Was andere mit dem Modell tun dürfen. Zum Veröffentlichen nötig',
 		'put.licence_none': 'Nicht gewählt',
+		'put.category': 'Kategorie',
+		'put.category_hint': 'Was das Modell ist. Katalog und Spiel-Mod sortieren die Modelle danach',
+		'put.category_none': 'Nicht gewählt',
+		'cat.characters': 'Figuren',
+		'cat.creatures': 'Kreaturen',
+		'cat.weapons': 'Waffen und Werkzeuge',
+		'cat.wearables': 'Rüstung und Kleidung',
+		'cat.vehicles': 'Fahrzeuge',
+		'cat.furniture': 'Möbel und Deko',
+		'cat.blocks': 'Blöcke und Bauten',
+		'cat.machines': 'Technik',
+		'cat.items': 'Essen und Gegenstände',
+		'cat.figura': 'Figura-Avatare',
 		'put.author': 'Autor',
 		'put.author_hint': 'Wer das Modell gemacht hat, wenn es nicht du bist',
 		'put.url': 'Woher es stammt',
@@ -5527,6 +5658,7 @@ const I18N = {
 		'no.adult_closed_here': 'in deinem Land sind Modelle 18+ gesperrt, diese Markierung lässt sich also nicht setzen',
 		'no.confirm_18_to_mark': 'um ein Modell 18+ zu kennzeichnen, muss auf der Seite bestätigt werden, dass du 18 bist',
 		'no.no_such_license': 'diese Lizenz gibt es auf der Seite nicht',
+		'no.no_such_category': 'diese Kategorie gibt es auf der Seite nicht',
 		'no.odd_background': 'eine Hintergrundfarbe sind sechs Stellen nach dem Rautezeichen, wie #f2f2f2',
 		'no.odd_look': 'ein Blickwinkel sind zwei Winkel im Bogenmaß, die Neigung höchstens 1,4',
 		'no.length_mismatch': 'die Größe der Datei stimmte nicht mit der angegebenen überein',
@@ -5575,6 +5707,12 @@ const I18N = {
 		'action.env.description': 'Affiche ce qui est disponible dans cette version de Blockbench : ZIP, formats, codecs',
 		'action.lang': 'Langue de Mosaicary',
 		'action.lang.description': 'Dans quelle langue parlent les fenêtres du plugin, quand ce ne doit pas être celle de Blockbench',
+		'action.notice': 'Avis de licence',
+		'action.notice.description': 'La licence avec laquelle ce modèle est arrivé, d’où il vient et les textes de la licence, tels qu’ils figurent dans le fichier',
+		'notice.licence': 'Licence',
+		'notice.source': 'Source',
+		'notice.changes': 'Modifications',
+		'notice.note': 'Note',
 		'lang.label': 'Langue',
 		'lang.same': 'Comme dans Blockbench — {name}',
 		'lang.note': 'Les fenêtres du plugin se ferment et le catalogue se rouvre : une fenêtre garde la langue dans laquelle elle a été construite. Les mots propres à Blockbench ne changent pas.',
@@ -5724,6 +5862,7 @@ const I18N = {
 		'warn.wrapper_axis': 'enveloppe « {name} » : rotation d\'axe conservée, décalage abandonné',
 		'warn.wrapper_drop': 'enveloppe « {name} » : placement de présentation abandonné',
 		'warn.node_matrix': 'le nœud « {name} » utilise une matrice — la rotation de repos pour les animations n\'a pas été extraite',
+		'warn.skin_blended': 'maillage avec squelette « {name} » : {share} % des sommets sont partagés entre plusieurs os — chaque triangle suit son os le plus fort, les flexions y sont donc approximatives',
 		'warn.primitive_mode': '{name} : mode de primitive {mode} ignoré (les points et les lignes ne sont pas de la géométrie)',
 		'sf.no_token': 'aucun jeton API défini',
 		'sf.requesting': 'demande du lien…',
@@ -6182,6 +6321,7 @@ const I18N = {
 		'flt.except': 'Sauf',
 		'flt.fold': 'Replier',
 		'flt.for_what': 'Pour quoi',
+		'flt.category': 'Catégorie',
 		'flt.format': 'Format exact',
 		'flt.found': 'Trouvés : {count}',
 		'flt.inside': 'Ce qu\'il y a dedans',
@@ -6392,6 +6532,19 @@ const I18N = {
 		'put.licence': 'Licence',
 		'put.licence_hint': 'Ce que les autres peuvent faire du modèle. Nécessaire pour publier',
 		'put.licence_none': 'Non choisie',
+		'put.category': 'Catégorie',
+		'put.category_hint': 'Ce qu\'est le modèle. Le catalogue et le mod du jeu rangent les modèles d\'après elle',
+		'put.category_none': 'Non choisie',
+		'cat.characters': 'Personnages',
+		'cat.creatures': 'Créatures',
+		'cat.weapons': 'Armes et outils',
+		'cat.wearables': 'Armures et vêtements',
+		'cat.vehicles': 'Véhicules',
+		'cat.furniture': 'Meubles et déco',
+		'cat.blocks': 'Blocs et constructions',
+		'cat.machines': 'Machines',
+		'cat.items': 'Nourriture et objets',
+		'cat.figura': 'Avatars Figura',
 		'put.author': 'Auteur',
 		'put.author_hint': 'Qui a fait le modèle, si ce n\'est pas toi',
 		'put.url': 'D\'où il vient',
@@ -6445,6 +6598,7 @@ const I18N = {
 		'no.adult_closed_here': 'dans ton pays, les modèles 18+ sont bloqués, cette marque ne peut donc pas être posée',
 		'no.confirm_18_to_mark': 'pour marquer un modèle 18+, il faut confirmer sur le site que tu as 18 ans',
 		'no.no_such_license': 'cette licence n\'existe pas sur le site',
+		'no.no_such_category': 'cette catégorie n\'existe pas sur le site',
 		'no.odd_background': 'une couleur de fond, c\'est six chiffres après le dièse, comme #f2f2f2',
 		'no.odd_look': 'un angle de vue, c\'est deux angles en radians, avec une inclinaison de 1,4 au plus',
 		'no.length_mismatch': 'la taille du fichier ne correspond pas à celle annoncée',
@@ -6533,6 +6687,12 @@ const I18N = {
 		'action.env.description': 'このBlockbenchで利用可能な機能を表示：ZIP、フォーマット、コーデック',
 		'action.lang': 'Mosaicaryの言語',
 		'action.lang.description': 'プラグインの画面が話す言語。Blockbenchに合わせない場合に使います',
+		'action.notice': 'ライセンス表示',
+		'action.notice.description': 'このモデルに付いてきたライセンス、入手元、ライセンス本文を、ファイルに書かれているとおりに表示します',
+		'notice.licence': 'ライセンス',
+		'notice.source': '入手元',
+		'notice.changes': '変更点',
+		'notice.note': '備考',
 		'lang.label': '言語',
 		'lang.same': 'Blockbenchと同じ（{name}）',
 		'lang.note': 'プラグインの画面は閉じ、カタログがもう一度開きます：画面は作られたときの言語を保ちます。Blockbench自身の文字は変わりません。',
@@ -6642,6 +6802,7 @@ const I18N = {
 		'warn.wrapper_axis': 'ラッパー「{name}」：軸回転を保持し、オフセットを破棄しました',
 		'warn.wrapper_drop': 'ラッパー「{name}」：展示用の配置を破棄しました',
 		'warn.node_matrix': 'ノード「{name}」は行列を使用しています — アニメーション用のレスト回転は抽出されませんでした',
+		'warn.skin_blended': 'スケルトン付きメッシュ「{name}」：頂点の {share}% が複数のボーンに分かれています — 各三角形は最も強いボーンに従うため、その部分の曲がりは近似です',
 		'warn.primitive_mode': '{name}：プリミティブモード {mode} をスキップしました（点や線はジオメトリではありません）',
 		'sf.no_token': 'APIトークンが設定されていません',
 		'sf.requesting': 'リンクを要求中…',
@@ -7100,6 +7261,7 @@ const I18N = {
 		'flt.except': '除く',
 		'flt.fold': '折りたたむ',
 		'flt.for_what': '用途',
+		'flt.category': 'カテゴリー',
 		'flt.format': '正確な形式',
 		'flt.found': '見つかった数：{count}',
 		'flt.inside': '中身',
@@ -7310,6 +7472,19 @@ const I18N = {
 		'put.licence': 'ライセンス',
 		'put.licence_hint': '他の人がこのモデルに何をしてよいか。公開には必要',
 		'put.licence_none': '未選択',
+		'put.category': 'カテゴリー',
+		'put.category_hint': 'モデルの種類。カタログとゲームのMODはこれでモデルを分けます',
+		'put.category_none': '未選択',
+		'cat.characters': 'キャラクター',
+		'cat.creatures': 'クリーチャー',
+		'cat.weapons': '武器と道具',
+		'cat.wearables': '防具と服',
+		'cat.vehicles': '乗り物',
+		'cat.furniture': '家具と装飾',
+		'cat.blocks': 'ブロックと建物',
+		'cat.machines': '機械',
+		'cat.items': '食べ物とアイテム',
+		'cat.figura': 'Figuraアバター',
 		'put.author': '作者',
 		'put.author_hint': 'このモデルを作った人。自分でないときに書く',
 		'put.url': '出どころ',
@@ -7363,6 +7538,7 @@ const I18N = {
 		'no.adult_closed_here': 'お住まいの国では 18+ のモデルは閉じられているので、この印は付けられない',
 		'no.confirm_18_to_mark': 'モデルに 18+ の印を付けるには、18 歳以上であることをサイトで確認する必要がある',
 		'no.no_such_license': 'そのライセンスはサイトにない',
+		'no.no_such_category': 'そのカテゴリーはサイトにない',
 		'no.odd_background': '背景色は # のあとの六桁、#f2f2f2 のように',
 		'no.odd_look': '視点はラジアンの角度二つ、傾きは 1.4 まで',
 		'no.length_mismatch': 'ファイルの大きさが申告と合わない',
@@ -7437,6 +7613,12 @@ const I18N = {
 		'action.env.description': '이 Blockbench에서 사용 가능한 항목 표시: ZIP, 형식, 코덱',
 		'action.lang': 'Mosaicary 언어',
 		'action.lang.description': '플러그인 창이 사용하는 언어. Blockbench를 따르지 않을 때 씁니다',
+		'action.notice': '라이선스 고지',
+		'action.notice.description': '이 모델에 함께 온 라이선스, 가져온 곳, 라이선스 본문을 파일에 적힌 그대로 보여 줍니다',
+		'notice.licence': '라이선스',
+		'notice.source': '출처',
+		'notice.changes': '변경 사항',
+		'notice.note': '메모',
 		'lang.label': '언어',
 		'lang.same': 'Blockbench와 동일 ({name})',
 		'lang.note': '플러그인 창이 닫히고 카탈로그가 다시 열립니다. 창은 만들어질 때의 언어를 유지합니다. Blockbench 자체의 표현은 바뀌지 않습니다.',
@@ -7560,6 +7742,7 @@ const I18N = {
 		'warn.wrapper_axis': '래퍼 “{name}”: 축 회전은 유지, 오프셋은 버림',
 		'warn.wrapper_drop': '래퍼 “{name}”: 전시용 배치 버림',
 		'warn.node_matrix': '노드 “{name}”: 행렬을 사용함 — 애니메이션용 기본 포즈 회전을 추출하지 않았습니다',
+		'warn.skin_blended': '스켈레톤 메시 “{name}”: 정점의 {share}%가 여러 뼈에 나뉘어 있음 — 각 삼각형은 가장 강한 뼈를 따르므로 그 부분의 굽힘은 근사치입니다',
 		'warn.primitive_mode': '{name}: 프리미티브 모드 {mode} 건너뜀 (점과 선은 지오메트리가 아님)',
 		'sf.no_token': 'API 토큰이 설정되지 않음',
 		'sf.requesting': '링크 요청 중…',
@@ -8017,6 +8200,7 @@ const I18N = {
 		'flt.except': '제외',
 		'flt.fold': '접기',
 		'flt.for_what': '무엇에 쓸지',
+		'flt.category': '카테고리',
 		'flt.format': '정확한 형식',
 		'flt.found': '찾음: {count}',
 		'flt.inside': '안에 든 것',
@@ -8227,6 +8411,19 @@ const I18N = {
 		'put.licence': '라이선스',
 		'put.licence_hint': '다른 사람이 이 모델로 무엇을 할 수 있는지. 공개하려면 필요함',
 		'put.licence_none': '선택 안 함',
+		'put.category': '카테고리',
+		'put.category_hint': '모델의 종류. 카탈로그와 게임 모드가 이것으로 모델을 나눕니다',
+		'put.category_none': '선택 안 함',
+		'cat.characters': '캐릭터',
+		'cat.creatures': '생물',
+		'cat.weapons': '무기와 도구',
+		'cat.wearables': '갑옷과 옷',
+		'cat.vehicles': '탈것',
+		'cat.furniture': '가구와 장식',
+		'cat.blocks': '블록과 건축물',
+		'cat.machines': '기계',
+		'cat.items': '음식과 아이템',
+		'cat.figura': 'Figura 아바타',
 		'put.author': '제작자',
 		'put.author_hint': '이 모델을 만든 사람. 내가 아닐 때 적습니다',
 		'put.url': '출처',
@@ -8280,6 +8477,7 @@ const I18N = {
 		'no.adult_closed_here': '계신 나라에서는 18+ 모델이 닫혀 있어서 이 표시를 붙일 수 없음',
 		'no.confirm_18_to_mark': '모델에 18+ 표시를 붙이려면 사이트에서 만 18세 이상임을 확인해야 함',
 		'no.no_such_license': '그런 라이선스는 사이트에 없음',
+		'no.no_such_category': '그런 카테고리는 사이트에 없음',
 		'no.odd_background': '배경색은 # 뒤의 여섯 자리, #f2f2f2처럼',
 		'no.odd_look': '시점은 라디안 각도 두 개, 기울기는 1.4까지',
 		'no.length_mismatch': '파일 크기가 알린 것과 맞지 않음',
@@ -8372,6 +8570,12 @@ const I18N = {
 		'action.env.description': 'Що доступно в цій збірці Blockbench: ZIP, формати, кодеки',
 		'action.lang': 'Мова Mosaicary',
 		'action.lang.description': 'Якою мовою говорять вікна плагіна, якщо це не мова Blockbench',
+		'action.notice': 'Повідомлення про ліцензію',
+		'action.notice.description': 'Ліцензія, з якою прийшла модель, звідки її взято і тексти ліцензії — так, як вони записані в самому файлі',
+		'notice.licence': 'Ліцензія',
+		'notice.source': 'Джерело',
+		'notice.changes': 'Зміни',
+		'notice.note': 'Примітка',
 		'lang.label': 'Мова',
 		'lang.same': 'Як у Blockbench — {name}',
 		'lang.note': 'Вікна плагіна закриються, і каталог відкриється знову: вікно залишається тією мовою, якою його зібрано. Слова самого Blockbench не змінюються.',
@@ -8477,6 +8681,7 @@ const I18N = {
 		'warn.wrapper_axis': 'обгортка «{name}»: поворот осей збережено, зсув відкинуто',
 		'warn.wrapper_drop': 'обгортка «{name}»: розміщення для показу відкинуто',
 		'warn.node_matrix': 'вузол «{name}» задано матрицею — поворот пози спокою для анімацій не видобуто',
+		'warn.skin_blended': 'меш зі скелетом «{name}»: {share}% вершин поділено між кістками — кожен трикутник слідує за найсильнішою кісткою, тож вигини там приблизні',
 		'warn.primitive_mode': '{name}: режим примітива {mode} пропущено (точки й лінії — не геометрія)',
 		'sf.no_token': 'API-токен не задано',
 		'sf.requesting': 'запит посилання…',
@@ -8934,6 +9139,7 @@ const I18N = {
 		'flt.except': 'Крім',
 		'flt.fold': 'Згорнути',
 		'flt.for_what': 'Для чого',
+		'flt.category': 'Категорія',
 		'flt.format': 'Точний формат',
 		'flt.found': 'Знайшлося: {count}',
 		'flt.inside': 'Що всередині',
@@ -9144,6 +9350,19 @@ const I18N = {
 		'put.licence': 'Ліцензія',
 		'put.licence_hint': 'Що інші можуть робити з моделлю. Для публікації потрібна',
 		'put.licence_none': 'Не вибрана',
+		'put.category': 'Категорія',
+		'put.category_hint': 'Що це за модель. За нею каталог і мод для гри розкладають моделі',
+		'put.category_none': 'Не вибрано',
+		'cat.characters': 'Персонажі',
+		'cat.creatures': 'Істоти',
+		'cat.weapons': 'Зброя та інструменти',
+		'cat.wearables': 'Обладунки та одяг',
+		'cat.vehicles': 'Транспорт',
+		'cat.furniture': 'Меблі та декор',
+		'cat.blocks': 'Блоки та споруди',
+		'cat.machines': 'Техніка',
+		'cat.items': 'Їжа та предмети',
+		'cat.figura': 'Аватари Figura',
 		'put.author': 'Автор',
 		'put.author_hint': 'Хто зробив модель, якщо це не ти',
 		'put.url': 'Звідки модель',
@@ -9197,6 +9416,7 @@ const I18N = {
 		'no.adult_closed_here': 'у твоїй країні моделі 18+ закриті, тому цю позначку поставити не можна',
 		'no.confirm_18_to_mark': 'щоб позначити модель 18+, треба підтвердити на сайті, що тобі є 18',
 		'no.no_such_license': 'такої ліцензії на сайті немає',
+		'no.no_such_category': 'такої категорії на сайті немає',
 		'no.odd_background': 'колір тла — шість цифр після решітки, як #f2f2f2',
 		'no.odd_look': 'ракурс — два кути в радіанах, нахил не більший за 1,4',
 		'no.length_mismatch': 'розмір файлу не збігся із заявленим',
@@ -9271,6 +9491,12 @@ const I18N = {
 		'action.env.description': 'Bu Blockbench sürümünde mevcut olanları gösterir: ZIP, biçimler, codec\'ler',
 		'action.lang': 'Mosaicary dili',
 		'action.lang.description': 'Eklentinin kendi pencerelerinin konuştuğu dil, Blockbench\'in dili olmaması gerektiğinde',
+		'action.notice': 'Lisans bildirimi',
+		'action.notice.description': 'Bu modelin geldiği lisans, nereden alındığı ve lisans metinleri; dosyanın içinde yazdığı gibi',
+		'notice.licence': 'Lisans',
+		'notice.source': 'Kaynak',
+		'notice.changes': 'Değişiklikler',
+		'notice.note': 'Not',
 		'lang.label': 'Dil',
 		'lang.same': 'Blockbench ile aynı — {name}',
 		'lang.note': 'Eklentinin pencereleri kapanır ve katalog yeniden açılır: bir pencere kurulduğu dili korur. Blockbench\'in kendi sözleri değişmez.',
@@ -9394,6 +9620,7 @@ const I18N = {
 		'warn.wrapper_axis': 'sarmalayıcı “{name}”: eksen döndürmesi korundu, ofset atıldı',
 		'warn.wrapper_drop': 'sarmalayıcı “{name}”: vitrin yerleşimi atıldı',
 		'warn.node_matrix': 'düğüm “{name}” matris kullanıyor — animasyonlar için dinlenme pozu döndürmesi çıkarılmadı',
+		'warn.skin_blended': 'iskeletli örgü “{name}”: köşelerin %{share} kadarı birden fazla kemik arasında paylaşılıyor — her üçgen en güçlü kemiğini izliyor, bu yüzden oradaki bükülmeler yaklaşık',
 		'warn.primitive_mode': '{name}: primitive kipi {mode} atlandı (noktalar ve çizgiler geometri değildir)',
 		'sf.no_token': 'API tokeni ayarlanmamış',
 		'sf.requesting': 'bağlantı isteniyor…',
@@ -9851,6 +10078,7 @@ const I18N = {
 		'flt.except': 'Hariç',
 		'flt.fold': 'Daralt',
 		'flt.for_what': 'Ne için',
+		'flt.category': 'Kategori',
 		'flt.format': 'Tam biçim',
 		'flt.found': 'Bulunan: {count}',
 		'flt.inside': 'İçinde ne var',
@@ -10061,6 +10289,19 @@ const I18N = {
 		'put.licence': 'Lisans',
 		'put.licence_hint': 'Başkaları modelle ne yapabilir. Yayımlamak için gerekli',
 		'put.licence_none': 'Seçilmedi',
+		'put.category': 'Kategori',
+		'put.category_hint': 'Modelin ne olduğu. Katalog ve oyun modu modelleri buna göre ayırır',
+		'put.category_none': 'Seçilmedi',
+		'cat.characters': 'Karakterler',
+		'cat.creatures': 'Yaratıklar',
+		'cat.weapons': 'Silahlar ve aletler',
+		'cat.wearables': 'Zırh ve giysiler',
+		'cat.vehicles': 'Araçlar',
+		'cat.furniture': 'Mobilya ve dekor',
+		'cat.blocks': 'Bloklar ve yapılar',
+		'cat.machines': 'Makineler',
+		'cat.items': 'Yiyecek ve eşyalar',
+		'cat.figura': 'Figura avatarları',
 		'put.author': 'Yapan',
 		'put.author_hint': 'Modeli yapan kişi, sen değilsen',
 		'put.url': 'Nereden geldiği',
@@ -10114,6 +10355,7 @@ const I18N = {
 		'no.adult_closed_here': 'bulunduğun ülkede 18+ modeller kapalı, bu yüzden bu işaret konulamaz',
 		'no.confirm_18_to_mark': 'bir modele 18+ işareti koymak için 18 yaşından büyük olduğunu sitede doğrulamak gerekir',
 		'no.no_such_license': 'sitede böyle bir lisans yok',
+		'no.no_such_category': 'sitede böyle bir kategori yok',
 		'no.odd_background': 'arka plan rengi, # işaretinden sonra altı basamaktır, #f2f2f2 gibi',
 		'no.odd_look': 'bakış, radyan cinsinden iki açıdır, eğim en çok 1,4',
 		'no.length_mismatch': 'dosyanın boyutu bildirilenle uyuşmadı',
@@ -10188,6 +10430,12 @@ const I18N = {
 		'action.env.description': 'Pokazuje, co jest dostępne w tym Blockbench: ZIP, formaty, kodeki',
 		'action.lang': 'Język Mosaicary',
 		'action.lang.description': 'W jakim języku mówią okna wtyczki, gdy nie ma to być język Blockbench',
+		'action.notice': 'Informacja o licencji',
+		'action.notice.description': 'Licencja, z którą przyszedł ten model, skąd pochodzi i teksty licencji — tak, jak zapisano je w pliku',
+		'notice.licence': 'Licencja',
+		'notice.source': 'Źródło',
+		'notice.changes': 'Zmiany',
+		'notice.note': 'Uwaga',
 		'lang.label': 'Język',
 		'lang.same': 'Jak w Blockbench — {name}',
 		'lang.note': 'Okna wtyczki zamkną się, a katalog otworzy się od nowa: okno zostaje w języku, w którym je zbudowano. Własne słowa Blockbench się nie zmieniają.',
@@ -10311,6 +10559,7 @@ const I18N = {
 		'warn.wrapper_axis': 'opakowanie „{name}”: zachowano obrót osi, odrzucono przesunięcie',
 		'warn.wrapper_drop': 'opakowanie „{name}”: odrzucono ustawienie do prezentacji',
 		'warn.node_matrix': 'węzeł „{name}” używa macierzy — nie wyodrębniono rotacji spoczynkowej dla animacji',
+		'warn.skin_blended': 'siatka ze szkieletem „{name}”: {share}% wierzchołków jest dzielonych między kości — każdy trójkąt podąża za najsilniejszą kością, więc zgięcia są tam przybliżone',
 		'warn.primitive_mode': '{name}: pominięto prymityw w trybie {mode} (punkty i linie to nie geometria)',
 		'sf.no_token': 'nie ustawiono tokenu API',
 		'sf.requesting': 'żądanie linku…',
@@ -10768,6 +11017,7 @@ const I18N = {
 		'flt.except': 'Oprócz',
 		'flt.fold': 'Zwiń',
 		'flt.for_what': 'Do czego',
+		'flt.category': 'Kategoria',
 		'flt.format': 'Dokładny format',
 		'flt.found': 'Znaleziono: {count}',
 		'flt.inside': 'Co jest w środku',
@@ -10978,6 +11228,19 @@ const I18N = {
 		'put.licence': 'Licencja',
 		'put.licence_hint': 'Co inni mogą zrobić z modelem. Do publikacji konieczna',
 		'put.licence_none': 'Nie wybrano',
+		'put.category': 'Kategoria',
+		'put.category_hint': 'Czym jest model. Katalog i mod do gry układają modele według niej',
+		'put.category_none': 'Nie wybrano',
+		'cat.characters': 'Postacie',
+		'cat.creatures': 'Stworzenia',
+		'cat.weapons': 'Broń i narzędzia',
+		'cat.wearables': 'Zbroje i ubrania',
+		'cat.vehicles': 'Pojazdy',
+		'cat.furniture': 'Meble i dekoracje',
+		'cat.blocks': 'Bloki i budowle',
+		'cat.machines': 'Maszyny',
+		'cat.items': 'Jedzenie i przedmioty',
+		'cat.figura': 'Awatary Figura',
 		'put.author': 'Autor',
 		'put.author_hint': 'Kto zrobił model, jeśli to nie ty',
 		'put.url': 'Skąd pochodzi',
@@ -11031,6 +11294,7 @@ const I18N = {
 		'no.adult_closed_here': 'w twoim kraju modele 18+ są zamknięte, więc tej oznaki nie da się postawić',
 		'no.confirm_18_to_mark': 'aby oznaczyć model jako 18+, trzeba potwierdzić na stronie, że masz ukończone 18 lat',
 		'no.no_such_license': 'takiej licencji nie ma na stronie',
+		'no.no_such_category': 'takiej kategorii nie ma na stronie',
 		'no.odd_background': 'kolor tła to sześć znaków po kratce, jak #f2f2f2',
 		'no.odd_look': 'ujęcie to dwa kąty w radianach, nachylenie nie więcej niż 1,4',
 		'no.length_mismatch': 'rozmiar pliku nie zgadza się z podanym',
@@ -11105,6 +11369,12 @@ const I18N = {
 		'action.env.description': 'Mostra cosa è disponibile in questa versione di Blockbench: ZIP, formati, codec',
 		'action.lang': 'Lingua di Mosaicary',
 		'action.lang.description': 'In quale lingua parlano le finestre del plugin, quando non deve essere quella di Blockbench',
+		'action.notice': 'Avviso di licenza',
+		'action.notice.description': 'La licenza con cui è arrivato questo modello, da dove è stato preso e i testi della licenza, così come sono scritti nel file',
+		'notice.licence': 'Licenza',
+		'notice.source': 'Fonte',
+		'notice.changes': 'Modifiche',
+		'notice.note': 'Nota',
 		'lang.label': 'Lingua',
 		'lang.same': 'Come in Blockbench — {name}',
 		'lang.note': 'Le finestre del plugin si chiudono e il catalogo si riapre: una finestra conserva la lingua con cui è stata costruita. Le parole di Blockbench non cambiano.',
@@ -11228,6 +11498,7 @@ const I18N = {
 		'warn.wrapper_axis': 'contenitore «{name}»: rotazione degli assi mantenuta, spostamento scartato',
 		'warn.wrapper_drop': 'contenitore «{name}»: posizionamento di presentazione scartato',
 		'warn.node_matrix': 'il nodo «{name}» usa una matrice — la rotazione di riposo per le animazioni non è stata estratta',
+		'warn.skin_blended': 'mesh con scheletro «{name}»: il {share}% dei vertici è condiviso tra più ossa — ogni triangolo segue l\'osso più forte, quindi lì le pieghe sono approssimate',
 		'warn.primitive_mode': '{name}: modalità primitiva {mode} saltata (punti e linee non sono geometria)',
 		'sf.no_token': 'nessun token API impostato',
 		'sf.requesting': 'richiesta del link…',
@@ -11685,6 +11956,7 @@ const I18N = {
 		'flt.except': 'Tranne',
 		'flt.fold': 'Comprimi',
 		'flt.for_what': 'Per cosa',
+		'flt.category': 'Categoria',
 		'flt.format': 'Formato esatto',
 		'flt.found': 'Trovati: {count}',
 		'flt.inside': 'Cosa c\'è dentro',
@@ -11895,6 +12167,19 @@ const I18N = {
 		'put.licence': 'Licenza',
 		'put.licence_hint': 'Cosa possono fare gli altri con il modello. Serve per pubblicare',
 		'put.licence_none': 'Non scelta',
+		'put.category': 'Categoria',
+		'put.category_hint': 'Che cos\'è il modello. Il catalogo e la mod del gioco ordinano i modelli in base a essa',
+		'put.category_none': 'Non scelta',
+		'cat.characters': 'Personaggi',
+		'cat.creatures': 'Creature',
+		'cat.weapons': 'Armi e strumenti',
+		'cat.wearables': 'Armature e vestiti',
+		'cat.vehicles': 'Veicoli',
+		'cat.furniture': 'Mobili e decorazioni',
+		'cat.blocks': 'Blocchi e costruzioni',
+		'cat.machines': 'Macchine',
+		'cat.items': 'Cibo e oggetti',
+		'cat.figura': 'Avatar Figura',
 		'put.author': 'Autore',
 		'put.author_hint': 'Chi ha fatto il modello, se non sei tu',
 		'put.url': 'Da dove viene',
@@ -11948,6 +12233,7 @@ const I18N = {
 		'no.adult_closed_here': 'nel tuo paese i modelli 18+ sono chiusi, quindi questa marca non si può mettere',
 		'no.confirm_18_to_mark': 'per segnare un modello come 18+ bisogna confermare sul sito di aver compiuto 18 anni',
 		'no.no_such_license': 'questa licenza sul sito non esiste',
+		'no.no_such_category': 'questa categoria sul sito non esiste',
 		'no.odd_background': 'un colore di sfondo è sei cifre dopo il cancelletto, come #f2f2f2',
 		'no.odd_look': 'una veduta è due angoli in radianti, con l\'inclinazione non oltre 1,4',
 		'no.length_mismatch': 'la dimensione del file non corrisponde a quella dichiarata',
@@ -12012,6 +12298,12 @@ const I18N = {
 		'action.env.description': 'Toont wat beschikbaar is in deze Blockbench: ZIP, formaten, codecs',
 		'action.lang': 'Taal van Mosaicary',
 		'action.lang.description': 'In welke taal de vensters van de plug-in spreken, als dat niet de taal van Blockbench moet zijn',
+		'action.notice': 'Licentievermelding',
+		'action.notice.description': 'De licentie waarmee dit model kwam, waar het vandaan komt en de licentieteksten, zoals ze in het bestand staan',
+		'notice.licence': 'Licentie',
+		'notice.source': 'Bron',
+		'notice.changes': 'Wijzigingen',
+		'notice.note': 'Opmerking',
 		'lang.label': 'Taal',
 		'lang.same': 'Hetzelfde als Blockbench — {name}',
 		'lang.note': 'De vensters van de plug-in gaan dicht en de catalogus gaat weer open: een venster houdt de taal waarin het is gebouwd. De eigen woorden van Blockbench veranderen niet.',
@@ -12145,6 +12437,7 @@ const I18N = {
 		'warn.wrapper_axis': 'omhullende node "{name}": asrotatie behouden, verschuiving verworpen',
 		'warn.wrapper_drop': 'omhullende node "{name}": presentatieplaatsing verworpen',
 		'warn.node_matrix': 'node "{name}" gebruikt een matrix — de rustrotatie voor animaties is niet uitgelezen',
+		'warn.skin_blended': 'mesh met skelet "{name}": {share}% van de hoekpunten is verdeeld over meerdere botten — elke driehoek volgt zijn sterkste bot, dus buigingen zijn daar benaderd',
 		'warn.primitive_mode': '{name}: primitive-modus {mode} overgeslagen (punten en lijnen zijn geen geometrie)',
 		'sf.no_token': 'geen API-token ingesteld',
 		'sf.requesting': 'link opvragen…',
@@ -12602,6 +12895,7 @@ const I18N = {
 		'flt.except': 'Behalve',
 		'flt.fold': 'Inklappen',
 		'flt.for_what': 'Waarvoor',
+		'flt.category': 'Categorie',
 		'flt.format': 'Exact formaat',
 		'flt.found': 'Gevonden: {count}',
 		'flt.inside': 'Wat er in zit',
@@ -12812,6 +13106,19 @@ const I18N = {
 		'put.licence': 'Licentie',
 		'put.licence_hint': 'Wat anderen met het model mogen doen. Nodig om te publiceren',
 		'put.licence_none': 'Niet gekozen',
+		'put.category': 'Categorie',
+		'put.category_hint': 'Wat het model is. De catalogus en de mod voor het spel sorteren modellen erop',
+		'put.category_none': 'Niet gekozen',
+		'cat.characters': 'Personages',
+		'cat.creatures': 'Wezens',
+		'cat.weapons': 'Wapens en gereedschap',
+		'cat.wearables': 'Harnassen en kleding',
+		'cat.vehicles': 'Voertuigen',
+		'cat.furniture': 'Meubels en decoratie',
+		'cat.blocks': 'Blokken en bouwwerken',
+		'cat.machines': 'Machines',
+		'cat.items': 'Eten en voorwerpen',
+		'cat.figura': 'Figura-avatars',
 		'put.author': 'Auteur',
 		'put.author_hint': 'Wie het model heeft gemaakt, als dat niet jij bent',
 		'put.url': 'Waar het vandaan komt',
@@ -12865,6 +13172,7 @@ const I18N = {
 		'no.adult_closed_here': 'in jouw land zijn 18+-modellen gesloten, dus deze markering kan niet',
 		'no.confirm_18_to_mark': 'om een model als 18+ te tekenen moet je op de site bevestigen dat je 18 of ouder bent',
 		'no.no_such_license': 'die licentie bestaat niet op de site',
+		'no.no_such_category': 'die categorie bestaat niet op de site',
 		'no.odd_background': 'een achtergrondkleur is zes tekens na een hekje, zoals #f2f2f2',
 		'no.odd_look': 'een aanzicht is twee hoeken in radialen, met een kanteling van maximaal 1,4',
 		'no.length_mismatch': 'de grootte van het bestand komt niet overeen met de aangegeven grootte',
@@ -13462,7 +13770,7 @@ function triangleNormal(p) {
  * jumps and only twelve are the box. A jump draws nothing — it has no area — but
  * its three corners are read from two different faces of the texture at once, and
  * the UV rectangle worked out for each side then stretches over its neighbours.
- * That is what "the textures land completely wrong" looked like, and it does not
+ * That is what textures landing in completely wrong places looked like, and it does not
  * happen in files written as plain triangles, which is why it survived the first
  * fix.
  *
@@ -14250,9 +14558,10 @@ function boneReach(hierarchy, objects) {
 	const byIdx = {};
 	for (const h of hierarchy) byIdx[h.index] = h;
 	const reach = {};
-	for (const h of hierarchy) {
-		const o = h.objectIndex >= 0 && objects[h.objectIndex];
-		if (!o) continue;
+	// by each object's own node: a skinned mesh puts several objects on one joint
+	for (const o of objects) {
+		const h = byIdx[o.node];
+		if (!h) continue;
 		for (const f of o.faces) for (const p of f.positions) {
 			for (let n = h; n; n = n.parent >= 0 ? byIdx[n.parent] : null) {
 				const d = Math.hypot(p[0] - n.pivot[0], p[1] - n.pivot[1], p[2] - n.pivot[2]);
@@ -14735,7 +15044,7 @@ function parseGLTFFiles(files, opts) {
 	// The role of each image. Next to colour, glTF carries normal, roughness and
 	// emissive maps — meaningless in Minecraft, yet they used to enter the atlas
 	// alongside colour: inflating it, throwing off texel density (hence the
-	// giant size complaints) and glowing as a lilac patch on the model.
+	// giant sizes) and glowing as a lilac patch on the model.
 	const imageRole = new Map();
 	const setRole = (texIdx, role) => {
 		const t = (gltf.textures || [])[texIdx];
@@ -14794,8 +15103,8 @@ function parseGLTFFiles(files, opts) {
 			// An axis-aligned rotation is the coordinate-system conversion
 			// (Z-up -> Y-up); without it the model lies on its side. An arbitrary
 			// rotation and offset are the Sketchfab showcase placement, unrelated to
-			// the geometry. Both used to be discarded, and users had to rotate by 90°
-			// by hand — the single most common complaint.
+			// the geometry. Both used to be discarded, and a model then had to be rotated
+			// by 90° by hand — the single most common fault of the import.
 			skipSet.set(idx, axisRotationOf(n) ? 'axis' : 'drop');
 			// descend only along a single chain: the last wrapper node is exactly
 			// the one that branches into the model contents
@@ -14808,17 +15117,98 @@ function parseGLTFFiles(files, opts) {
 		}
 	}
 
+	// A node's own transform under the wrapper rules above: dropped, reduced to its
+	// axis-aligned rotation, or taken as written.
+	const localOf = (node, wrap) => {
+		const axisRot = wrap === 'axis' ? axisRotationOf(node) : null;
+		const local = wrap === 'drop' ? matIdentity()
+			: axisRot ? axisRot.matrix
+			: node.matrix ? node.matrix
+			: matFromTRS(node.translation || [0, 0, 0], node.rotation || [0, 0, 0, 1], node.scale || [1, 1, 1]);
+		return { local, axisRot };
+	};
+
+	// Skinned meshes. glTF places a skinned vertex by its joints, not by the node
+	// holding the mesh: each joint's world matrix times its inverse bind matrix,
+	// summed by the vertex weights. Read only as the mesh node did, such a mesh
+	// landed as one piece beside the skeleton, and the animations turned empty
+	// bones while the model stood still. Here every triangle goes to the joint
+	// that carries most of its weight, so it moves with that bone; a blocky model
+	// binds each vertex to a single joint, and for it the split is exact.
+	const worldOf = new Map();
+	const skinMatrices = new Map();
+	const skinMatricesOf = skinIndex => {
+		if (skinMatrices.has(skinIndex)) return skinMatrices.get(skinIndex);
+		const skin = (gltf.skins || [])[skinIndex];
+		let mats = null;
+		// a joint outside the scene has no placement to read: the mesh then stays
+		// on its own node, as before
+		if (skin && (skin.joints || []).length && skin.joints.every(j => worldOf.has(j))) {
+			const ibm = skin.inverseBindMatrices !== undefined
+				? readAccessor(gltf, buffers, skin.inverseBindMatrices, accessorBudget) : null;
+			mats = skin.joints.map((j, k) => matMul(worldOf.get(j), ibm && ibm[k] ? ibm[k] : matIdentity()));
+		}
+		skinMatrices.set(skinIndex, mats);
+		return mats;
+	};
+	const skinOf = (node, prim) => {
+		const a = prim.attributes || {};
+		if (node.skin === undefined || a.JOINTS_0 === undefined || a.WEIGHTS_0 === undefined) return null;
+		const mats = skinMatricesOf(node.skin);
+		if (!mats) return null;
+		const joints = readAccessor(gltf, buffers, a.JOINTS_0, accessorBudget);
+		const weights = readAccessor(gltf, buffers, a.WEIGHTS_0, accessorBudget);
+		const skinJoints = gltf.skins[node.skin].joints;
+		// Weights may be stored as normalized integers; only their shares matter here.
+		const influences = v => {
+			const out = [];
+			for (let k = 0; k < 4; k++) {
+				const w = (weights[v] || [])[k] || 0, j = (joints[v] || [])[k];
+				if (w > 0 && j >= 0 && j < mats.length) out.push([j, w]);
+			}
+			return out;
+		};
+		let blended = 0;
+		for (let v = 0; v < weights.length; v++) {
+			const inf = influences(v);
+			const sum = inf.reduce((s, [, w]) => s + w, 0);
+			if (sum > 0 && Math.max(...inf.map(([, w]) => w)) / sum < 0.999) blended++;
+		}
+		return {
+			// where a vertex sits with the joints as the file stands them, which is
+			// the bind pose only when the two agree; the bones rest the same way
+			place: (raw, world) => raw.map((p, v) => {
+				const inf = influences(v);
+				const sum = inf.reduce((s, [, w]) => s + w, 0);
+				if (!(sum > 0)) return matApply(world, p);
+				const out = [0, 0, 0];
+				for (const [j, w] of inf) {
+					const q = matApply(mats[j], p);
+					for (let c = 0; c < 3; c++) out[c] += q[c] * w / sum;
+				}
+				return out;
+			}),
+			// the joint node a triangle follows: the one holding most weight on its corners
+			jointOf: tri => {
+				const total = new Map();
+				for (const v of tri) for (const [j, w] of influences(v)) total.set(j, (total.get(j) || 0) + w);
+				let best = -1, most = 0;
+				for (const [j, w] of total) if (w > most) { most = w; best = j; }
+				return best >= 0 ? skinJoints[best] : undefined;
+			},
+			blended, count: weights.length,
+		};
+	};
+	// meshes whose geometry went to joints, so their own node may end up holding none
+	const skinnedNodes = new Set();
+
 	const visit = (nodeIndex, parent, parentIndex, parentQuat, depth = 0) => {
 		withinLimit(depth, IMPORT_LIMITS.depth, 'node hierarchy depth', 'depth');
 		withinLimit(++nodeVisits, IMPORT_LIMITS.nodeVisits, 'node visits', 'links');
 		const node = gltf.nodes[nodeIndex];
 		if (!node) return;
 		const wrap = skipSet.get(nodeIndex);
-		const axisRot = wrap === 'axis' ? axisRotationOf(node) : null;
-		const local = wrap === 'drop' ? matIdentity()
-			: axisRot ? axisRot.matrix
-			: node.matrix ? node.matrix
-			: matFromTRS(node.translation || [0, 0, 0], node.rotation || [0, 0, 0, 1], node.scale || [1, 1, 1]);
+		const { local, axisRot } = localOf(node, wrap);
 		const world = matMul(parent, local);
 		if (node.matrix && !wrap) warnings.push(R('warn.node_matrix', { name: node.name || nodeIndex }));
 		const worldQuat = wrap === 'drop' ? parentQuat.slice()
@@ -14855,12 +15245,14 @@ function parseGLTFFiles(files, opts) {
 			let faces = [];
 			// faces on a one-sided material, where the winding says which side shows
 			const oneSided = new Set();
+			// skinned vertices of this mesh, and how many of them several joints share
+			let skinCount = 0, skinBlended = 0;
 			// Which image each primitive uses: material -> texture -> image. Per
 			// primitive, not per object: Blockbench exports every face of a cube as
 			// a primitive of its own, and a face with no texture points at a
 			// transparent placeholder. The image used to be taken from the first
 			// primitive and applied to all six, so a cube whose first face had no
-			// texture came out invisible — reported on a shark whose fin vanished.
+			// texture came out invisible — seen on a shark whose fin vanished.
 			for (const prim of mesh.primitives || []) {
 				if (prim.mode !== undefined && !TRIANGULATE[prim.mode]) {
 					warnings.push(R('warn.primitive_mode', { name: node.name || mesh.name, mode: prim.mode }));
@@ -14879,10 +15271,15 @@ function parseGLTFFiles(files, opts) {
 				// A placeholder face keeps its geometry — the cube needs its corners —
 				// but gets no UV, so it stays hidden as it was in Blockbench.
 				const blank = imageIndex >= 0 && !!images[imageIndex] && images[imageIndex].blank;
-				const pos = readAccessor(gltf, buffers, posIdx, accessorBudget).map(p => {
-					const w = matApply(world, p);
-					return [w[0] * scale + offset[0], w[1] * scale + offset[1], w[2] * scale + offset[2]];
-				});
+				const skinned = skinOf(node, prim);
+				const raw = readAccessor(gltf, buffers, posIdx, accessorBudget);
+				const pos = (skinned ? skinned.place(raw, world) : raw.map(p => matApply(world, p)))
+					.map(w => [w[0] * scale + offset[0], w[1] * scale + offset[1], w[2] * scale + offset[2]]);
+				if (skinned) {
+					skinnedNodes.add(nodeIndex);
+					skinCount += skinned.count;
+					skinBlended += skinned.blended;
+				}
 				const uvIdx = prim.attributes.TEXCOORD_0;
 				// in glTF the UV origin is top-left and V points down,
 				// which matches Blockbench, so no flipping is required
@@ -14915,6 +15312,8 @@ function parseGLTFFiles(files, opts) {
 						uvs: tri.map(k => uv ? uv[k] : null),
 						// the picture it reads, by glTF index; -1 for none
 						image: imageIndex,
+						// the joint node a skinned triangle moves with
+						joint: skinned ? skinned.jointOf(tri) : undefined,
 					};
 					faces.push(face);
 					if (culled) oneSided.add(face);
@@ -14930,29 +15329,46 @@ function parseGLTFFiles(files, opts) {
 				outlineShells += outline.shells;
 				faces = faces.filter(f => !outline.faces.has(f));
 			}
-			const trianglesPerImage = new Map();
-			let blankHere = 0;
+			// A skinned mesh comes apart by joint, each piece on the bone it moves
+			// with; any other mesh stays one object on its own node.
+			const pieces = new Map();
 			for (const f of faces) {
-				if (f.image >= 0 && images[f.image] && images[f.image].blank) blankHere++;
-				else trianglesPerImage.set(f.image, (trianglesPerImage.get(f.image) || 0) + 1);
+				const target = f.joint === undefined ? nodeIndex : f.joint;
+				if (!pieces.has(target)) pieces.set(target, []);
+				pieces.get(target).push(f);
 			}
-			blankTriangles += blankHere;
-			// Nothing but placeholder faces: an object nobody could ever see. Sketchfab's
-			// conversion splits a cube by material, so its untextured faces arrive as
-			// objects of their own — flat panels, or L-shaped pairs taken for non-boxes.
-			if (faces.length && blankHere === faces.length) { blankObjects++; }
-			else if (faces.length) {
+			for (const [target, part] of pieces) {
+				const trianglesPerImage = new Map();
+				let blankHere = 0;
+				for (const f of part) {
+					if (f.image >= 0 && images[f.image] && images[f.image].blank) blankHere++;
+					else trianglesPerImage.set(f.image, (trianglesPerImage.get(f.image) || 0) + 1);
+				}
+				blankTriangles += blankHere;
+				// Nothing but placeholder faces: an object nobody could ever see. Sketchfab's
+				// conversion splits a cube by material, so its untextured faces arrive as
+				// objects of their own — flat panels, or L-shaped pairs taken for non-boxes.
+				if (blankHere === part.length) { blankObjects++; continue; }
 				// The object's main image, for texel density and the report: the one
 				// most of its triangles use.
 				let imageIndex = -1, most = -1;
 				for (const [img, n] of trianglesPerImage) if (img >= 0 && n > most) { imageIndex = img; most = n; }
 				objects.push({
-					name: node.name || mesh.name || `object_${objects.length}`, faces, node: nodeIndex,
+					name: target === nodeIndex
+						? node.name || mesh.name || `object_${objects.length}`
+						: gltf.nodes[target].name || `node_${target}`,
+					faces: part, node: target,
 					image: imageIndex,
 					// every image the object reaches, for the atlas
 					images: [...trianglesPerImage.keys()].filter(i => i >= 0),
 				});
 			}
+			// Vertices shared between joints bend smoothly in the source; split by
+			// their strongest joint they move rigidly, which is close but not the same.
+			if (skinBlended) warnings.push(R('warn.skin_blended', {
+				name: node.name || mesh.name || nodeIndex,
+				share: Math.max(1, Math.round(100 * skinBlended / skinCount)),
+			}));
 		}
 
 		for (const child of node.children || []) visit(child, world, nodeIndex, worldQuat, depth + 1);
@@ -14963,7 +15379,28 @@ function parseGLTFFiles(files, opts) {
 	// stay consistent.
 	const corr = correctionQuat(o.rotate);
 	const base = matFromTRS([0, 0, 0], corr, [1, 1, 1]);
+	// Every node's world matrix before the walk: a skinned mesh is placed by its
+	// joints, and a file may list the mesh ahead of its bones.
+	if ((gltf.skins || []).length) {
+		const place = (idx, parent) => {
+			const n = gltf.nodes[idx];
+			if (!n || worldOf.has(idx)) return;
+			const w = matMul(parent, localOf(n, skipSet.get(idx)).local);
+			worldOf.set(idx, w);
+			for (const c of n.children || []) place(c, w);
+		};
+		for (const r of roots) place(r, base);
+	}
 	for (const r of roots) visit(r, base, -1, corr.slice());
+	// Skinned geometry now lives on the joints: those nodes hold meshes, and a mesh
+	// node whose every triangle went to a joint holds none.
+	if (skinnedNodes.size) {
+		for (const h of hierarchy) {
+			const first = objects.findIndex(ob => ob.node === h.index);
+			if (first >= 0) { h.hasMesh = true; h.objectIndex = first; }
+			else if (skinnedNodes.has(h.index)) { h.hasMesh = false; h.objectIndex = -1; }
+		}
+	}
 
 	// Whether the model asks for transparency at all. A Minecraft-style figure is
 	// built of two shells, and the outer one is see-through wherever it is unused;
@@ -15630,7 +16067,12 @@ const SITE_ORIGIN = 'https://mosaicary.com';
 const SITE_SORTS = ['new', 'popular', 'downloads', 'talked', 'name'];
 
 /** Short licence names. These are names, the same in every language. */
-const SITE_LICENCES = { cc0: 'CC0', 'cc-by': 'CC BY', 'cc-by-sa': 'CC BY-SA', 'cc-by-nc': 'CC BY-NC', 'cc-by-nc-sa': 'CC BY-NC-SA' };
+const SITE_LICENCES = {
+	cc0: 'CC0', 'cc-by': 'CC BY', 'cc-by-sa': 'CC BY-SA', 'cc-by-nc': 'CC BY-NC', 'cc-by-nc-sa': 'CC BY-NC-SA',
+	unlicense: 'Unlicense', '0bsd': '0BSD', mit: 'MIT', isc: 'ISC', 'bsd-2-clause': 'BSD 2-Clause', 'bsd-3-clause': 'BSD 3-Clause',
+	zlib: 'Zlib', 'apache-2.0': 'Apache 2.0', 'mpl-2.0': 'MPL 2.0', 'lgpl-2.1': 'LGPL 2.1', 'lgpl-3.0': 'LGPL 3.0',
+	'gpl-2.0': 'GPL 2.0', 'gpl-3.0': 'GPL 3.0',
+};
 
 /**
  * A typed address cut down to its origin, or '' when it is not a web address.
@@ -15698,6 +16140,7 @@ const NO_SITE_FILTERS = {
 	query: '',
 	scope: 'all',
 	uses: [],
+	categories: [],
 	detail: 'any',
 	sort: 'new',
 	within: null,
@@ -15763,6 +16206,7 @@ function siftSiteModels(models, filters, lang, now) {
 			if (!words.every(word => haystack.includes(word))) return false;
 		}
 		if (f.uses.length && !f.uses.includes(m.use)) return false;
+		if (f.categories.length && !(isModelCategory(m.category) && f.categories.includes(m.category))) return false;
 		if (f.detail === 'hd' && !(m.density > 1)) return false;
 		if (f.detail === 'plain' && m.density > 1) return false;
 		if (f.formats.length && !f.formats.includes(m.format)) return false;
@@ -15843,6 +16287,18 @@ function siteLicencesOf(models) {
 }
 
 /**
+ * Every category, in the order of the list, with how many models are in it.
+ *
+ * All of them and not only those present, the way the site offers them
+ * (`categoriesOf` in site/src/lib/models.ts): the list is short and fixed, and a category
+ * nobody has chosen yet says so with its nought before it is pressed.
+ */
+function siteCategoriesOf(models) {
+	const counted = new Map(siteTally(models, m => (isModelCategory(m.category) ? [m.category] : [])).map(one => [one.value, one.count]));
+	return MODEL_CATEGORIES.map(value => ({ value, count: counted.get(value) || 0, label: siteCategory(value) }));
+}
+
+/**
  * Whether anything is narrowed, which is what the reset button and the dot on the
  * filters button both light up on. The order and the search area are not narrowing:
  * every model is still shown, in another order or looked for elsewhere.
@@ -15851,6 +16307,7 @@ function siteNarrowed(filters) {
 	const f = Object.assign({}, NO_SITE_FILTERS, filters || {});
 	return String(f.query || '').trim() !== ''
 		|| f.uses.length > 0
+		|| f.categories.length > 0
 		|| f.detail !== 'any'
 		|| f.within !== null
 		|| f.tags.length > 0
@@ -16418,8 +16875,8 @@ function clipMoment(clip, seconds) {
  * The clip a stored frame names, out of the ones this reading of the file turned out to
  * hold, or none.
  *
- * Her complaint is why this exists: two different animations were playing in the preview,
- * and it should be the one chosen as the preview to begin with. Both were right about
+ * This exists because the card and the preview beside it showed two different animations,
+ * when the preview should play the one chosen for the card. Both were right about
  * themselves — a card is a picture drawn at the moment its author picked, while the
  * preview was the model told to move with nothing to go on, so it played whichever clip
  * came first in the file. The choice is stored on the site now, and this reads it.
@@ -16566,8 +17023,8 @@ function stripModelPaths(project) {
  * reference behind. A clip with no id at all is kept — the chooser could not have named
  * it to drop it, and silently losing one would be worse than publishing it.
  *
- * Why this is done to the bytes and not to the open project: her file is hers. A clip
- * she keeps out of the catalogue is still in the editor and still in the file on her
+ * Why this is done to the bytes and not to the open project: the file is its author's.
+ * A clip kept out of the catalogue is still in the editor and still in the file on
  * disk when this window closes, and the only thing that changes is what travels.
  */
 function dropModelClips(project, keep) {
@@ -16778,8 +17235,8 @@ async function projectPrints(project) {
  * `clips` is every animation the file holds, named and in its own order, read before any
  * of them are taken out. A chooser of what to publish has to be built from the file and
  * not from what is left of it, or dropping one would take it off the list that offers it
- * back — and the open project cannot answer instead: what travels is these bytes, and she
- * may have saved them and gone on editing.
+ * back — and the open project cannot answer instead: what travels is these bytes, and the
+ * project may have been saved and then edited further.
  */
 async function prepareModelFile(original, keepClip) {
 	const text = new TextDecoder().decode(original);
@@ -16884,14 +17341,77 @@ const MODEL_TAGS_MAX = 8;
 const MODEL_TAG_MAX = 24;
 
 /**
- * The licences the site offers, in the order its own form offers them. Short names for
- * five of them are in SITE_LICENCES; "all rights reserved" has no short name and is
- * said in words, by siteLicence.
+ * The licences the site offers, in the order its own form offers them: Creative
+ * Commons, then the software licences models in open repositories carry, then "all
+ * rights reserved". Short names for all but the last are in SITE_LICENCES, the same
+ * as LICENSE_NAMES in site/shared/modelRules.ts; "all rights reserved" has no short
+ * name and is said in words, by siteLicence. tools/verify-bbmodel-copy.mjs holds this
+ * list to the site's own, order included.
  */
-const MODEL_LICENCES = ['cc0', 'cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa', 'arr'];
+const MODEL_LICENCES = [
+	'cc0', 'cc-by', 'cc-by-sa', 'cc-by-nc', 'cc-by-nc-sa',
+	'unlicense', '0bsd', 'mit', 'isc', 'bsd-2-clause', 'bsd-3-clause', 'zlib',
+	'apache-2.0', 'mpl-2.0', 'lgpl-2.1', 'lgpl-3.0', 'gpl-2.0', 'gpl-3.0',
+	'arr',
+];
 
 function isModelLicence(value) {
 	return typeof value === 'string' && MODEL_LICENCES.includes(value);
+}
+
+/**
+ * What a model is, as the site's own list has it (CATEGORIES in site/shared/modelRules.ts)
+ * and in the same order: one choice out of a few, picked and never typed.
+ *
+ * The list is meant to change. tools/verify-bbmodel-copy.mjs holds this copy to the
+ * site's, order included, and every value needs its name (`cat.<value>`) in each language
+ * and an icon in MODEL_CATEGORY_ICONS.
+ */
+const MODEL_CATEGORIES = ['characters', 'creatures', 'weapons', 'wearables', 'vehicles', 'furniture', 'blocks', 'machines', 'items', 'figura'];
+
+/** The editor's own icon for each: the same drawing in the catalogue's filter and in the forms. */
+const MODEL_CATEGORY_ICONS = {
+	characters: 'person',
+	creatures: 'pets',
+	weapons: 'construction',
+	wearables: 'checkroom',
+	vehicles: 'directions_car',
+	furniture: 'chair',
+	blocks: 'domain',
+	machines: 'precision_manufacturing',
+	items: 'restaurant',
+	figura: 'manage_accounts',
+};
+
+function isModelCategory(value) {
+	return typeof value === 'string' && MODEL_CATEGORIES.includes(value);
+}
+
+/** A category's name in the language of the plugin's windows, or '' for none. */
+function siteCategory(id) {
+	return isModelCategory(id) ? T('cat.' + id) : '';
+}
+
+/**
+ * A category as a request carries it: null for none, undefined for a value that is not on
+ * the list — the two answers the other `cleanModel*` give, and the ones the site's own
+ * `cleanCategory` gives.
+ */
+function cleanModelCategory(value) {
+	if (value === undefined || value === null || value === '') return null;
+	return isModelCategory(value) ? value : undefined;
+}
+
+/**
+ * The choices of a category select: "not chosen" first, then the list in its order.
+ *
+ * Blockbench's own select, which takes words and no icons; the icons stand in the
+ * catalogue's filter, where the choices are chips.
+ */
+function categoryOptions() {
+	const options = { none: T('put.category_none') };
+	for (const id of MODEL_CATEGORIES) options[id] = siteCategory(id);
+	return options;
 }
 
 /**
@@ -16923,8 +17443,8 @@ function publishRefusal(no, said, vars) {
  * its ceiling on the way would have read "the file is larger than 0 KB", which is both
  * false and unanswerable. Left out, the line shows `{mostSize}` instead — ugly, but it
  * is a hole somebody will report, and `tools/sync-check.mjs` walks every reachable
- * refusal with the figures the site really sends, so the hole is caught before she sees
- * it. Measured today: all three send `most`, and `quota_full`, the only line that asks
+ * refusal with the figures the site really sends, so the hole is caught before anyone
+ * sees it. Measured today: all three send `most`, and `quota_full`, the only line that asks
  * for `{usedSize}`, sends `used` as well.
  */
 function refusalVars(no, vars) {
@@ -17022,7 +17542,7 @@ const MODEL_MOST_CLIP_TEXT = 120;
  * The frame a card's picture was taken at: which clip, and how far into it. Null for
  * none, which means the model at rest — what every card meant before this was asked.
  *
- * Her complaint is the whole reason this travels. The picture on a card is drawn once,
+ * A mismatch is the whole reason this travels. The picture on a card is drawn once,
  * at the moment its author picked; the preview beside the card is the model itself,
  * built and told to move, and with nothing to be told it played the first clip the file
  * happened to hold. Two different animations of the same model, each right about itself.
@@ -17072,9 +17592,9 @@ function cleanModelUrl(value) {
  * The key is a hash and only a hash. What it is a hash of is the sender's business and
  * never travels: the site checks sixty-four hex digits and nothing else, and the one
  * rule the sender has to keep is that the same file gives the same key and another file
- * does not. `seen` is when the editor last had the file in front of her, `loved` the
- * star on her own shelf; both are there so that the shelf on the site can stand in the
- * order of the shelf she is looking at.
+ * does not. `seen` is when the editor last had the file open, `loved` the star on the
+ * editor's own list of recents; both are there so that the shelf on the site can stand
+ * in the order of the shelf in the editor.
  */
 function cleanModelLocal(said) {
 	if (said === undefined || said === null) return null;
@@ -17112,6 +17632,8 @@ function modelDeclaration(prepared, said) {
 	if (pose === undefined) throw publishRefusal('odd_pose', 'a pose is a clip and a moment in seconds');
 	const licence = said.licence === undefined || said.licence === null || said.licence === '' ? null : said.licence;
 	if (licence !== null && !isModelLicence(licence)) throw publishRefusal('no_such_license', 'no such licence');
+	const category = cleanModelCategory(said.category);
+	if (category === undefined) throw publishRefusal('no_such_category', 'no such category');
 	const local = cleanModelLocal(said.local);
 	if (local === undefined) throw publishRefusal('odd_print', 'a mirror mark is a hash and a time');
 	const declaring = {
@@ -17125,6 +17647,7 @@ function modelDeclaration(prepared, said) {
 		facts: prepared.facts,
 		license: licence,
 		background: background,
+		category: category,
 		look: look,
 		pose: pose,
 	};
@@ -17136,8 +17659,8 @@ function modelDeclaration(prepared, said) {
  * The declaration of a newer file for a draft that is already up.
  *
  * Only what the file is: the hashes, the size and the counts. Not the name, and not
- * because the site would refuse one — it drops it. The name on the site is the name she
- * typed there, and saving a file on her computer is not a reason to put the file's name
+ * because the site would refuse one — it drops it. The name on the site is the name
+ * typed there, and saving a file locally is not a reason to put the file's name
  * back over it. The same goes for the description, the tags, the licence and the angle,
  * none of which are in here to be sent by accident.
  */
@@ -17170,9 +17693,14 @@ function modelRenewal(prepared) {
 function modelPublication(said) {
 	if (!isModelLicence(said.licence)) throw publishRefusal('pick_license', 'pick a licence');
 	if (typeof said.adult !== 'boolean') throw publishRefusal('pick_for_whom', 'pick who the model is for');
+	// Said again here and not only at upload, so that a file already up — whose upload
+	// answers with the model it has — is published under the category the window shows.
+	const category = cleanModelCategory(said.category);
+	if (category === undefined) throw publishRefusal('no_such_category', 'no such category');
 	const author = cleanModelName(said.author);
 	return {
 		license: said.licence,
+		category: category,
 		adult: said.adult,
 		author: author || null,
 		url: author ? cleanModelUrl(said.url) : null,
@@ -17194,7 +17722,7 @@ function modelPublication(said) {
  * confirmed it elsewhere. The site's own page for this says the same in so many words,
  * beside the same decision.
  *
- * `was` is what the site said, cleaned the same way as what she typed, so a value typed
+ * `was` is what the site said, cleaned the same way as what was typed, so a value typed
  * differently and kept the same — «Dragon» where the tag is `dragon` — counts as
  * unchanged. Refusals this can see for itself are thrown rather than sent: the site would
  * answer them with the same codes.
@@ -17206,8 +17734,11 @@ function modelChange(was, said) {
 	if (background === undefined) throw publishRefusal('odd_background', 'a background is six hex digits after a hash');
 	const description = cleanModelDescription(said.description);
 	const tags = cleanModelTags(said.tags);
+	const category = cleanModelCategory(said.category);
+	if (category === undefined) throw publishRefusal('no_such_category', 'no such category');
 	const body = {};
 	if (name !== cleanModelName(was.name)) body.name = name;
+	if (category !== (cleanModelCategory(was.category) || null)) body.category = category;
 	if (description !== cleanModelDescription(was.description)) body.description = description;
 	if (tags.join(',') !== cleanModelTags(was.tags).join(',')) body.tags = tags;
 	if (background !== cleanModelBackground(was.background)) body.background = background;
@@ -19475,7 +20006,7 @@ if (typeof Plugin === 'undefined') {
 			SF_LOCKED_SHARE, SF_PAGE, mixResults, isLockedModel,
 			JAVA_BOX, fitJavaBox, applyFit, javaFormatFor, versionBelow, tidyHierarchy, GENERIC_NODE, cubeHint,
 			SITE_ORIGIN, SITE_SORTS, cleanOrigin, isSiteKey, isSiteId, SITE_BUILD_FORMATS, siteModelsOf, siteCameAt, siftSiteModels, sitePreviewURL, siteFileURL, sitePageURL, siteMineURL, withSiteLang, siteFileName, siteLicence,
-			NO_SITE_FILTERS, siteNarrowed, siteTagsOf, siteFormatsOf, siteSizesOf, siteLicencesOf, siteFormatName,
+			NO_SITE_FILTERS, siteNarrowed, siteTagsOf, siteFormatsOf, siteSizesOf, siteLicencesOf, siteCategoriesOf, siteFormatName,
 			SITE_LINK_FIELD, cleanSiteLink, siteLinkOf,
 			SITE_ACCOUNTS_MOST, SITE_LINK_SECONDS, SITE_LINK_MINUTES, SITE_QUOTA_BYTES, isLinkSecret, isLinkCode, webAddress,
 			grouped, sizeText, sizeOrZero,
@@ -19488,8 +20019,8 @@ if (typeof Plugin === 'undefined') {
 			// loads cannot import from it, and `tools/verify-bbmodel-copy.mjs` runs both
 			// copies on the same frames and compares the answers.
 			clipMoment, poseClip,
-			MODEL_MAX_BYTES, MODEL_PREVIEW_MAX_BYTES, MODEL_NAME_MAX, MODEL_DESCRIPTION_MAX, MODEL_TAGS_MAX, MODEL_TAG_MAX, MODEL_LICENCES, MODEL_MOST_TILT, isModelLicence, publishRefusal,
-			cleanModelName, cleanModelDescription, cleanModelTags, cleanModelBackground, cleanModelLook, cleanModelUrl, cleanModelLocal, modelDeclaration, modelPublication, modelRenewal,
+			MODEL_MAX_BYTES, MODEL_PREVIEW_MAX_BYTES, MODEL_NAME_MAX, MODEL_DESCRIPTION_MAX, MODEL_TAGS_MAX, MODEL_TAG_MAX, MODEL_LICENCES, MODEL_MOST_TILT, isModelLicence, MODEL_CATEGORIES, isModelCategory, cleanModelCategory, siteCategory, publishRefusal,
+			cleanModelName, cleanModelDescription, cleanModelTags, cleanModelBackground, cleanModelLook, cleanModelUrl, cleanModelLocal, modelDeclaration, modelPublication, modelRenewal, modelChange,
 			// A function, because this block runs long before those two are declared and a
 			// name read here would be read too early. Everything else on these lines is a
 			// function declaration, which is ready from the start.
@@ -21237,10 +21768,10 @@ async function buildFromFiles(files, sourceName, opts) {
 	//
 	// A Minecraft-style figure is two shells, and the outer one is see-through
 	// wherever it is unused. Strip the alpha channel and that shell becomes a
-	// solid slab: the body disappears behind it, which reads as "the textures do
-	// not work" while every coordinate is in fact correct. Measured on the
+	// solid slab: the body disappears behind it, which looks like broken textures
+	// while every coordinate is in fact correct. Measured on the
 	// reference set — the one model whose texture kept its alpha is the one whose
-	// textures were reported as fine.
+	// textures came out fine.
 	//
 	// Stated as a mismatch, not as a loss: some models set BLEND on a texture that
 	// never had alpha, and there nothing is missing. Guessing a transparent colour
@@ -22290,7 +22821,7 @@ function addBrowserStyles() {
 			color: var(--color-subtle_text); font-variant-numeric: tabular-nums; }
 
 		/*
-		 * The filters in a window of their own: her words, so that they narrow the
+		 * The filters in a window of their own, so that they narrow the
 		 * catalogue without standing over it. One column of sections in the order the
 		 * site's own panel has them, each section a head and a few chips.
 		 *
@@ -22572,8 +23103,8 @@ function addBrowserStyles() {
 		.mtc_mw_acts .mtc_btn:not(.main) { flex: 1; }
 		/* In the publish window the act stays put while the column under it scrolls. A model
 		   with forty animations makes that column longer than the window, and the button that
-		   sends it was measured 350 pixels above the window's own top once she had scrolled
-		   down to the list — a window asking her to scroll back up to use it. The negative
+		   sends it was measured 350 pixels above the window's own top once the column had been
+		   scrolled down to the list — a window that had to be scrolled back up to be used. The negative
 		   margins put the background over the column's padding, so nothing slides out from
 		   under the button in the gap above it. */
 		.mtc_mw.put .mtc_mw_acts { position: sticky; top: -12px; z-index: 3; padding: 12px 0 8px;
@@ -23161,7 +23692,7 @@ function mkSwatches(colour, onPick) {
  *
  * The number used to be written here and ran from 14 upwards, and 14 is under the 18
  * of a panel: a window laid where a panel sits went behind it, and the filters sent
- * to the far edge of the screen by their placing rule landed where she could not see
+ * to the far edge of the screen by their placing rule landed where nobody could see
  * them. Measured, not guessed -- `tools/verify-filter-window.mjs` asks the page who
  * answers at a point inside both.
  */
@@ -23216,7 +23747,7 @@ const WIN_FULL_KEY = PLUGIN_ID + '_win_full';
 
 /**
  * Whether a window of this kind opens over the whole screen, remembered between
- * openings. Her words: in every window, and with memory.
+ * openings. Every kind of window has the choice, and every kind remembers it.
  *
  * By kind — the catalogue, a model, a Sketchfab model, publishing, the filters — and
  * not one flag for all of them. A model spread over the screen once is a model being
@@ -23270,9 +23801,9 @@ function workTop() {
 /*
  * The whole monitor for one node: the browser's full screen, which is not a window's.
  *
- * Her words, the third of her four: there is no button for opening the model viewer
- * full screen, on the site or in the plugin. Of the readings offered she chose the
- * monitor itself — the scene handed over, not a window stretched across the page. So
+ * There was no button for opening the model viewer full screen, on the site or in the
+ * plugin. Of the possible readings, this one is the monitor itself — the scene handed
+ * over, not a window stretched across the page. So
  * `winFull` and `setFull` above stay as they are: those spread a window over
  * Blockbench's working area, which is a different thing with a button of its own,
  * while this takes the screen away from Blockbench altogether for as long as it is
@@ -23477,7 +24008,7 @@ class MtcWindow {
 	/**
 	 * The screen, less whatever asked for room beside this window.
 	 *
-	 * `roomLeft` is how the catalogue keeps its filters visible: her two wishes — a
+	 * `roomLeft` is how the catalogue keeps its filters visible: two requirements — a
 	 * window over the whole screen, and filters that do not cover the models — meet
 	 * here, and this is the line where they are made to agree.
 	 *
@@ -23543,7 +24074,7 @@ class MtcWindow {
  * and playing the animation its picture was taken from, for a model from the site;
  * the picture for Sketchfab, whose files are too heavy to fetch on a hover.
  *
- * Beside the card, and nothing larger. Her words: it should appear simply next to
+ * Beside the card, and nothing larger: it should appear simply next to
  * the model, not off at the side across the whole window. It used to measure the
  * browser instead of the card, which on a wide editor threw it the whole width of
  * the panel away from the thing it was about -- level with the card and a screen
@@ -23587,7 +24118,7 @@ const MtcPeek = {
 	 * next card along is the one worth hiding; then the left; and when neither side
 	 * holds the whole panel, the side with more room, pushed onto the screen. That
 	 * last case leans on the card rather than running to the far edge -- a panel
-	 * eight pixels from the window frame is the thing she asked us to stop doing.
+	 * eight pixels from the window frame is exactly what this placement replaced.
 	 */
 	place(card) {
 		const node = this.node;
@@ -23661,7 +24192,7 @@ const MtcBrowser = {
 	 *
 	 * A publish window opens from three places and only two of them had the pane in hand,
 	 * so the third left a model on the site and a pane on screen that had never heard of
-	 * it; and those two asked only for her own shelf, never for the catalogue the model had
+	 * it; and those two asked only for the "Mine" shelf, never for the catalogue the model had
 	 * just joined. Hence one slot every upload tells, wherever it was started from.
 	 *
 	 * The pane is set up once in a run of Blockbench, so this is a slot and not a list of
@@ -23687,8 +24218,8 @@ function ensureBrowser() {
 	], MtcBrowser.source, showBrowserSource);
 	head.appendChild(MtcBrowser.tabs.node);
 	head.appendChild(mk('div', 'mtc_br_space'));
-	// Over the whole screen, out of the panel. Her words: the model window has this
-	// button and the catalogue has none. Measured in web Blockbench rather than guessed:
+	// Over the whole screen, out of the panel. The model window had this button and the
+	// catalogue had none. Measured in web Blockbench rather than guessed:
 	// every window of ours builds one into its own title bar, the catalogue's window
 	// included, but with a project open the catalogue goes into a Blockbench panel, and
 	// a panel's header is the host's. So the button belongs here, in the one row that
@@ -23751,7 +24282,7 @@ function openModelBrowser(source) {
 	// Where it already stands wins over where it would go. Until the full-screen button
 	// existed, the catalogue could never be in our window with a project open, so
 	// preferring the panel here was always right. Now it can be, and taking it back would
-	// undo a full screen she had just asked for, on a menu entry that only promised to
+	// undo a full screen that had just been asked for, on a menu entry that only promised to
 	// show the catalogue. Putting it away is still a press of its own.
 	if (MtcBrowser.frame) {
 		placeBrowserInFrame();
@@ -23919,7 +24450,7 @@ function filterRoom() {
 /**
  * The filters beside the catalogue, never over it.
  *
- * Her words: it should go in a window of its own, and it should not cover the models
+ * It goes in a window of its own, and it should not cover the models
  * one is looking at. So the window takes whichever side of the catalogue has room
  * for it, and the three cases where neither side has are answered in turn:
  *
@@ -23932,7 +24463,7 @@ function filterRoom() {
  *   Blockbench's — so the filters go to the screen edge farthest from the cards.
  *
  * The peek no longer shares this rule, and that is on purpose: it is measured from the
- * card under the pointer rather than from the catalogue, because she asked for it beside
+ * card under the pointer rather than from the catalogue, because it belongs beside
  * the model and not off at the side across the whole window (`MtcPeek.place`). A window
  * of filters is about the whole shelf and belongs at its edge; a peek is about one card.
  *
@@ -24091,7 +24622,7 @@ function browserTidy(value) {
  * reveal the catalogue rather than to hide it.
  *
  * Where there is no panel to move into — Blockbench without the Panel class, or a
- * panel that would not be made — the floating window closes instead. The complaint
+ * panel that would not be made — the floating window closes instead. The problem
  * is that it covers the model, and a window that cannot be folded can at least go.
  */
 function tidyAfterDownload() {
@@ -24127,7 +24658,7 @@ const BROWSER_ROWS_KEY = PLUGIN_ID + '_per_row';
 /**
  * How many cards a row, or 0 for as many as the width allows.
  *
- * Her words: the same choice the site has. The site offers 3, 4, 5, 6 and 8; two is
+ * The same choice the site has. The site offers 3, 4, 5, 6 and 8; two is
  * added here and "as many as fit" is kept as the first of them, because this window
  * is 440 pixels wide when it is docked to a side of Blockbench, and there three cards
  * are already crowded. "As many as fit" is what the plugin did until now, and it is
@@ -24294,7 +24825,7 @@ function siteRefused(r) {
 	return r.json().catch(() => null).then(data => { throw siteRefusal(r.status, data); });
 }
 
-// ------------------------------------------ models browser: what she had open
+// ------------------------------------------ models browser: recently opened files
 
 /**
  * The date Blockbench itself would print under a recent entry.
@@ -24320,7 +24851,7 @@ function recentWhen(screen, entry) {
  * for `<hash of the file's path>.png`, and writes into the map **the path of that file**
  * with a random number after a question mark, so a redrawn picture is not taken from the
  * cache. It is not a data URL, and the first version of this shelf refused everything
- * that was not one — which is why nineteen of her models showed nineteen placeholders.
+ * that was not one — which is why nineteen recent models showed nineteen placeholders.
  *
  * Handing that value on is not a new act: the host sets it as the `src` of its own `img`
  * in this very document, and the file is one it wrote itself, in its own folder. What is
@@ -24332,7 +24863,7 @@ function recentWhen(screen, entry) {
  * `isApp` onto the window as a global of its own, beside `Blockbench`, and the string
  * `Blockbench.isApp` does not occur in its bundle once, where `Blockbench.isMobile` occurs
  * a hundred times (`tmp/app-isapp-member.mjs`). So the gate was always shut and all
- * nineteen of her cards kept their placeholder. Nothing is lost by dropping it: the only
+ * nineteen cards kept their placeholder. Nothing is lost by dropping it: the only
  * values that arrive here are the host's own, and in the web build that map stays empty.
  *
  * The path is handed on exactly as it comes, backslashes, suffix and all — measured in a
@@ -24352,11 +24883,11 @@ function recentPicture(value) {
 /**
  * The same picture, cut down to the part of it that has anything drawn on.
  *
- * Her words about the shelf of recents: the camera sits far from the objects. It is not
+ * On the shelf of recents the camera sits far from the objects. It is not
  * our camera and there is none to move — the picture is the host's own file, written once
  * when the project was saved — so what is far away is the framing inside that file.
  *
- * Measured rather than argued, over the sixteen pictures her own editor has written
+ * Measured rather than argued, over the sixteen pictures one real editor has written
  * (`tmp/measure-thumbnails.mjs`): every one is 270 by 150, thirteen have anything drawn in
  * them at all, and the drawing leaves 29 to 46 percent of the width empty on each side.
  * The model's longest side comes to between 27 and 76 percent of the square card, 47 in
@@ -24364,13 +24895,13 @@ function recentPicture(value) {
  * 2.1 in the middle case. The host's rule explains where the emptiness comes from.
  * It takes the model's bounding box and pulls the camera back by `max(sizeX, sizeY * 2)`,
  * which is a guess at the silhouette rather than a measurement of it, and a model that is
- * tall and thin — which is nearly every model she makes — then stands in a quarter of the
+ * tall and thin — as nearly every model in that set is — then stands in a quarter of the
  * frame. Letterbox that 270 by 150 into our square box with `object-fit: contain` and the
- * model ends up about a seventh of the card. That is the whole of her complaint.
+ * model ends up about a seventh of the card. That is the whole of the problem.
  *
  * So the box that is drawn on is found and the rest is dropped, and `contain` then makes
  * the model as large as the card allows. The pixels can be read: asked in the real app
- * over a copy of her profile (`tmp/app-thumb-trim.mjs`), `getImageData` on a canvas with
+ * over a copy of a real profile (`tmp/app-thumb-trim.mjs`), `getImageData` on a canvas with
  * one of those files drawn into it answered rather than throwing, and `toDataURL` gave the
  * crop back. That was not safe to assume — in a browser a `file://` picture taints the
  * canvas — which is why it was asked before this was written, and why a refusal here
@@ -24378,9 +24909,9 @@ function recentPicture(value) {
  *
  * What this does not fix, and must not be sold as fixing: three of those thirteen pictures
  * have the model running into the top edge of the bitmap, over 14, 19 and 52 percent of the
- * width. That is her other complaint, the cut-off tops, and it happened inside the host's
+ * width. That is the other problem, the cut-off tops, and it happened inside the host's
  * own screenshot when the file was saved; there is nothing in the pixels to put back. It is
- * also commoner than she thinks — she said about one card in ten, and it is nearer one in
+ * also commoner than it looks — about one card in ten by eye, and nearer one in
  * four. Trimming does not hide it and does not worsen it: the cut sits flush with the edge
  * of the card instead of floating in the middle of an empty frame.
  *
@@ -24437,7 +24968,7 @@ function trimRecentPicture(src, img) {
 				if (y > bottom) bottom = y;
 			}
 		}
-		// Two of her sixteen pictures have nothing drawn in them at all. There is no box to
+		// Two of the sixteen measured pictures have nothing drawn in them at all. There is no box to
 		// find in those, and the card keeps its placeholder.
 		if (right < 0 || bottom < 0) return keep('');
 		const edge = 2;
@@ -24448,7 +24979,7 @@ function trimRecentPicture(src, img) {
 		const boxWide = right - left + 1;
 		const boxHigh = bottom - top + 1;
 		// A picture already filling its frame is left alone: re-encoding it would cost the
-		// same and give back the same pixels. The most generous of hers fills 88 percent.
+		// same and give back the same pixels. The fullest of the measured ones fills 88 percent.
 		if (boxWide >= wide * 0.95 && boxHigh >= high * 0.95) return keep('');
 		canvas.width = boxWide;
 		canvas.height = boxHigh;
@@ -24462,7 +24993,7 @@ function trimRecentPicture(src, img) {
 }
 
 /**
- * The models she has had open lately, read out of Blockbench rather than kept by us.
+ * The models opened lately, read out of Blockbench rather than kept by us.
  *
  * Measured in a live editor instead of remembered — see `docs/plugin-recents.md`.
  * The bundle keeps `recent_projects` to itself, so an eval in page scope sees
@@ -24557,7 +25088,7 @@ function localRecents() {
 }
 
 /**
- * Her star on one file, as Blockbench's own list of recents keeps it.
+ * The star on one file, as Blockbench's own list of recents keeps it.
  *
  * The same furniture `localRecents` reads and none of its work: no thumbnails are
  * refreshed and no folder is listed, because this is asked while a file is being saved
@@ -24597,9 +25128,9 @@ function siftLocal(list, query) {
  * How long a model is given to open before the shelf stops waiting to publish it.
  *
  * A minute is not a guess at how long a file takes to read — it is how long it is worth
- * holding on to an intention. A read that failed, or a dialog she waved away, says
+ * holding on to an intention. A read that failed, or a dialog waved away, says
  * nothing at all, and the alternative to a timeout is a listener that waits for the rest
- * of the session and then opens a window about a model she opened for her own reasons.
+ * of the session and then opens a window about a model opened later for other reasons.
  */
 const RECENT_OPEN_WAIT = 60000;
 
@@ -24620,9 +25151,9 @@ const RECENT_OPEN_WAIT = 60000;
  * project codec's `parse`. It is still not the word to listen for here, because it is
  * said for a `.bbmodel` read alone, while a recent may be a model in any format.
  *
- * Two ways of hearing nothing, both found in the running app on her own recents
+ * Two ways of hearing nothing, both found in the running app on a real list of recents
  * (tmp/upload-button-app.mjs, tmp/select-project-path.mjs) and both looking from outside
- * like the one thing she reported — the model opens and no window comes:
+ * like one and the same fault — the model opens and no window comes:
  *
  *   - the file pressed is already the model on screen. Blockbench has nothing to do and
  *     so says nothing, and this waited a minute for a word that was never coming. There
@@ -24630,18 +25161,18 @@ const RECENT_OPEN_WAIT = 60000;
  *   - the project arrives without its path. In the instant `select_project` is heard both
  *     `save_path` and `name` are empty, and a tick later the same object carries them. A
  *     path compared inside the handler is compared against nothing, so the comparison
- *     meant to recognise the model she asked for refused every reading of a file. It
+ *     meant to recognise the model asked for refused every reading of a file. It
  *     waits a tick. The cause is two statements apart in the codec: `load()` calls
  *     `setupProject()`, which is what says `select_project`, and only the lines after it
  *     assign `Project.name` and `Project.save_path`.
  *
- * The project that arrives is recognised by its path, so that a project she switched to
- * herself while the file was being read does not get a window about it. Without a path
+ * The project that arrives is recognised by its path, so that a project switched to by
+ * hand while the file was being read does not get a window about it. Without a path
  * to compare — the screen-sharing mode blanks them — the first project to arrive is taken
  * as the answer, which is the same thing in every case but a race nobody will run.
  *
- * A project that is not the one asked for leaves the waiting standing: she may still open
- * the file she pressed, and until the minute is out that is what this is here for.
+ * A project that is not the one asked for leaves the waiting standing: the file that was
+ * pressed may still open, and until the minute is out that is what this is here for.
  */
 function publishWhenOpen(before, path, onUploaded) {
 	const open = () => openSitePublishWindow(onUploaded ? { onUploaded: onUploaded } : {});
@@ -24740,8 +25271,8 @@ function mountSitePane(pane, host) {
 	], 'all', pickShelf);
 	shelves.node.classList.add('squeeze');
 	// The bar itself stays on screen now. It used to appear only with a key, because
-	// every shelf behind it was the site's; the recents are hers and already on her
-	// disk, and hiding them until the site says who she is would be absurd. Only the
+	// every shelf behind it was the site's; the recents are local files already on
+	// disk, and hiding them until the site says who is signed in would be absurd. Only the
 	// two shelves that need the key come and go.
 	shelves.show('loved', false);
 	shelves.show('mine', false);
@@ -24771,7 +25302,7 @@ function mountSitePane(pane, host) {
 	// --- the search line: what is looked for, the window of filters, the order, how
 	// many cards a row, and how the cards look. The field is here and not in the window
 	// because a search is typed without opening anything; the rest of the panel is a
-	// window of its own, which is what she asked for.
+	// window of its own.
 	const bar = mk('div', 'mtc_bar');
 	const search = mkSearch(T('site.search_placeholder'), () => { state.filters.query = search.input.value; refresh(); });
 	bar.appendChild(search.node);
@@ -24911,7 +25442,7 @@ function mountSitePane(pane, host) {
 		// hover — a shelf is looked at while projects are opened and closed behind it,
 		// and a button that vanishes reads as a button that broke.
 		// Nothing is asked of the window here: an upload tells the catalogue itself, from
-		// wherever it was started, through MtcBrowser.siteFresh — and asking for her shelf
+		// wherever it was started, through MtcBrowser.siteFresh — and asking for the "Mine" shelf
 		// on top of that would read the site twice over for one model.
 		const putting = mkIconButton('cloud_upload', T('put.open'), () => openSitePublishWindow());
 		const putRefusal = putUpRefusal();
@@ -24957,7 +25488,7 @@ function mountSitePane(pane, host) {
 		const tail = state.who ? ' · ' + state.who : '';
 		// An empty shelf is not an empty catalogue. On "Mine" and "Loved" this line read
 		// "The catalogue is empty" above a note saying "Your models will be here once you
-		// upload them" — two answers to one question, and the reason she asked why her
+		// upload them" — two answers to one question, which made it look as if the
 		// models were missing. The count is true on every shelf and is already said in all
 		// fourteen languages, so no new string was needed to stop saying the wrong one.
 		if (!from.length) say((state.shelf === 'all' ? T('site.empty') : T('site.shown', { count: grouped(0) })) + tail);
@@ -24972,7 +25503,7 @@ function mountSitePane(pane, host) {
 	const emptyNote = () => {
 		const note = mk('div', 'mtc_empty');
 		// Before the address is even looked at: this shelf is the one that owes the site
-		// nothing, and "connect to the site" over an empty list of her own files would be
+		// nothing, and "connect to the site" over an empty list of local files would be
 		// the same wrong answer the status line used to give on "Mine".
 		if (state.shelf === 'recent') {
 			note.appendChild(mkIcon('history'));
@@ -25084,7 +25615,7 @@ function mountSitePane(pane, host) {
 	};
 
 	/**
-	 * A card for a file of her own: the picture Blockbench kept of it, the name, and
+	 * A card for a local file: the picture Blockbench kept of it, the name, and
 	 * when it was last open.
 	 *
 	 * No author, no licence, no counts. None of that exists before a file is read, and
@@ -25113,8 +25644,7 @@ function mountSitePane(pane, host) {
 			 * Held back until it is known how it will be shown, and shown once.
 			 *
 			 * The picture is the host's, framed by a guess at the silhouette, and the model
-			 * stands in about a seventh of the card — "the camera sits far away", as she put
-			 * it.
+			 * stands in about a seventh of the card, as if the camera sat far away.
 			 * `trimRecentPicture` cuts it to what is drawn on, which needs the picture loaded,
 			 * so the untrimmed one would otherwise appear first and jump. One hidden step
 			 * instead: the card shows its backdrop a moment longer, as it already did while
@@ -25164,7 +25694,7 @@ function mountSitePane(pane, host) {
 			event.stopPropagation();
 			MtcPeek.hide();
 			// The project as it is before the file is read, so that the window waits for the
-			// one she asked for rather than describing the one already on screen.
+			// one asked for rather than describing the one already on screen.
 			const before = typeof Project !== 'undefined' ? Project : null;
 			one.open(event);
 			tidyAfterDownload();
@@ -25196,10 +25726,10 @@ function mountSitePane(pane, host) {
 	/**
 	 * The colours behind the cards again, after the choice changed.
 	 *
-	 * A card of her own file has a picture box like every other card but no model behind
+	 * A card of a local file has a picture box like every other card but no model behind
 	 * it: a file on a disk has no author, and so no colour an author chose. Asking for both
-	 * is why the colour she picked did nothing on the shelf of recents until the window was
-	 * built again — she had to leave and come back to see her own choice.
+	 * is why a colour picked here did nothing on the shelf of recents until the window was
+	 * built again — one had to leave and come back to see the choice.
 	 */
 	function repaint() {
 		for (const card of grid.querySelectorAll('.mtc_card')) {
@@ -25212,15 +25742,15 @@ function mountSitePane(pane, host) {
 	 * A number the site has just said again, written into the shelves in hand and onto
 	 * the card on screen.
 	 *
-	 * Her words: the hearts and the downloads do not move. They did not: a shelf is
+	 * The hearts and the downloads did not move: a shelf is
 	 * fetched once and the cards are drawn from what it said, so a heart pressed in a
 	 * model's own window, or a file fetched from it, changed the site and nothing here.
 	 * The window knows the new number -- the site answers a heart with the count, and the
 	 * model's own page carries both -- and this is the way back for it.
 	 *
 	 * Every shelf is looked through, because the same model stands on more than one and
-	 * each was fetched separately: the catalogue and her own shelf hand over records of
-	 * their own, and a model hearted in the catalogue is the same model on her shelf. The
+	 * each was fetched separately: the catalogue and the "Mine" shelf hand over records of
+	 * their own, and a model hearted in the catalogue is the same model on "Mine". The
 	 * sifted list is the same objects as the shelf it came from, so writing into the
 	 * record is enough for the cards drawn from it; the card on screen is told to draw
 	 * its numbers again, since it has already written them into its own corner.
@@ -25228,7 +25758,7 @@ function mountSitePane(pane, host) {
 	function freshen(what) {
 		const numbers = ['likes', 'downloads', 'comments'];
 		/*
-		 * And the words, for the one thing that changes them: her own editing of her own
+		 * And the words, for the one thing that changes them: the author editing their own
 		 * model. A name, the colour behind the card, the 18+ mark, the tags, and the time of
 		 * the last change — which the picture's address carries, so that a card asks for the
 		 * picture of the model as it is now.
@@ -25328,7 +25858,7 @@ function mountSitePane(pane, host) {
 		 *
 		 * Answered here and not by the window, because the order and the narrowing are this
 		 * pane's: a window asking the site for itself would be handed other neighbours than
-		 * the ones on the shelf in front of her. The whole sifted list and not the cards
+		 * the ones on the shelf on screen. The whole sifted list and not the cards
 		 * drawn so far, so a step forward goes on past where the shelf has got to.
 		 *
 		 * Nothing, when the model is not on this shelf at all — a model window also opens
@@ -25353,7 +25883,7 @@ function mountSitePane(pane, host) {
 
 	// --- the window of filters
 	//
-	// Her words: it should go in a window of its own, the way the site has it, and it
+	// It goes in a window of its own, the way the site has it, and it
 	// should not cover the models being looked at. So this is one column of sections in
 	// the site's own order, standing beside the catalogue — `placeFilterWindow` is what
 	// keeps it beside rather than over.
@@ -25510,6 +26040,13 @@ function mountSitePane(pane, host) {
 			fpick(useIcons[id], T('flt.use.' + id), T('flt.use_tip.' + id), f.uses.includes(id), useCount[id] || 0,
 				() => set({ uses: flip(f.uses, id) }))))));
 
+		// What the model is: all of them always, each with its count, the way the four groups
+		// above are offered and for their reason — a category nobody has chosen yet says so
+		// before it is pressed.
+		fpanel.appendChild(fsection('', T('flt.category'), fbody('', siteCategoriesOf(from).map(one =>
+			fpick(MODEL_CATEGORY_ICONS[one.value], one.label, '', f.categories.includes(one.value), one.count,
+				() => set({ categories: flip(f.categories, one.value) }))))));
+
 		fpanel.appendChild(fsection('', T('flt.detail'), fbody('column', [
 			['any', 'public'], ['plain', 'texture'], ['hd', 'hd'],
 		].map(([id, icon]) => fpick(icon, T('flt.detail_' + id), '', f.detail === id, null, () => set({ detail: id }))))));
@@ -25600,7 +26137,7 @@ function mountSitePane(pane, host) {
 		const ready = () => { pruneFilters(source()); refresh(); };
 		// Read on the way in, every time. The list is local and short, and one kept from
 		// the last visit would be missing whatever was opened since — including the model
-		// she has in front of her, which is the one she would look for first.
+		// on screen right now, which is the one most likely to be looked for first.
 		if (id === 'recent') {
 			state.recent = localRecents();
 			shelves.count('recent', state.recent.length);
@@ -25698,7 +26235,7 @@ function mountSitePane(pane, host) {
 		shelves.select('all');
 		grid.innerHTML = '';
 		// Drawn and not pruned: against a catalogue that has not arrived yet everything
-		// would look absent, and signing in would silently drop the tags she had chosen.
+		// would look absent, and signing in would silently drop the tags already chosen.
 		// The pruning happens below, once there is something to prune against.
 		drawFilters();
 		if (!state.origin) {
@@ -25757,18 +26294,17 @@ function mountSitePane(pane, host) {
 	}
 
 	/**
-	 * The site read again after a model of hers has gone up, landing on her own shelf.
+	 * The site read again after one's own model has gone up, landing on the "Mine" shelf.
 	 *
 	 * Everything the pane was holding is out of date by then: the catalogue has one model
-	 * more, her own shelf certainly has, and the room her models take is added up from that
-	 * shelf. So it is the whole load, which is the one reading that cannot be half old —
-	 * what the halves came to, in her own words, was that the model gets published but
-	 * never shows up in the catalogue, and the figures on the my-models tab do not move
-	 * either.
+	 * more, the "Mine" shelf certainly has, and the room one's models take is added up from
+	 * that shelf. So it is the whole load, which is the one reading that cannot be half old —
+	 * what the halves came to was a model that gets published but never shows up in the
+	 * catalogue, and figures on the my-models tab that do not move either.
 	 *
 	 * Nothing is added to a shelf from the upload's own words: what the catalogue holds and
-	 * what is hers are the site's answers, and a row built here would be a guess at one. It
-	 * lands on her shelf because that is the one place the new model is sure to be — a
+	 * what is one's own are the site's answers, and a row built here would be a guess at
+	 * one. It lands on "Mine" because that is the one place the new model is sure to be — a
 	 * draft never reaches the catalogue at all.
 	 */
 	function freshen() {
@@ -26696,7 +27232,7 @@ function openSiteModelWindow(m, ctx) {
 	win.origin = ctx.origin;
 	// Back and forward along the shelf this window was opened from. Who the neighbours
 	// are is the pane's answer, not ours: the order and the filters live there, and a
-	// list asked for here would be a different list from the one she is looking at.
+	// list asked for here would be a different list from the one on screen.
 	// `around` reads the live list, so a shelf narrowed under an open window changes
 	// where these go — which is exactly what they promise: the next one on the shelf.
 	const near = () => (typeof ctx.around === 'function' ? ctx.around(m.id) : null);
@@ -26775,8 +27311,8 @@ function openSiteModelWindow(m, ctx) {
 		cover.appendChild(mkButton('visibility', T('win.uncover'), () => { win.node.classList.remove('mtc_veiled'); cover.remove(); }, 'main'));
 		viewBox.appendChild(cover);
 	}
-	// The monitor for the figure alone. Her third point: there was no way to look at a
-	// model full screen, here or on the site.
+	// The monitor for the figure alone: there was no way to look at a model full screen,
+	// here or on the site.
 	whole = mkWholeButton(viewBox);
 	if (whole) viewBox.appendChild(whole.node);
 	const tools = mk('div', 'mtc_mw_tools');
@@ -26784,8 +27320,8 @@ function openSiteModelWindow(m, ctx) {
 	const nowLabel = mk('button', 'mtc_chip');
 	nowLabel.type = 'button';
 	nowLabel.addEventListener('click', () => { tabs.select('clips'); clipsBox.style.display = ''; });
-	// Where in the clip it stands, and a hand on it. Her words: watching an animation
-	// without this, one cannot look at the stretch one came for.
+	// Where in the clip it stands, and a hand on it: watching an animation without this,
+	// one cannot look at the stretch one came for.
 	const when = mk('input', 'mtc_range');
 	when.type = 'range';
 	when.min = '0';
@@ -26939,17 +27475,17 @@ function openSiteModelWindow(m, ctx) {
 			/*
 			 * Standing still, on the frame the card's picture was taken at.
 			 *
-			 * Her words the first time: "in the preview two different animations are
-			 * playing — decide which one you are playing". This window used to start the
+			 * The card and its preview used to play two different animations, and which one
+			 * plays had to be decided. This window used to start the
 			 * first clip by itself, which was one of the two. The answer then was to claim
 			 * no motion at all, because the site kept only the angle of the picture and
 			 * not the frame, so the window could not know which clip its own card came
 			 * from. It knows now — the choice is stored and arrives as `m.pose` — so it
 			 * can do the honest thing instead of the careful one: stand exactly where the
-			 * picture she pressed stands.
+			 * picture that was pressed stands.
 			 *
-			 * Still nothing playing, which is the half of her answer that was never about
-			 * not knowing. The clip and the moment are hers to run, with the list beside
+			 * Still nothing playing, which is the half of the answer that was never about
+			 * not knowing. The clip and the moment are the viewer's to run, with the list beside
 			 * the figure and the slider under it; what changed is where they start.
 			 */
 			current = poseClip(motion, m.pose);
@@ -26983,17 +27519,17 @@ function openSiteModelWindow(m, ctx) {
 			win.close();
 			tidyAfterDownload();
 			/*
-			 * The download that just happened, counted on the card she came from.
+			 * The download that just happened, counted on the card the window came from.
 			 *
-			 * Her complaint: the numbers never move. One reason was the window keeping
+			 * The numbers never moved. One reason was the window keeping
 			 * fresh counts to itself; this is the other. Taking the file is what raises
 			 * the download count, and it is raised a moment after the file leaves -- by
 			 * which time this window is closed and nobody asks again, so the card goes on
 			 * showing the number its shelf was fetched with until the whole shelf is
 			 * reloaded. So ask the model's page once more and hand the answer to the shelf.
 			 *
-			 * It will not move for her own models, and that is the site's decision rather
-			 * than a fault here: the owner fetching her own file is not counted.
+			 * It will not move for one's own models, and that is the site's decision rather
+			 * than a fault here: the owner fetching their own file is not counted.
 			 */
 			fetch(ctx.origin + '/api/models/' + m.id, siteAsk(SITE_WAIT_LIST))
 				.then(siteAnswer)
@@ -27002,7 +27538,7 @@ function openSiteModelWindow(m, ctx) {
 					ctx.onChanged({ id: m.id, downloads: detail.downloads, likes: detail.likes, comments: detail.comments });
 				})
 				// A count that would not refresh is not worth a word on screen: the model
-				// opened, which is what she asked for, and this window is already gone.
+				// opened, which is what was asked for, and this window is already gone.
 				.catch(() => {});
 		});
 	}, 'main');
@@ -27015,13 +27551,13 @@ function openSiteModelWindow(m, ctx) {
 	// and a key that could send them would be the easiest way to flood them.
 	acts.appendChild(mkIconButton('flag', T('win.report'), () => openLink(sitePageURL(ctx.origin, m.id))));
 	/*
-	 * Changing what the site says about her own model, in a form of its own.
+	 * Changing what the site says about one's own model, in a form of its own.
 	 *
-	 * Her words, 10 October: there is no button for editing a model, and the description
-	 * cannot be changed. What the window had was the description on screen and nothing
-	 * saying it was hers to change; what the site had was a form for exactly this. The icon
+	 * There was no button for editing a model, and the description could not be changed.
+	 * What the window had was the description on screen and nothing saying the author could
+	 * change it; what the site had was a form for exactly this. The icon
 	 * stands beside the taking-down one and is shown by the same answer, so that everything
-	 * only she can do on her own model stands together at the end of the row.
+	 * only the author can do on their own model stands together at the end of the row.
 	 *
 	 * The model's own page is what the form is given, not the card from the shelf: the mark
 	 * set by whoever runs the site is said only there, and the form needs it to know whether
@@ -27029,26 +27565,27 @@ function openSiteModelWindow(m, ctx) {
 	 */
 	const edit = mkIconButton('edit', T('win.edit'), () => {
 		if (!latest) return;
-		// Three tries, not one: this read is the only place her new words reach the screen.
+		// Three tries, not one: this read is the only place the new words reach the screen.
 		openModelEditWindow(ctx.origin, latest, ctx.me, () => reread(3));
 	});
 	edit.title = T('win.edit') + ' — ' + T('win.edit_hint');
 	edit.style.display = 'none';
 	acts.appendChild(edit);
 	/*
-	 * Her own model, taken off the catalogue or deleted — on the site, and said here.
+	 * One's own model, taken off the catalogue or deleted — on the site, and said here.
 	 *
-	 * Her question: why can the author not delete her own model from the catalogue. The
+	 * The question is why the author cannot delete their own model from the catalogue. The
 	 * site can do both: `DELETE /api/models/<id>` takes the row, the file and the picture,
 	 * and `POST /api/models/<id>/hide` makes it private again. A key cannot do either, and
-	 * that is her own decision of 8 October, written down with its reason in keyRules.ts: a
+	 * that is deliberate, written down with its reason in keyRules.ts: a
 	 * key may publish and update, not undo, because it sits in storage any other plugin can
 	 * read. So this is not a missing route to call but a button that leads where it can be
 	 * done — and a hover that says why it is not done here, instead of a window that says
-	 * nothing about a model being hers at all.
+	 * nothing about a model being one's own at all.
 	 *
-	 * Shown only once the site has said the model is hers (`mine` in the model's own page),
-	 * because on somebody else's model it would be a button that could only refuse.
+	 * Shown only once the site has said the model belongs to the viewer (`mine` in the
+	 * model's own page), because on somebody else's model it would be a button that could
+	 * only refuse.
 	 */
 	const takeDown = mkIconButton('delete', T('win.take_down'), () => openLink(sitePageURL(ctx.origin, m.id)));
 	takeDown.title = T('win.take_down') + ' — ' + T('win.take_down_why');
@@ -27075,9 +27612,9 @@ function openSiteModelWindow(m, ctx) {
 				drawHeart();
 				// The count goes with it, not only the fact of the heart. The site counts the
 				// hearts again rather than adding one, so this number is everybody's and not
-				// hers -- and the card behind this window went on showing the number its
-				// shelf was fetched with, so her own heart on her own model left the card
-				// reading zero until the whole shelf was asked for again.
+				// the viewer's -- and the card behind this window went on showing the number
+				// its shelf was fetched with, so an author's heart on their own model left the
+				// card reading zero until the whole shelf was asked for again.
 				ctx.onChanged({ id: m.id, liked, likes });
 			})
 			// `siteFailure`, not `e.message`: the message is the short English the site
@@ -27106,7 +27643,7 @@ function openSiteModelWindow(m, ctx) {
 	const description = mk('div', 'mtc_text mtc_note', T('win.loading'));
 	side.appendChild(mkSection(T('win.description'), description));
 	const tags = mk('div', 'mtc_tags');
-	// Drawn again rather than written once, because the tags are hers to change from this
+	// Drawn again rather than written once, because the author can change the tags from this
 	// window now, and the answer to a change is the model's page read anew.
 	const drawTags = list => {
 		tags.innerHTML = '';
@@ -27138,7 +27675,7 @@ function openSiteModelWindow(m, ctx) {
 				latest = detail;
 				// What the site says about the model now, over what the shelf said when it was
 				// fetched: the name in the strip, the colour behind the picture, the tags and the
-				// description. On opening the two agree; after she has changed something they do
+				// description. On opening the two agree; after something has been changed they do
 				// not, and this is the one request that answers both times.
 				win.setTitle(detail.name || T('sf.unnamed'));
 				paintBackdrop(pic, backdropFor(detail.background, ctx.backdrop));
@@ -27163,9 +27700,9 @@ function openSiteModelWindow(m, ctx) {
 				 *
 				 * Two of them are worth saying out loud, because they are decisions and not
 				 * faults, and a number that does not move looks like a fault either way. The
-				 * owner fetching her own model is not a download and is not counted (`getFile`
+				 * owner fetching their own model is not a download and is not counted (`getFile`
 				 * in the worker), and the catalogue's own list is kept at the edge for a minute,
-				 * so somebody else's heart reaches the catalogue a minute late. Her own shelf is
+				 * so somebody else's heart reaches the catalogue a minute late. The "Mine" shelf is
 				 * never cached and answers at once.
 				 */
 				if (detail.downloads !== undefined) {
@@ -27188,8 +27725,8 @@ function openSiteModelWindow(m, ctx) {
 			 * This catch said "no description" for every refusal, and a model taken off the
 			 * catalogue then looked whole: the name, the facts, the picture and the figure all
 			 * come from the shelf's own summary, and this request is the only one that knows the
-			 * model is gone. The person found out by pressing "Open in Blockbench" — which is
-			 * exactly her question about a taken-down model, from the other end.
+			 * model is gone. It showed only on pressing "Open in Blockbench" — which is
+			 * exactly the question about a taken-down model, from the other end.
 			 *
 			 * The site names every refusal with a code, and the plugin has fifty of those lines
 			 * now (`tools/sync-check.mjs`), so there is nothing left to invent: "there is no such
@@ -27202,11 +27739,11 @@ function openSiteModelWindow(m, ctx) {
 				 * A dropped request, where there are tries left: asked again, and nothing said
 				 * on the screen in between.
 				 *
-				 * This is the read after a change of her own, and the words standing in the
+				 * This is the read after a change made in the form, and the words standing in the
 				 * window are the ones from before it. Measured: a save answered in 5.9 seconds
 				 * and the read after it was dropped by the server, which put "Failed to fetch"
 				 * where the description had been -- a sentence about the network, in the place
-				 * where a person reads what her model is about, with the save already done.
+				 * where a person reads what their model is about, with the save already done.
 				 *
 				 * Only a silence is asked again. A refusal carries its own code and would come
 				 * back the same, so "there is no such model" is said at once, as it was.
@@ -27330,10 +27867,10 @@ function openSiteModelWindow(m, ctx) {
  * Changing what the site says about one's own model: the name, the description, the
  * tags, the colour behind the card, and who the model is for.
  *
- * Her words, 10 October: a button for editing a model is needed, to change the model's
- * description and so on, and there is nothing like that now. The site itself has had it
- * all along — `ModelEdit` on a model's page — and this form changes the same five things,
- * which are the five that `PATCH /api/models/<id>` takes and that are words rather than
+ * A button for editing a model was needed, to change the model's description and so
+ * on, and there was nothing like that. The site itself has had it
+ * all along — `ModelEdit` on a model's page — and this form changes the same six things,
+ * which are the six that `PATCH /api/models/<id>` takes and that are words rather than
  * geometry. What it leaves out, and why: the licence and the author belong to publishing,
  * which asks for them every time and keeps no default; the file can never be replaced, so
  * a new version is a new model, and the form says as much; and taking a model off the
@@ -27352,7 +27889,7 @@ function openSiteModelWindow(m, ctx) {
  */
 function openModelEditWindow(origin, detail, me, onSaved) {
 	addBrowserStyles();
-	// What she says, beside what the site says: kept apart, so that saving can send the
+	// What the form says, beside what the site says: kept apart, so that saving can send the
 	// difference and nothing besides it.
 	const said = {
 		name: detail.name || '',
@@ -27360,6 +27897,7 @@ function openModelEditWindow(origin, detail, me, onSaved) {
 		tags: (Array.isArray(detail.tags) ? detail.tags : []).join(', '),
 		background: detail.background || null,
 		adult: !!detail.adult,
+		category: isModelCategory(detail.category) ? detail.category : null,
 	};
 	let busy = false;
 	let closed = false;
@@ -27368,6 +27906,12 @@ function openModelEditWindow(origin, detail, me, onSaved) {
 	host.appendChild(mkField(T('put.name'), T('put.name_hint'), mkLineField(said.name, MODEL_NAME_MAX, value => {
 		said.name = value;
 	})));
+
+	const categorySlot = mk('span', 'mtc_select');
+	categorySlot.appendChild(selectNode(PLUGIN_ID + '_edit_category', categoryOptions(), said.category || 'none', key => {
+		said.category = isModelCategory(key) ? key : null;
+	}));
+	host.appendChild(mkField(T('put.category'), T('put.category_hint'), categorySlot));
 
 	const describeField = mk('textarea');
 	describeField.maxLength = MODEL_DESCRIPTION_MAX;
@@ -27421,14 +27965,14 @@ function openModelEditWindow(origin, detail, me, onSaved) {
 		host.appendChild(mkField(T('put.adult'), T('put.adult_hint'), adult.node));
 	}
 
-	// Said before she goes looking for it: the file is not what this form changes. A form
-	// that let her believe otherwise would be found out by a model that never changed.
+	// Said before anyone goes looking for it: the file is not what this form changes. A form
+	// that suggested otherwise would be found out by a model that never changed.
 	host.appendChild(mk('div', 'mtc_note', T('win.edit_note')));
 	const note = mk('div', 'mtc_note');
 	host.appendChild(note);
 	const say = (text, bad) => { note.textContent = text || ''; note.classList.toggle('bad', !!bad); };
 
-	/** Saving: the difference between what the site says and what she typed, and nothing else. */
+	/** Saving: the difference between what the site says and what was typed, and nothing else. */
 	function save() {
 		if (busy) return;
 		let body;
@@ -27454,7 +27998,7 @@ function openModelEditWindow(origin, detail, me, onSaved) {
 				// afterwards is the model's page read again and not what was typed here: the
 				// site trims a name, lower-cases a tag and drops the repeats, and a window
 				// showing the typed words would differ from the site for as long as it stayed
-				// open. Read again even if she closed the form while this was in the air —
+				// open. Read again even if the form was closed while this was in the air —
 				// the change reached the site either way.
 				if (typeof onSaved === 'function') onSaved();
 			})
@@ -28618,7 +29162,7 @@ function stageFit(camera, box, look, closer, shift) {
  *
  * `closer` and `shift` are what the hand did in the window the picture is being taken
  * from, and they are applied to this frame rather than instead of it: the fit above is
- * what the card is, and her zoom and her sideways move are read as "and a bit closer
+ * what the card is, and the zoom and the sideways move are read as "and a bit closer
  * than that, and a bit to the left". Without them this is the fit the site makes, which
  * is what the comparison above measures.
  */
@@ -28787,8 +29331,8 @@ const FigureStage = {
  *
  * The words are the ones a figure that failed to build has always shown, and they are the
  * truth for every way of not being drawn: "The model could not be drawn." The reason itself
- * stays in the log, where a reason belongs — she cannot act on "the context is lost", and
- * the one thing she could act on, trying again, is what the line already invites.
+ * stays in the log, where a reason belongs — nobody can act on "the context is lost", and
+ * the one thing anybody could act on, trying again, is what the line already invites.
  *
  * Hidden rather than taken out of the page: this overlay lies over the whole canvas, and
  * one left in place would swallow the dragging that turns the model.
@@ -28813,7 +29357,7 @@ function figureBlankLine(wait) {
  */
 function blankLineSays(wait, more) {
 	// `more` is the one reason a window has always carried in words: a file that would not
-	// read. It is hers to act on — a file she chose — unlike the reasons the drawing gives.
+	// read. That one can be acted on — it is a chosen file — unlike the reasons the drawing gives.
 	wait.textContent = more ? T('win.no_figure') + ' ' + more : T('win.no_figure');
 	wait.classList.add('veiling');
 	wait.style.display = '';
@@ -28848,8 +29392,8 @@ class FigureView {
 		/**
 		 * Told why the figure is not on the screen, and told again with null when it is.
 		 *
-		 * Her second complaint of 10 October: a model of her own opened into an empty window,
-		 * and the same model shown again appeared. A figure that fails to *build* has always
+		 * A model of one's own opened into an empty window, and the same model shown again
+		 * appeared. A figure that fails to *build* has always
 		 * said so; a figure that builds and then draws nothing said nothing at all, because
 		 * the waiting line had been taken down by then and a blank square is what was left.
 		 */
@@ -28937,7 +29481,7 @@ class FigureView {
 			if (this.blanked) { this.blanked = null; if (this.onBlank) this.onBlank(null); }
 			return moving;
 		}
-		// Wanted and not drawn, and the want is kept. The whole of the second complaint is
+		// Wanted and not drawn, and the want is kept. The whole of the empty-window fault is
 		// here: a frame given up on is a blank square, because nothing asks a second time.
 		if (why.waits) {
 			this.missing += seconds;
@@ -28954,7 +29498,7 @@ class FigureView {
 	 * This view has nothing on it, and here is why.
 	 *
 	 * Said once, because the loop would otherwise say it sixty times a second. The words are
-	 * English and go to the log; what the person sees is her own window's line, which is the
+	 * English and go to the log; what the person sees is the window's own line, which is the
 	 * one a figure that failed to build has always shown.
 	 */
 	cannot(said) {
@@ -29138,10 +29682,10 @@ function canvasBytes(canvas, type, quality) {
  * what every card published before anybody could move the camera still shows.
  *
  * It travels no further than the picture. The site keeps two angles for a model and no
- * distance, so the figure in its own window on the site stands at the angle she chose
- * and at the site's own distance; the picture on the card is the one that carries what
- * she framed. One of the two could not be made to lie without a column on the site that
- * is not mine to add while she is asleep.
+ * distance, so the figure in its own window on the site stands at the angle chosen
+ * and at the site's own distance; the picture on the card is the one that carries the
+ * framing. Making the two agree would need a new column on the site, which is a change
+ * to the site and not to this plugin.
  *
  * Returns the bytes and what kind they turned out to be, or null when nothing small
  * enough came out — an upload then goes up without a picture rather than not at all.
@@ -29466,6 +30010,147 @@ function removeSiteLinkField() {
 	siteLinkProperty = null;
 }
 
+// ---------------------------------- Mosaicary: the licence notice in a .bbmodel
+
+/**
+ * The licence notice a model of Mosaicary Archive carries inside its own file, kept.
+ *
+ * The site writes it into the file as the first top-level field, `mosaicary_licence`:
+ * the licence, where the model was taken from, the licence texts and what was changed
+ * (site/shared/licenceNotice.ts). MIT, the BSD licences, Apache and the GPL family ask
+ * for that notice in every copy, and a project saved again is a copy. Blockbench writes
+ * only the fields it knows, so without this a model opened and saved once would lose it.
+ *
+ * Kept the way the site link above is kept: a project property, which Blockbench reads
+ * back by itself when it opens a file, with `export: false` so that Blockbench does not
+ * write it on its own, and one line on `compile` that writes it. Written first, because
+ * the site looks for it at the head of a file without reading the rest, and because a
+ * file handed out by the site begins with it.
+ *
+ * Nothing in it is checked here: the notice is the source's own words, and a copy has to
+ * carry them as they came; what the site accepts is the site's to decide when a file is
+ * uploaded. A value that is not an object with something in it is left out, since that is
+ * no notice at all, and characters Blockbench cannot write are made writable
+ * (savableNotice).
+ */
+const NOTICE_FIELD = 'mosaicary_licence';
+let noticeProperty = null;
+let noticeWriter = null;
+
+/** The notice a project carries, or null. */
+function projectNotice(project) {
+	const said = project && project[NOTICE_FIELD];
+	return said && typeof said === 'object' && !Array.isArray(said) && Object.keys(said).length > 0 ? said : null;
+}
+
+/**
+ * The model about to be written, with the notice in front of every other field.
+ *
+ * Reordered in place, because the object is the one Blockbench goes on to write: its
+ * fields are taken out and put back after the notice, in the order they had.
+ */
+function putNoticeFirst(model, notice) {
+	const rest = Object.assign({}, model);
+	delete rest[NOTICE_FIELD];
+	for (const key of Object.keys(model)) delete model[key];
+	model[NOTICE_FIELD] = notice;
+	Object.assign(model, rest);
+}
+
+/**
+ * The notice the way Blockbench's own JSON writer can put it into a file.
+ *
+ * Blockbench escapes only line feeds, tabs, quotes and backslashes when it writes a
+ * project (measured in web Blockbench 5.2.2): a CR before an LF is dropped, and a lone CR
+ * or any other control character goes into the file raw, which leaves a file that no
+ * JSON reader opens. A notice from the site holds none of them (site/shared/licenceNotice.ts
+ * takes them out before the file is made), and then this is the very same object. One
+ * from elsewhere gets each CR turned into a line feed and the other control characters
+ * dropped, so that the project still saves into a file that opens.
+ */
+function savableNotice(notice) {
+	let changed = false;
+	const walk = value => {
+		if (typeof value === 'string') {
+			const clean = value.replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b-\u001f]/g, '');
+			if (clean !== value) changed = true;
+			return clean;
+		}
+		if (Array.isArray(value)) return value.map(walk);
+		if (value && typeof value === 'object') {
+			const out = {};
+			for (const key of Object.keys(value)) out[key] = walk(value[key]);
+			return out;
+		}
+		return value;
+	};
+	const copy = walk(notice);
+	return changed ? copy : notice;
+}
+
+/** The property and the one line that writes it, for as long as the plugin is loaded. */
+function addNoticeField() {
+	if (typeof Property === 'undefined' || typeof ModelProject === 'undefined') return;
+	noticeProperty = new Property(ModelProject, 'object', NOTICE_FIELD, {
+		// Shown in a window of its own (showNotice), never typed into.
+		exposed: false,
+		export: false,
+	});
+	if (typeof Codecs === 'undefined' || !Codecs.project || !Codecs.project.on) return;
+	noticeWriter = Codecs.project.on('compile', data => {
+		const notice = projectNotice(typeof Project !== 'undefined' ? Project : null);
+		if (notice && data && data.model) putNoticeFirst(data.model, savableNotice(notice));
+	});
+}
+
+function removeNoticeField() {
+	if (noticeWriter) noticeWriter.delete();
+	if (noticeProperty) noticeProperty.delete();
+	noticeWriter = null;
+	noticeProperty = null;
+}
+
+/**
+ * The open project's notice, shown as the file has it.
+ *
+ * Read-only: the words are the source's, and a box that could be typed into would
+ * suggest that changing them here changes anything. Each licence text the source had
+ * gets a box of its own under its file name, because such a text is long.
+ */
+function showNotice(notice) {
+	if (!notice) return;
+	const line = value => (typeof value === 'string' ? value : '');
+	const form = {
+		licence: { label: T('notice.licence'), type: 'text', value: line(notice.licence), readonly: true },
+		source: { label: T('notice.source'), type: 'text', value: line(notice.source), readonly: true },
+		changes: { label: T('notice.changes'), type: 'textarea', value: line(notice.changes), height: 60 },
+		note: { label: T('notice.note'), type: 'textarea', value: line(notice.note), height: 60 },
+	};
+	const files = Array.isArray(notice.files) ? notice.files : [];
+	files.forEach((one, at) => {
+		if (!one || typeof one.text !== 'string') return;
+		form['text_' + at] = { label: line(one.name) || T('notice.licence'), type: 'textarea', value: one.text, height: 240 };
+	});
+	const id = PLUGIN_ID + '_notice';
+	const dialog = new Dialog({ id, title: T('action.notice'), width: 720, singleButton: true, form });
+	dialog.show();
+	// The form honours `readonly` on a line of text but not on a box of it (measured in
+	// web Blockbench 5.2.2), so the boxes are made read-only once they are on the page.
+	const root = document.getElementById(id);
+	if (root) root.querySelectorAll('textarea').forEach(box => { box.readOnly = true; });
+}
+
+/** Where the notice goes: File, right after Project, which is about the open project too. */
+function besideProjectWindow() {
+	try {
+		const items = MenuBar.menus.file.structure;
+		const idOf = x => typeof x === 'string' ? x : x && x.id;
+		const at = items.findIndex(x => idOf(x) === 'project_window');
+		if (at >= 0) return 'file.' + (at + 1);
+	} catch (e) { /* a menu laid out differently: the end of File */ }
+	return 'file';
+}
+
 /**
  * How long the site may stay silent. A closed port fails by itself in about
  * two seconds, but a server that takes the connection and never answers would
@@ -29740,8 +30425,8 @@ function putUpRefusal() {
  * The project is read again, through the codec, immediately before anything goes out,
  * so the counts, the fingerprint and the bytes are one reading of one file. A project
  * that moved on in between stops the upload rather than sending numbers about a file
- * that no longer exists: the facts are read afresh and she presses again, looking at
- * what will actually travel.
+ * that no longer exists: the facts are read afresh, and the next press is made looking
+ * at what will actually travel.
  */
 function openSitePublishWindow(ctx) {
 	const already = MtcWindows.open.find(win => win.publishing);
@@ -29760,6 +30445,7 @@ function openSitePublishWindow(ctx) {
 		description: '',
 		tags: '',
 		licence: '',
+		category: null,
 		author: '',
 		url: '',
 		adult: false,
@@ -29782,10 +30468,10 @@ function openSitePublishWindow(ctx) {
 	 */
 	const posed = { clip: '', seconds: 0 };
 	/**
-	 * The animations she has taken out of what travels, by uuid.
+	 * The animations taken out of what travels, by uuid.
 	 *
 	 * Absent means going up: a model keeps all of its animations unless somebody says
-	 * otherwise, so a file published without touching this row is the file she saved. Only
+	 * otherwise, so a file published without touching this row is the file as saved. Only
 	 * the refusals are held, which is also why a clip that comes back after an edit comes
 	 * back included rather than remembering a decision made about a different file.
 	 */
@@ -29839,7 +30525,7 @@ function openSitePublishWindow(ctx) {
 	// A clip and a moment in it, not a player: the card is one frame, so the control gives
 	// one frame. Nothing moves by itself here — a view that played would be showing a pose
 	// the card is not going to have, which is why this window had no animations at all
-	// before she asked for the frame to be hers to choose.
+	// before the frame became something to choose.
 	const poseSlot = mk('span', 'mtc_select');
 	const poseAt = mk('input', 'mtc_range');
 	poseAt.type = 'range';
@@ -29910,8 +30596,15 @@ function openSitePublishWindow(ctx) {
 	};
 	const tagField = mkLineField('', MODEL_TAGS_MAX * (MODEL_TAG_MAX + 1), value => { said.tags = value; drawTags(); });
 	drawTags();
+	// What the model is, right under its name: the other half of saying what the thing is,
+	// and what the catalogue's filter and the game mod's shelves go by. Not needed.
+	const categorySlot = mk('span', 'mtc_select');
+	categorySlot.appendChild(selectNode(PLUGIN_ID + '_put_category', categoryOptions(), 'none', key => {
+		said.category = isModelCategory(key) ? key : null;
+	}));
 	side.appendChild(mkSection(T('put.about'),
 		mkField(T('put.name'), T('put.name_hint'), nameField),
+		mkField(T('put.category'), T('put.category_hint'), categorySlot),
 		mkField(T('put.description'), '', describeField),
 		// The tags as the site will keep them, under the line they are typed in: lower
 		// case, no repeats, eight at most. Typed one way and kept another is the sort of
@@ -29945,7 +30638,7 @@ function openSitePublishWindow(ctx) {
 	// Above the counted file rather than below it: unticking a box takes one off the count
 	// of animations in the very next section, and a control standing under the number it
 	// moves would read as though the number had moved on its own. Names and boxes and no
-	// icons: the names are hers, and no icon can say which animation is «idle».
+	// icons: the names are the author's, and no icon can say which animation is «idle».
 	const clipsBox = mk('div', 'mtc_puts');
 	// What the boxes mean, once under the header and not fourteen times on the hover: the
 	// hover of a box is wanted for its own name, which the column may have had to cut.
@@ -30001,13 +30694,13 @@ function openSitePublishWindow(ctx) {
 		if (prepared.stripped) warnBox.appendChild(mk('div', 'mtc_note', T('put.stripped', { count: grouped(prepared.stripped) })));
 	};
 
-	/** The animations she has read, as one line: the same file, or not the same file. */
+	/** The animations last read, as one line: the same file, or not the same file. */
 	let clipsShown = '';
 	/**
 	 * A box for each of the file's own animations, with the ticked ones going up.
 	 *
 	 * The list is the file's own, from before anything was dropped. Built out of what is
-	 * left instead, a box she unticks would take itself off the list that offers it back.
+	 * left instead, an unticked box would take itself off the list that offers it back.
 	 *
 	 * Rebuilt only when the animations themselves change, never for a tick: the boxes would
 	 * be replaced under the hand that had just clicked one, and the new one would be
@@ -30108,7 +30801,7 @@ function openSitePublishWindow(ctx) {
 	 *
 	 * `poseNow` carries the clip itself, because `cardPicture` is about to make it move;
 	 * this carries its two names and the moment, because the site has to be able to find
-	 * that clip again in a file it has never read. Her complaint came of the difference
+	 * that clip again in a file it has never read. The mismatch came of the difference
 	 * between these two: the first existed and the second did not, so the choice reached
 	 * the picture and went no further, and the preview beside the card had nothing to go
 	 * on and played whichever clip came first in the file.
@@ -30177,7 +30870,7 @@ function openSitePublishWindow(ctx) {
 	 * The figure built again, standing as it stood.
 	 *
 	 * `look` and `frame` are given back to the new view because the file is read again for
-	 * reasons that have nothing to do with the camera — she pressed "Read the project again",
+	 * reasons that have nothing to do with the camera — "Read the project again" was pressed,
 	 * or took an animation out of what travels — and a camera that jumped back to the front
 	 * on every such reading would make framing a card by hand impossible.
 	 */
@@ -30214,16 +30907,16 @@ function openSitePublishWindow(ctx) {
 	 * What the figure in the view is built out of, as one line: the shape and the paint,
 	 * and the animations the file holds.
 	 *
-	 * Not the hash of the bytes going up. Those move when she takes an animation out of
+	 * Not the hash of the bytes going up. Those move when an animation is taken out of
 	 * what travels, and rebuilding the whole model for a tick of a box would throw away the
-	 * camera, the frame and a second of her time to show the same model again.
+	 * camera, the frame and a second of waiting to show the same model again.
 	 *
 	 * Not the fingerprint on its own either. It is the site's own measure of shape and
 	 * paint, by which it knows a model it already has, and it leaves animations out on
 	 * purpose: measured here, a clip written into the project moved it by nothing, so the
 	 * window went on offering the clips of a reading two files old — with the count of
 	 * animations beside the picture already saying there was one. The clip list is the
-	 * file's own, read before anything is dropped, so a refusal of hers does not move it
+	 * file's own, read before anything is dropped, so unticking a clip does not move it
 	 * while a clip added, renamed or deleted in Blockbench does.
 	 */
 	const figureKey = made => made.print + '\n' + made.clips.map(clip => clip.uuid + ':' + clip.name).join('\n');
@@ -30238,7 +30931,7 @@ function openSitePublishWindow(ctx) {
 	 *
 	 * A figure already in the view is left on the screen. A reading pressed by hand can fail
 	 * over a model that is drawn and still true, and words over a live model would hide the
-	 * very thing she is looking at. The reason beside the button is the one that moved.
+	 * very thing being looked at. The reason beside the button is the one that moved.
 	 */
 	const noFigureComing = () => {
 		if (view) return;
@@ -30286,7 +30979,7 @@ function openSitePublishWindow(ctx) {
 	 * The card's picture again, for a model that is up without one.
 	 *
 	 * The angle and the frame go with it. They were not sent here before, and that was the
-	 * same fault as the one that made her write: a second picture drawn from another angle,
+	 * same fault as the card-and-preview mismatch: a second picture drawn from another angle,
 	 * at another moment of another clip, left the site remembering the first, and everything
 	 * built from the stored choice then disagreed with the picture on the card. The picture
 	 * and what it was taken at are one thing, so they travel together.
@@ -30353,7 +31046,7 @@ function openSitePublishWindow(ctx) {
 			if (gone || !fresh) return;
 			if (before && fresh.print !== before) {
 				// Read again rather than sent: the numbers on their way out are about the
-				// file as it is now, and she is looking at what they describe.
+				// file as it is now, and what they describe is what is on screen.
 				say(T('put.changed'), true);
 				return;
 			}
@@ -30401,7 +31094,7 @@ function openSitePublishWindow(ctx) {
 			}
 			// The catalogue reads the site again, wherever this window was opened from: the
 			// model is up, and a pane still showing the answer from before it is the whole
-			// of what she saw as updates never arriving.
+			// of what looked like updates never arriving.
 			if (MtcBrowser.siteFresh) {
 				try {
 					MtcBrowser.siteFresh(result);
@@ -30409,10 +31102,10 @@ function openSitePublishWindow(ctx) {
 					console.warn('[gltf-to-minecraft] the catalogue could not be told about the upload', e);
 				}
 			}
-			// Her own question: why does the window not close once the model is published.
-			// Because a window with nothing left to press in it is in the way — so it goes,
+			// The window closes once the model is published, because a window with nothing
+			// left to press in it is in the way — so it goes,
 			// and what happened goes to the corner of Blockbench, where it can be read with
-			// the window already gone. The model itself is on her shelf behind it.
+			// the window already gone. The model itself is on the "Mine" shelf behind it.
 			if (!left) {
 				if (typeof Blockbench !== 'undefined' && Blockbench.showQuickMessage) Blockbench.showQuickMessage(done, 2000);
 				win.close();
@@ -31580,7 +32273,7 @@ let geckolibAnimationReader = null;
  * There is nowhere to keep them — a keyframe in Blockbench without their plugin has no
  * such field, and the mod turns their `bezier` into a straight line in any case. That
  * it was dropped goes to the console: a line on screen would want thirteen
- * translations, and whether to spend them is hers to decide.
+ * translations, and whether to spend them is a separate decision.
  */
 function readTheirKeyframes() {
 	try {
@@ -32361,7 +33054,7 @@ function feedbackWhy(e) {
  * The catalogue's rules do not let a plugin show a page of somebody else's inside
  * Blockbench, and they are right not to: a page in a frame can ask for anything and
  * look like us while it asks. So this is Blockbench's own window, and what it sends is
- * one request carrying the key the plugin already holds. Her decision of 9 October.
+ * one request carrying the key the plugin already holds.
  *
  * <h2>Writing, and reading elsewhere</h2>
  *
@@ -32719,10 +33412,10 @@ function addLanguageSetting() {
 /**
  * How long after a save the file travels, in seconds.
  *
- * Her own number, and it fits what the site allows: an upload is three changing
+ * A chosen number, and it fits what the site allows: an upload is three changing
  * requests — the declaration, the file, the picture — and a key may make thirty of
  * them a minute (`KEY_WRITES` in the site's own configuration), so a minute between
- * uploads leaves twenty-seven to her own hands.
+ * uploads leaves twenty-seven for everything done by hand.
  */
 const SYNC_WAIT_SECONDS = 60;
 
@@ -32755,7 +33448,7 @@ const syncWaiting = new Map();
  * the reason it was said for.
  *
  * One line per project and per reason: «the draft is behind» repeated on every press of
- * Ctrl+S is a wall of one sentence, and she saves often.
+ * Ctrl+S is a wall of one sentence, and saving is frequent.
  */
 const syncSaid = new Map();
 
@@ -32841,7 +33534,7 @@ function syncWhyFailed(e) {
 }
 
 /**
- * Which file on her own computer this project is, said as a hash of its path.
+ * Which file on this computer this project is, said as a hash of its path.
  *
  * The hash and never the path itself: the site has no business knowing the shape of
  * somebody's disk, and it does not need to — all it does with the mark is match a draft
@@ -32865,7 +33558,7 @@ function syncWhyFailed(e) {
  * draft would stand for two files, each save replacing the other's work. A full path
  * carries a person's own name on both systems, so two machines agreeing on one is
  * unlikely rather than impossible; see `docs/plugin-sync.md`, where it stands with the
- * other assumptions made while she was away.
+ * other assumptions the sync rests on.
  */
 async function syncLocalMark(project) {
 	const path = project && typeof project.save_path === 'string' ? project.save_path : '';
@@ -32874,15 +33567,15 @@ async function syncLocalMark(project) {
 }
 
 /**
- * The one question, asked at the moment it is about: she has just saved a model, and
+ * The one question, asked at the moment it is about: a model has just been saved, and
  * being signed in means the site has somewhere to put it.
  *
  * Not on loading the plugin. A window over the work in the first second is a window
  * closed unread, and what it asks about has not happened yet.
  *
- * The model that brought the question goes into the queue the moment she says yes. The
- * other way about — the answer counting only from the next save — leaves the model she
- * is looking at behind, which reads as the answer not having worked. The minute is
+ * The model that brought the question goes into the queue the moment the answer is yes.
+ * The other way about — the answer counting only from the next save — leaves the model
+ * on screen behind, which reads as the answer not having worked. The minute is
  * counted from the answer rather than from the save, because the answer is the newer of
  * the two.
  */
@@ -32890,8 +33583,8 @@ function syncAskOnce(project) {
 	if (typeof Dialog !== 'function') return;
 	const origin = siteOrigin();
 	if (syncAsked(origin)) return;
-	// Marked before it is shown, not after: the question is asked once even if she
-	// closes the window with the cross, which is an answer as well.
+	// Marked before it is shown, not after: the question is asked once even if the
+	// window is closed with the cross, which is an answer as well.
 	syncAsked(origin, true);
 	new Dialog({
 		id: PLUGIN_ID + '_sync_ask',
@@ -32963,10 +33656,10 @@ function syncSaved(event) {
  * is empty, which is the usual state.
  *
  * A clock and not a chain of timers, because two things have to be waited for and only
- * one of them is a length of time: the minute since the save, and her coming back to
+ * one of them is a length of time: the minute since the save, and a return to
  * that tab, which has no moment to schedule. A tick that finds nothing to do is a map
  * lookup beside an editor drawing sixty frames a second, so a model left waiting in a
- * tab she does not return to costs that and no more.
+ * tab nobody returns to costs that and no more.
  */
 function syncPoke() {
 	if (syncTimer !== null || typeof setInterval !== 'function') return;
@@ -32998,10 +33691,10 @@ function syncOpenNow() {
 /**
  * Whether anything is due, and sending it if it is.
  *
- * The project it sends is the one in front of her, and no other: `Codecs.project
+ * The project it sends is the one on screen, and no other: `Codecs.project
  * .compile()` writes out the **selected** project and takes no argument saying which,
- * so a save she walked away from cannot be sent without switching her tabs under her
- * hands. It waits instead, and goes up the next time that model is in front of her.
+ * so a save left in another tab cannot be sent without switching tabs in the middle of
+ * work. It waits instead, and goes up the next time that model is on screen.
  */
 function syncDue() {
 	if (!syncWaiting.size) { syncStop(); return; }
@@ -33027,7 +33720,7 @@ function syncDue() {
 /** Where a sending stopped, in words, and what it does to the queue. */
 function syncStopped(project, e) {
 	// The one refusal that passes by itself. Put back rather than dropped: the file is
-	// still the file she saved, and a minute from now the allowance is there again.
+	// still the file that was saved, and a minute from now the allowance is there again.
 	if (e && e.no === 'too_often') {
 		syncRestUntil = Date.now() + SYNC_REST_SECONDS * 1000;
 		if (project && project.uuid) syncWaiting.set(project.uuid, { at: Date.now() - SYNC_WAIT_SECONDS * 1000 });
@@ -33035,7 +33728,7 @@ function syncStopped(project, e) {
 		return;
 	}
 	// Nobody is signed in any more: said by the upload itself, and there is nothing to
-	// say about it — she signed out, and she knows.
+	// say about it — whoever signed out knows it already.
 	if (e && e.no === 'sign_in_needed') return;
 	// `siteFailure` and not the bare message: it tells a silent server from a refusal,
 	// and a refusal from the site arrives as a code whose line the plugin already has —
@@ -33065,7 +33758,7 @@ async function syncShot(prepared) {
 }
 
 /**
- * A draft of hers that is already up, and a newer file for it.
+ * One's own draft that is already up, and a newer file for it.
  *
  * Three requests, in this order, because the site will not take a file it was not told
  * about first: the declaration of what the file is, the bytes, and a new picture for
@@ -33074,9 +33767,9 @@ async function syncShot(prepared) {
  * the next save decide there was nothing to do.
  *
  * Only ever a draft that mirrors **this** file. The site refuses the rest by itself
- * (`not_a_mirror`, and never a published model — her decision of 7 October), and this
+ * (`not_a_mirror`, and never a published model), and this
  * side refuses before asking, because this side knows the one thing the site cannot:
- * whether the model about to be replaced mirrors the file in front of her, or another
+ * whether the model about to be replaced mirrors the file on screen, or another
  * file that was once copied from it. Keys are compared for that and nothing else.
  */
 async function syncReplace(project, prepared, said, mark) {
@@ -33123,7 +33816,7 @@ async function syncReplace(project, prepared, said, mark) {
 }
 
 /**
- * The file is up already, under a draft of hers this project did not know about.
+ * The file is up already, under one's own draft this project did not know about.
  *
  * Which happens for one ordinary reason: the same file opened twice, in another window
  * or another run, and sent from there. The site answers `local_already` with the model
@@ -33141,8 +33834,8 @@ async function syncReplace(project, prepared, said, mark) {
  *
  * A refusal of this code that names no model it can use is still this refusal, and it is
  * kept here rather than passed on: the words further up would come out as "the site
- * answered HTTP 409", which tells her the save failed and not that the file is already
- * up elsewhere. "The draft is behind" is what is true for her in that case — the file is
+ * answered HTTP 409", which says the save failed and not that the file is already
+ * up elsewhere. "The draft is behind" is what is true in that case — the file is
  * mirrored by a model this project cannot reach, so this file's draft cannot be caught up.
  *
  * The id is read out of `vars`, where `siteRefusal` keeps everything the site sent, for
@@ -33181,8 +33874,8 @@ function syncMirrorFound(project, e) {
 async function syncSend(project) {
 	const bytes = openProjectBytes();
 	if (!bytes) return;
-	// Every clip travels. Dropping one is a choice the publish window offers her by
-	// name, and a choice nobody made is not a choice to make on her behalf.
+	// Every clip travels. Dropping one is a choice the publish window offers by
+	// name, and a choice nobody made is not one to make on the author's behalf.
 	const prepared = await prepareModelFile(bytes, null);
 	const mark = await syncLocalMark(project);
 	const link = siteLinkHere(project);
@@ -33199,7 +33892,7 @@ async function syncSend(project) {
 		// count of clips is not in the link to compare against.
 		if (link.print && link.print === prepared.print) return;
 		const said = await fetch(siteOrigin() + '/api/models/' + link.id, siteAsk(SITE_WAIT_LIST)).then(siteAnswer);
-		// Her decision of 7 October: saving does not touch a model that is published.
+		// Saving does not touch a model that is published.
 		if (said && said.published) return;
 		if (said && said.print === prepared.print) return;
 		await syncReplace(project, prepared, said, mark);
@@ -33226,7 +33919,7 @@ async function syncSend(project) {
 			background: null,
 			look: null,
 			picture: shot,
-			// Which file of hers this is, so that the save after this one replaces it
+			// Which local file this is, so that the save after this one replaces it
 			// rather than putting a second model beside it. Only ever here: a sending that
 			// does not carry the mark is a model that can never be a mirror.
 			local: mark,
@@ -33239,8 +33932,8 @@ async function syncSend(project) {
 	syncSaid.delete(project.uuid + '|sync.behind');
 	syncSayOnce(project, 'sync.sent', T('sync.sent', { name: project.name || '' }), prepared.print);
 	// The catalogue reads the site again, the same door the publish window knocks on: a
-	// shelf still showing the answer from before the upload is the whole of what she
-	// reported as updates never arriving.
+	// shelf still showing the answer from before the upload is the whole of what
+	// looked like updates never arriving.
 	if (MtcBrowser.siteFresh) {
 		try {
 			MtcBrowser.siteFresh(result);
@@ -33265,8 +33958,8 @@ function addSyncWatch() {
 			description: T('sync.setting.description'),
 			category: 'general',
 			// Said out loud because the default is the other way about: a toggle made
-			// without a value of its own starts switched on, and nothing of hers travels
-			// to a site before she has said that it may.
+			// without a value of its own starts switched on, and no local file travels
+			// to a site before that has been allowed.
 			value: false,
 			onChange: value => { if (!value) { syncWaiting.clear(); syncStop(); } },
 		});
@@ -33337,6 +34030,7 @@ let putAction;
 let geoAction;
 let langAction;
 let langSetting;
+let noticeAction;
 
 Plugin.register(PLUGIN_ID, {
 	title: 'Mosaicary',
@@ -33349,7 +34043,7 @@ Plugin.register(PLUGIN_ID, {
 	// are named, and in the order the About page tells them in, because a reader who sees
 	// only the first line should still know what this is.
 	description: 'A catalogue of Blockbench models inside the editor, and a converter for the rest: glTF becomes Minecraft cubes with bones and animations — from an archive, a folder or Sketchfab, as GeckoLib, Bedrock, Java or a Customizable Player Models skin.',
-	version: '0.1.4',
+	version: '0.1.5',
 	variant: 'both',
 	min_version: '4.9.0',
 	has_changelog: true,
@@ -33496,6 +34190,18 @@ Plugin.register(PLUGIN_ID, {
 		});
 		MenuBar.addAction(geoAction, besideExport());
 
+		// The licence notice of the open project, shown only while it carries one: a model
+		// without a notice has nothing to show, and an entry that opens an empty window
+		// would only say the plugin is there.
+		noticeAction = new Action(PLUGIN_ID + '_notice', {
+			name: T('action.notice'),
+			description: T('action.notice.description'),
+			icon: 'copyright',
+			condition: () => typeof Project !== 'undefined' && !!projectNotice(Project),
+			click: () => showNotice(projectNotice(Project)),
+		});
+		MenuBar.addAction(noticeAction, besideProjectWindow());
+
 		// The GeckoLib format is registered now, not when an import asks for it.
 		// Measured in a live editor: a `.bbmodel` whose `model_format` nobody has
 		// registered opens as a Generic project instead of itself — bones, animation
@@ -33511,6 +34217,7 @@ Plugin.register(PLUGIN_ID, {
 		readTheirKeyframes();
 		registerStartScreenFormat();
 		addSiteLinkField();
+		addNoticeField();
 		addLanguageSetting();
 		addSyncWatch();
 	},
@@ -33526,6 +34233,7 @@ Plugin.register(PLUGIN_ID, {
 		if (putAction) putAction.delete();
 		if (geoAction) geoAction.delete();
 		if (langAction) langAction.delete();
+		if (noticeAction) noticeAction.delete();
 		if (langSetting && langSetting.delete) langSetting.delete();
 		langSetting = null;
 		if (importFormat && importFormat.delete) importFormat.delete();
@@ -33540,6 +34248,7 @@ Plugin.register(PLUGIN_ID, {
 		geckolibStandIn = null;
 		forgetTheirKeyframes();
 		removeSiteLinkField();
+		removeNoticeField();
 		removeSyncWatch();
 		closeModelBrowser();
 	},

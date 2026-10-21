@@ -215,6 +215,18 @@ frame.
 keyframe until the next instead of easing between them, and a cubic-spline
 channel's tangents are tangents: they used to be read as poses of their own.
 
+**A skinned mesh comes apart by bone.** glTF places a skinned vertex through its
+joints (`JOINTS_0`, `WEIGHTS_0` and the skin's inverse bind matrices), not through
+the node that holds the mesh — and that is how Blender exports a model on an
+armature. Read as an ordinary mesh, such a model landed as one piece beside its
+skeleton: the bones and their animations came across, but the bones were empty and
+the model stood still. Each vertex is now placed through its joints, as the file
+stands them, and each triangle goes to the joint holding most of the weight on its
+corners, so it moves with that bone. A blocky model binds every vertex to a single
+joint, and for it the split is exact. Where a vertex is shared between joints, the
+source bends there and a cube cannot: the part follows its strongest joint rigidly,
+and the report says how much of the mesh that is.
+
 ## 6. Customizable Player Models
 
 The CPM import runs the same conversion and then writes a `.cpmproject` itself —

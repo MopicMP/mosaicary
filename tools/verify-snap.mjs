@@ -8,7 +8,7 @@
  * local frame, and showed a harmless 0.125 px. But a vertex of a rotated cube sits
  * at origin + R·(p − origin): an origin snapped separately from from/to
  * carried vertices up to 0.46 px away, and rectangular details turned skewed.
- * The test did not see it, while the user saw it at once.
+ * The test did not see it, while it was plain to see in the editor at once.
  *
  * Run: node tools/verify-snap.mjs [folder with unpacked models]
  */
