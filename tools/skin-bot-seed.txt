@@ -1,0 +1,116 @@
+# The players the skin bot starts from (tools/skin-bot.mjs --seed).
+#
+# The site learns of a player when somebody looks their name up, so on its first day it
+# knows nobody. These are public people of Minecraft — Mojang developers and well-known
+# creators — whose names and skins are already shown on their own channels. A name that
+# no longer has an account is answered "missing" and costs one line of the bulk lookup.
+#
+# One name per line; text after # is ignored. Names are looked up without regard to case.
+
+# Mojang
+Notch
+jeb_
+Dinnerbone
+Grumm
+Searge
+slicedlime
+kingbdogz
+Marc_IRL
+
+# Dream SMP and around it
+Dream
+GeorgeNotFound
+Sapnap
+BadBoyHalo
+Skeppy
+TommyInnit
+Tubbo
+Ph1LzA
+WilburSoot
+Technoblade
+Quackity
+KarlJacobs
+Punz
+Purpled
+Ranboo
+Fundy
+Nihachu
+Antfrost
+CaptainPuffy
+Awesamdude
+HBomb94
+Foolish_Gamers
+Eret
+JackManifoldTV
+ConnorEatsPants
+Michaelmcchill
+
+# Hermitcraft
+Grian
+MumboJumbo
+Iskall85
+xisumavoid
+GoodTimesWithScar
+Keralis
+BdoubleO100
+Docm77
+ImpulseSV
+TangoTek
+Etho
+ZombieCleo
+Rendog
+VintageBeef
+Welsknight
+Hypno
+joehillssays
+cubfan135
+falsesymmetry
+iJevin
+Stressmonster101
+PearlescentMoon
+GeminiTay
+Smallishbeans
+
+# Creators and streamers
+CaptainSparklez
+DanTDM
+Shubble
+LDShadowLady
+Smajor1995
+InTheLittleWood
+Solidarity
+FireBreathMan
+Seapeekay
+Fruitberries
+Krtzyy
+CallMeCarson
+Illumina1337
+Feinberg
+PeteZahHutt
+SB737
+AntVenom
+SkyDoesMinecraft
+Deadlox
+BajanCanadian
+JeromeASF
+Vikkstar123
+PrestonPlayz
+UnspeakableGaming
+Aphmau
+ItsFunneh
+SSundee
+Bashur
+Couriway
+xNestorio
+Stampylongnose
+iBallisticSquid
+Laurenzside
+Bekyamon
+Sl1pg8r
+TapL
+Wemmbu
+ParrotX2
+Spifey
+LarsLaw
+fWhip
+Nestorio

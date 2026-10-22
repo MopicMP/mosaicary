@@ -1,0 +1,70 @@
+# The skin bot: asks Mojang what players wear and hands the signed answers to the site.
+#
+# tools/skin-bot.mjs is the program and its header says what it does; this is when it
+# runs. Three ways:
+#   - on a schedule, to check again the players the site already knows, a slice at a time;
+#   - when the site asks (workflow_dispatch through GitHub's API): somebody looked a name
+#     up on mosaicary.com and is waiting for the answer. The site asks at most once a
+#     minute (site/worker/players.ts);
+#   - by hand, from the Actions tab.
+#
+# What it needs:
+#   secrets.SKIN_BOT_KEY   the same value as the site's SKIN_BOT_KEY secret. Without it
+#                          the run ends red at once and nothing else is affected.
+#   vars.SITE_ORIGIN       where the site is, if it ever moves off mosaicary.com.
+#   secrets.GEMINI_API_KEY optional: found skins get a category, tags and a name from
+#                          Google's Gemini (tools/skin-tagger.mjs). Without it they stay
+#                          untagged and nothing else changes.
+#
+# The site, to wake it, needs a token of its own (SKIN_BOT_DISPATCH_TOKEN on the
+# Worker): a fine-grained token for this one repository with "Actions: read and write".
+# Without it the site still works, and a name waits for the next scheduled run.
+name: Skin bot
+
+on:
+  schedule:
+    # Every thirty minutes. GitHub may run a scheduled job late or skip it when busy,
+    # which costs nothing here: the next run takes up whatever is due.
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Also look up the players in tools/skin-bot-seed.txt'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# One at a time, and never cancelled: a run already going picks up a new name within a
+# round, and a second one queued behind it takes whatever is left when it ends. GitHub
+# keeps at most one waiting, so a burst of wake-ups is one extra run, not a hundred.
+concurrency:
+  group: skin-bot
+  cancel-in-progress: false
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # The one file it runs, not the repository.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/skin-bot.mjs
+            tools/skin-bot-seed.txt
+            tools/skin-tagger.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Look
+        env:
+          SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}
+          # Optional: tags found skins in the time left after the players.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          SKIN_BOT_MINUTES: '10'
+          SEED: ${{ inputs.seed && '--seed tools/skin-bot-seed.txt' || '' }}
+        run: node tools/skin-bot.mjs $SEED
