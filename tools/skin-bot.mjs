@@ -33,9 +33,11 @@
 //   SKIN_BOT_KEY       the site's key for these routes (x-bot-key). Required.
 //   SITE_ORIGIN        where the site is, default https://mosaicary.com
 //   SKIN_BOT_MINUTES   how long a run may work, default 8. The workflow stops a run at 15.
-//   GEMINI_API_KEY     optional: with it, the time left after the players goes to tagging
-//                      found skins that have none (tools/skin-tagger.mjs); GEMINI_MODEL
-//                      picks the model, default gemini-flash-lite-latest.
+//   GEMINI_API_KEY     optional: with it, found skins that have no tags are tagged and named
+//                      (tools/skin-tagger.mjs) in whatever time the players leave, and never
+//                      in less than the last SKIN_BOT_TAG_MINUTES of a run (default 3, at
+//                      most half of it); GEMINI_MODEL picks the model, default
+//                      gemini-flash-lite-latest.
 //
 // Mojang's limits are per address and not published exactly; minecraft.wiki gives about
 // 200 requests per two minutes for most of the API and about 400 per ten seconds for
@@ -61,12 +63,21 @@ const BACK_OFF = 60_000;
 /** How many signed answers go in one report: the site takes at most ten (BOT_PROFILES_MOST). */
 const REPORT_SIZE = 10;
 
+const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
+/** The end of a run kept for tagging, in minutes, when there is a key to tag with. */
+const TAG_MINUTES = Math.min(Number(process.env.SKIN_BOT_TAG_MINUTES || 3), MINUTES / 2);
+
 const deadline = Date.now() + MINUTES * 60_000;
-const timeLeft = () => Date.now() < deadline;
+// The players stop short of the end when there is tagging to do. An open list of thirteen
+// thousand players is work that does not run out within a run, and with the players taking
+// all of it no skin found meanwhile was ever named or tagged: the shelf filled with
+// "Skin 3f2a9c1b" and a category filter that found nothing.
+const playersUntil = GEMINI_KEY && !dry ? deadline - TAG_MINUTES * 60_000 : deadline;
+const timeLeft = () => Date.now() < playersUntil;
+const taggingLeft = () => Date.now() < deadline;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0 };
-const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
 
 class Stop extends Error {}
 
@@ -280,6 +291,7 @@ async function main() {
  * Found skins with no tags yet, tagged with what is left of the run (tools/skin-tagger.mjs).
  *
  * After the players and not before: a name somebody is waiting for matters more than a tag.
+ * But never with nothing left: the players stop `TAG_MINUTES` before the end (see above).
  * Newest first, as the site lists them, so a skin found this run is tagged this run when
  * there is time; the rest wait for the next. Without GEMINI_API_KEY nothing is tagged and
  * the skins stay untagged, which the site shows as they are.
@@ -288,10 +300,10 @@ async function tagFound() {
   const { readPng, look, askGemini } = await import('./skin-tagger.mjs');
   const model = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
   const pause = model.includes('lite') ? 4500 : 6500;
-  for (let page = 1; timeLeft(); page++) {
+  for (let page = 1; taggingLeft(); page++) {
     const said = await (await fetch(`${SITE}/api/found?page=${page}`, { headers: { 'user-agent': AGENT } })).json();
     for (const skin of said.models.filter((one) => one.tags.length === 0)) {
-      if (!timeLeft()) return;
+      if (!taggingLeft()) return;
       try {
         const png = readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer()));
         const answer = await askGemini(look(png, skin.version === 'slim'), { key: GEMINI_KEY, model, tries: 1 });
