@@ -7,6 +7,9 @@
 #     up on mosaicary.com and is waiting for the answer. The site asks at most once a
 #     minute (site/worker/players.ts);
 #   - by hand, from the Actions tab.
+# Once a day, before looking, the feed (tools/skin-bot-feed.mjs) hands the site the
+# players named by open lists, Wynncraft's leaderboards today; the runs after it ask
+# Mojang about them a few hundred at a time.
 #
 # What it needs:
 #   secrets.SKIN_BOT_KEY   the same value as the site's SKIN_BOT_KEY secret. Without it
@@ -26,10 +29,16 @@ on:
     # Every thirty minutes. GitHub may run a scheduled job late or skip it when busy,
     # which costs nothing here: the next run takes up whatever is due.
     - cron: '7,37 * * * *'
+    # The feed, once a day.
+    - cron: '23 4 * * *'
   workflow_dispatch:
     inputs:
       seed:
         description: 'Also look up the players in tools/skin-bot-seed.txt'
+        type: boolean
+        default: false
+      feed:
+        description: 'First hand the site the players on open lists (tools/skin-bot-feed.mjs)'
         type: boolean
         default: false
 
@@ -48,17 +57,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      # The one file it runs, not the repository.
+      # The few files it runs, not the repository.
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
             tools/skin-bot.mjs
+            tools/skin-bot-feed.mjs
             tools/skin-bot-seed.txt
             tools/skin-tagger.mjs
           sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Feed
+        if: github.event.schedule == '23 4 * * *' || inputs.feed
+        env:
+          SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+        run: node tools/skin-bot-feed.mjs
       - name: Look
         env:
           SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}

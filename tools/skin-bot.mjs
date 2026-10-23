@@ -14,7 +14,8 @@
 // it. The one thing taken on this program's word is that a name has no player.
 //
 // What one run does, until the work runs out or the time is up:
-//   1. GET  /api/bot/work            names somebody looked for, then players due a check
+//   1. GET  /api/bot/work            names somebody looked for, players due a check, and
+//                                    players an open list named (tools/skin-bot-feed.mjs)
 //   2. Mojang: names -> UUIDs, ten at a time; then each player's signed profile
 //   3. POST /api/bot/report          the signed answers, ten to a report, and the names
 //   4. PUT  /api/bot/textures/<hash> every skin file the site says it still needs
@@ -69,17 +70,43 @@ const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
 
 class Stop extends Error {}
 
-/** A request to the site, with the key; anything but 2xx stops the run. */
+/** How long to wait before asking the site again after it failed, try by try. */
+const SITE_RETRIES = [5_000, 15_000];
+
+/**
+ * A request to the site, with the key.
+ *
+ * A dropped connection or a 5xx is asked again, twice, before the run stops: one bad answer
+ * among the thousands of a long run should not cost the rest of it. Asking again is safe,
+ * since every bot route can take the same request twice (a signed answer is kept by its
+ * signed time, a file already there is "already", a UUID already waiting is left alone).
+ * Anything else that is not 2xx stops the run at once.
+ */
 async function site(path, init = {}) {
-  const response = await fetch(`${SITE}${path}`, {
-    ...init,
-    headers: { 'x-bot-key': KEY, 'user-agent': AGENT, ...(init.headers ?? {}) },
-  });
-  if (response.status === 404 && path === '/api/bot/work') {
-    throw new Stop('the site answered 404: SKIN_BOT_KEY is wrong, or not set on the site');
+  for (let tries = 0; ; tries++) {
+    let response;
+    try {
+      response = await fetch(`${SITE}${path}`, {
+        ...init,
+        headers: { 'x-bot-key': KEY, 'user-agent': AGENT, ...(init.headers ?? {}) },
+      });
+    } catch (why) {
+      if (tries >= SITE_RETRIES.length) throw new Stop(`${init.method ?? 'GET'} ${path}: ${why.message}`);
+      console.warn(`${init.method ?? 'GET'} ${path}: ${why.message}; asking again`);
+      await sleep(SITE_RETRIES[tries]);
+      continue;
+    }
+    if (response.status === 404 && path === '/api/bot/work') {
+      throw new Stop('the site answered 404: SKIN_BOT_KEY is wrong, or not set on the site');
+    }
+    if (response.status >= 500 && tries < SITE_RETRIES.length) {
+      console.warn(`${init.method ?? 'GET'} ${path}: ${response.status}; asking again`);
+      await sleep(SITE_RETRIES[tries]);
+      continue;
+    }
+    if (!response.ok) throw new Stop(`${init.method ?? 'GET'} ${path}: ${response.status} ${await response.text()}`);
+    return response.json();
   }
-  if (!response.ok) throw new Stop(`${init.method ?? 'GET'} ${path}: ${response.status} ${await response.text()}`);
-  return response.json();
 }
 
 /** A request to Mojang, waiting out 429s. Null for an answer with nothing in it. */
@@ -172,7 +199,9 @@ async function round(seen, extra = []) {
   const work = await site('/api/bot/work');
   const asked = [...work.names, ...extra.filter((name) => !work.names.some((one) => one.toLowerCase() === name.toLowerCase()))];
   const names = asked.filter((name) => !seen.has(`name:${name.toLowerCase()}`));
-  const players = work.players.filter((uuid) => !seen.has(uuid));
+  // Players to check again, then players a list named whom the site has never asked about:
+  // the second come last, so a run that runs out of time leaves them and not the checks.
+  const players = [...work.players, ...(work.candidates ?? [])].filter((uuid) => !seen.has(uuid));
   if (dry) {
     console.log(JSON.stringify({ names, players }, null, 2));
     return false;
