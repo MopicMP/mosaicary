@@ -36,8 +36,9 @@
 //   GEMINI_API_KEY     optional: with it, found skins that have no tags are tagged and named
 //                      (tools/skin-tagger.mjs) in whatever time the players leave, and never
 //                      in less than the last SKIN_BOT_TAG_MINUTES of a run (default 3, at
-//                      most half of it); GEMINI_MODEL picks the model, default
-//                      gemini-flash-lite-latest.
+//                      most half of it); GEMINI_MODELS lists the models to ask in turn,
+//                      default `LOOKERS` in tools/skin-tagger.mjs: when one has spent its
+//                      free day, the next one checks.
 //
 // Mojang's limits are per address and not published exactly; minecraft.wiki gives about
 // 200 requests per two minutes for most of the API and about 400 per ten seconds for
@@ -77,7 +78,7 @@ const timeLeft = () => Date.now() < playersUntil;
 const taggingLeft = () => Date.now() < deadline;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
-const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0 };
+const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '' };
 
 class Stop extends Error {}
 
@@ -282,7 +283,7 @@ async function main() {
   console.log(
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
       `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
-      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; tagged ${tally.tagged}, taken down ${tally.refusedLooks}`,
+      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}`,
   );
   return 0;
 }
@@ -298,15 +299,28 @@ async function main() {
  * wait for the next. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
-  const { readPng, look, askGemini } = await import('./skin-tagger.mjs');
-  const model = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
-  const pause = model.includes('lite') ? 4500 : 6500;
+  const { readPng, look, lookersOf, askAny } = await import('./skin-tagger.mjs');
+  const lookers = lookersOf(process.env, GEMINI_KEY);
   const { skins } = await site('/api/bot/unchecked');
-  for (const skin of skins) {
-    if (!taggingLeft()) return;
+  try {
+    for (const skin of skins) {
+      if (!taggingLeft()) return;
+      if (!(await tagOne(skin))) {
+        if (lookers.every((one) => one.spent)) console.log('every model has spent its free day; the rest wait for tomorrow');
+        return;
+      }
+    }
+  } finally {
+    tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.model} ${one.answered}`).join(', ');
+  }
+
+  /** One skin asked and written; false when no model will answer before the run ends. */
+  async function tagOne(skin) {
     try {
       const png = readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer()));
-      const answer = await askGemini(look(png, skin.version === 'slim'), { key: GEMINI_KEY, model, tries: 1 });
+      const asked = await askAny(lookers, look(png, skin.version === 'slim'), { until: deadline });
+      if (!asked) return false;
+      const answer = asked.answer;
       if (answer.tags.length || answer.safety) {
         await site(`/api/bot/skins/${skin.id}/look`, {
           method: 'PUT',
@@ -322,7 +336,7 @@ async function tagFound() {
     } catch (why) {
       console.warn(`tagging ${skin.id}: ${why.message}`);
     }
-    await sleep(pause);
+    return true;
   }
 }
 

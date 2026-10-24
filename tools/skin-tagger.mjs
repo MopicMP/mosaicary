@@ -24,11 +24,13 @@
 //
 // Read from the environment:
 //   GEMINI_API_KEY    the key for Google's Gemini API. Required.
-//   GEMINI_MODEL      the model, default gemini-flash-lite-latest (the current light model)
+//   GEMINI_MODELS     the models to ask, a comma list in order of preference, default `LOOKERS`;
+//                     GEMINI_MODEL, one model, is still read when GEMINI_MODELS is not set
 //   SKIN_BOT_KEY      the site's bot key, for --write
 //
-// Gemini's free tier allows about fifteen requests a minute to this model, so requests go
-// out one at a time with a pause between them, and a 429 is waited out.
+// Gemini's free tier allows about fifteen requests a minute to a light model and a number a
+// day to each model of its own, so requests go out one at a time with a pause between them,
+// and when a model's day is spent the next one in the list is asked (`askAny`).
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -283,11 +285,22 @@ const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 const ANSWER_MS = 120_000;
 
 /**
+ * A model that cannot answer now: over its pace or busy (`forTheDay` false: ask it again in
+ * a minute), or done with its free allowance for the day (`forTheDay`: not again this run).
+ */
+export class Busy extends Error {
+  constructor(message, forTheDay) {
+    super(message);
+    this.forTheDay = forTheDay;
+  }
+}
+
+/**
  * What Gemini said about a picture, held to the list and the categories.
  *
- * `tries` is how many times a busy Gemini (429, 503) is waited out. The command waits;
- * the bot asks once and moves on, since a skin left untagged is tagged on a later run and
- * a run spent waiting is a run that looked up nobody.
+ * `tries` is how many times a busy Gemini (429, 500, 503) is waited out before `Busy` is
+ * thrown; a 429 that names the daily allowance is not waited out at all. The bot asks once
+ * and moves on to the next model (`askAny`): a run spent waiting is a run that checked nothing.
  */
 export async function askGemini(picture, { key, model, tries: most = 5 }) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
@@ -295,15 +308,26 @@ export async function askGemini(picture, { key, model, tries: most = 5 }) {
     contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: 'image/png', data: picture.toString('base64') } }] }],
     generationConfig: { temperature: 0, responseMimeType: 'application/json' },
   };
-  for (let tries = 0; tries < most; tries++) {
-    const answer = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(ANSWER_MS),
-    });
-    if (answer.status === 429 || answer.status === 503) {
-      if (tries + 1 < most) await sleep(20_000 * (tries + 1));
+  for (let tries = 0; ; tries++) {
+    let answer;
+    try {
+      answer = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(ANSWER_MS),
+      });
+    } catch (why) {
+      // Slow beyond `ANSWER_MS`, or the line dropped: the model, not the skin.
+      if (tries + 1 >= most) throw new Busy(`${model}: ${why.message}`, false);
+      continue;
+    }
+    if (answer.status === 429 || answer.status === 500 || answer.status === 503) {
+      const said = await answer.text();
+      // Gemini names the allowance it ran out of: "…PerDay…" is spent until midnight Pacific.
+      const forTheDay = answer.status === 429 && /PerDay/i.test(said);
+      if (forTheDay || tries + 1 >= most) throw new Busy(`${model} answered ${answer.status}`, forTheDay);
+      await sleep(20_000 * (tries + 1));
       continue;
     }
     if (!answer.ok) throw new Error(`Gemini answered ${answer.status}: ${(await answer.text()).slice(0, 200)}`);
@@ -326,7 +350,85 @@ export async function askGemini(picture, { key, model, tries: most = 5 }) {
       usage: said.usageMetadata ?? null,
     };
   }
-  throw new Error(`Gemini still busy after ${most} tries`);
+}
+
+/* Asking more than one model. */
+
+/**
+ * The models asked by default, in order. Each has its own free allowance for the day (500
+ * requests for gemini-3.5-flash-lite on 2026-10-24, which `gemini-flash-lite-latest` was
+ * then), so every model here is another day's worth of checks: when one answers that its day
+ * is spent, the rest go on. The light ones first, being quicker.
+ *
+ * Only models that called SEK_Nico's skin a photo are here (docs/skin-bot-plan.md, "Как
+ * проверять больше тысячи в сутки"): asked in a batch, or asked of the free models on
+ * OpenRouter, the same picture came back "ok".
+ */
+export const LOOKERS = [
+  'gemini-flash-lite-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3.1-flash-lite-preview',
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+];
+
+/** The least time between two questions to one model, in milliseconds: the free tier's pace. */
+const LOOKER_GAP = { lite: 4500, other: 6500 };
+/** How long a model that answered busy is left alone, in milliseconds. */
+const LOOKER_REST = 60_000;
+
+/**
+ * The models to ask, from the environment: `GEMINI_MODELS` (a comma list), else
+ * `GEMINI_MODEL` alone, else `LOOKERS`. Each with when it may next be asked.
+ */
+export function lookersOf(env, key = (env.GEMINI_API_KEY ?? '').trim()) {
+  const names = (env.GEMINI_MODELS || env.GEMINI_MODEL || LOOKERS.join(','))
+    .split(',')
+    .map((one) => one.trim())
+    .filter(Boolean);
+  return names.map((model) => ({
+    model,
+    key,
+    gap: model.includes('lite') ? LOOKER_GAP.lite : LOOKER_GAP.other,
+    next: 0,
+    spent: false,
+    answered: 0,
+  }));
+}
+
+/**
+ * A picture asked of the first model free to answer it: `{ answer, by }`, or null when every
+ * model's day is spent or `until` comes first.
+ *
+ * In the list's order, so the first model answers whenever its pace allows and the next only
+ * while it may not; a model that answers busy rests a minute, one whose day is spent is not
+ * asked again. When every model is resting, this waits for the first to be free.
+ */
+export async function askAny(lookers, picture, { until = Infinity } = {}) {
+  for (;;) {
+    const open = lookers.filter((one) => !one.spent);
+    if (!open.length) return null;
+    const now = Date.now();
+    const free = open.find((one) => one.next <= now);
+    if (!free) {
+      const soonest = Math.min(...open.map((one) => one.next));
+      if (soonest >= until) return null;
+      await sleep(soonest - now);
+      continue;
+    }
+    if (now >= until) return null;
+    free.next = now + free.gap;
+    try {
+      const answer = await askGemini(picture, { key: free.key, model: free.model, tries: 1 });
+      free.answered++;
+      return { answer, by: free.model };
+    } catch (why) {
+      if (!(why instanceof Busy)) throw why;
+      if (why.forTheDay) free.spent = true;
+      else free.next = Date.now() + LOOKER_REST;
+    }
+  }
 }
 
 /* The command. */
@@ -339,9 +441,7 @@ async function main() {
   const dry = option('--dry');
   const limit = Number(option('--limit') ?? Infinity);
   const key = (process.env.GEMINI_API_KEY ?? '').trim();
-  const model = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
-  // Free tier: about fifteen requests a minute for the light model, ten for the full one.
-  const pause = model.includes('lite') ? 4500 : 6500;
+  const lookers = lookersOf(process.env, key);
   if (!site || !key || (!dry && !args.includes('--write'))) {
     console.error('usage: GEMINI_API_KEY=… node tools/skin-tagger.mjs --site URL (--dry DIR | --write) [--limit N]');
     return 2;
@@ -363,18 +463,23 @@ async function main() {
     }
   }
   const todo = found.slice(0, limit);
-  console.log(`${todo.length} skins, model ${model}`);
+  console.log(`${todo.length} skins, models ${lookers.map((one) => one.model).join(', ')}`);
   const results = [];
   let tokens = 0;
   for (const [at, model_] of todo.entries()) {
     const png = readPng(new Uint8Array(await (await fetch(`${site}/api/skins/${model_.id}.png?for=view`)).arrayBuffer()));
     const picture = look(png, model_.version === 'slim');
     try {
-      const said = await askGemini(picture, { key, model });
+      const asked = await askAny(lookers, picture);
+      if (!asked) {
+        console.log('every model has spent its day; the rest wait for tomorrow');
+        break;
+      }
+      const said = asked.answer;
       tokens += said.usage?.totalTokenCount ?? 0;
       results.push({ id: model_.id, name: model_.name, ...said });
       if (dry) writeFileSync(join(dry, `${String(at + 1).padStart(3, '0')}-${model_.id}.png`), picture);
-      console.log(`${at + 1}/${todo.length} ${model_.id} ${said.category} [${said.tags.join(', ')}] "${said.title}" ${said.safety ?? 'unchecked'}${said.dropped.length ? ` dropped: ${said.dropped.join(', ')}` : ''}`);
+      console.log(`${at + 1}/${todo.length} ${model_.id} ${said.category} [${said.tags.join(', ')}] "${said.title}" ${said.safety ?? 'unchecked'} (${asked.by})${said.dropped.length ? ` dropped: ${said.dropped.join(', ')}` : ''}`);
       if (!dry) {
         const answer = await fetch(`${site}/api/bot/skins/${model_.id}/look`, {
           method: 'PUT',
@@ -386,7 +491,6 @@ async function main() {
     } catch (why) {
       console.warn(`${at + 1}/${todo.length} ${model_.id}: ${why.message}`);
     }
-    await sleep(pause);
   }
   if (dry) writeFileSync(join(dry, 'results.json'), `${JSON.stringify(results, null, 2)}\n`);
   console.log(`done: ${results.length} tagged, ${tokens} tokens in all`);
