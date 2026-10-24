@@ -11,12 +11,16 @@
 // the site. The answer is JSON; whatever in it is not on the list is thrown away here, so
 // nothing the model makes up reaches the site.
 //
+// Safety, in the same request: whether the skin shows what the site must not show to anybody
+// who opens a launcher (`SAFETY`). Nobody published a found skin, so nobody has looked at it;
+// this is the only look it gets before it is listed, and a skin it refuses is taken down.
+//
 // Usage:
 //   node tools/skin-tagger.mjs --site URL --dry DIR [--limit N]
 //       tag the found skins of a site without writing anything: the pictures and the
 //       answers go to DIR, for a person to look through before anything is trusted
 //   node tools/skin-tagger.mjs --site URL --write [--limit N]
-//       tag the found skins that have no tags yet and write them through the bot's route
+//       tag and check the found skins the site has not had judged, and write them through the bot's route
 //
 // Read from the environment:
 //   GEMINI_API_KEY    the key for Google's Gemini API. Required.
@@ -56,11 +60,17 @@ export const SKIN_TAGS = [
 /** The site's four skin categories, as the site says them (shared/modelRules.ts). */
 export const SKIN_CATEGORIES = ['girls', 'boys', 'characters', 'creatures'];
 
+/**
+ * What a skin may be judged: fine, or the reason it must not be listed. The site takes down
+ * a found skin with any answer but "ok" (worker/players.ts, `dressFound`).
+ */
+export const SAFETY = ['ok', 'photo', 'sexual', 'gore', 'hate'];
+
 const PROMPT = `You tag Minecraft player skins for a catalogue.
 The picture shows one skin worn by the Minecraft player model: the front on the left, the back on the right, on a grey background.
 
 Answer with JSON only, in this shape:
-{"category": "...", "tags": ["...", "..."], "title": "..."}
+{"category": "...", "tags": ["...", "..."], "title": "...", "safety": "..."}
 
 category, exactly one of:
 - "girls": a girl or a woman
@@ -75,7 +85,14 @@ title: 2 to 4 plain English words naming what the skin shows, like "Pink haired 
 
 Only describe what is visible. If a tag is not clearly true, leave it out.
 For an animal, give the animal itself (cat, fox, ...) when it is on the list, as well as "animal".
-"monster" is for monsters, not for animals. "nature" is for plants, leaves or flowers on the skin, not for animals.`;
+"monster" is for monsters, not for animals. "nature" is for plants, leaves or flowers on the skin, not for animals.
+
+safety, exactly one of, for a catalogue children use:
+- "photo": a photograph or a photo-like picture of a real person anywhere on the skin, such as a face pasted onto the body or the head, even when pixelated, small or in grey. A face drawn in pixel art, however detailed or shaded, is not a photo.
+- "sexual": nudity, a body drawn as naked, or sexual content
+- "gore": blood, wounds, organs or severed body parts shown in detail
+- "hate": hate symbols (such as a swastika), slurs or insults written on the skin
+- "ok": none of these`;
 
 /* Reading a PNG, enough for skins: 8 or 16 bits, grey, RGB, palette, with or without alpha, not interlaced. */
 
@@ -304,6 +321,8 @@ export async function askGemini(picture, { key, model, tries: most = 5 }) {
       tags: tags.filter((one) => SKIN_TAGS.includes(one)).slice(0, 8),
       dropped: tags.filter((one) => !SKIN_TAGS.includes(one)),
       title: typeof parsed.title === 'string' ? parsed.title.replace(/[^\p{L}\p{N} '\-]/gu, '').trim().slice(0, 60) : null,
+      // Anything but one of the answers is no answer: the skin stays unchecked and is asked again.
+      safety: SAFETY.includes(parsed.safety) ? parsed.safety : null,
       usage: said.usageMetadata ?? null,
     };
   }
@@ -330,10 +349,18 @@ async function main() {
   if (dry) mkdirSync(dry, { recursive: true });
 
   const found = [];
-  for (let page = 1; found.length < limit; page++) {
-    const said = await (await fetch(`${site}/api/found?page=${page}`)).json();
-    found.push(...said.models.filter((one) => args.includes('--write') ? one.tags.length === 0 : true));
-    if (page >= said.pages) break;
+  if (args.includes('--write')) {
+    // What the site has not had judged yet, the never tagged and the tagged before the safety question.
+    const said = await (
+      await fetch(`${site}/api/bot/unchecked?limit=${Number.isFinite(limit) ? limit : 200}`, { headers: { 'x-bot-key': process.env.SKIN_BOT_KEY ?? '' } })
+    ).json();
+    found.push(...said.skins.map((one) => ({ ...one, name: '' })));
+  } else {
+    for (let page = 1; found.length < limit; page++) {
+      const said = await (await fetch(`${site}/api/found?page=${page}`)).json();
+      found.push(...said.models);
+      if (page >= said.pages) break;
+    }
   }
   const todo = found.slice(0, limit);
   console.log(`${todo.length} skins, model ${model}`);
@@ -347,12 +374,12 @@ async function main() {
       tokens += said.usage?.totalTokenCount ?? 0;
       results.push({ id: model_.id, name: model_.name, ...said });
       if (dry) writeFileSync(join(dry, `${String(at + 1).padStart(3, '0')}-${model_.id}.png`), picture);
-      console.log(`${at + 1}/${todo.length} ${model_.id} ${said.category} [${said.tags.join(', ')}] "${said.title}"${said.dropped.length ? ` dropped: ${said.dropped.join(', ')}` : ''}`);
+      console.log(`${at + 1}/${todo.length} ${model_.id} ${said.category} [${said.tags.join(', ')}] "${said.title}" ${said.safety ?? 'unchecked'}${said.dropped.length ? ` dropped: ${said.dropped.join(', ')}` : ''}`);
       if (!dry) {
         const answer = await fetch(`${site}/api/bot/skins/${model_.id}/look`, {
           method: 'PUT',
           headers: { 'x-bot-key': process.env.SKIN_BOT_KEY ?? '', 'content-type': 'application/json' },
-          body: JSON.stringify({ category: said.category, tags: said.tags, name: said.title }),
+          body: JSON.stringify({ category: said.category, tags: said.tags, name: said.title, safety: said.safety }),
         });
         if (!answer.ok) console.warn(`  the site answered ${answer.status}: ${await answer.text()}`);
       }

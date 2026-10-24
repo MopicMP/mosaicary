@@ -77,7 +77,7 @@ const timeLeft = () => Date.now() < playersUntil;
 const taggingLeft = () => Date.now() < deadline;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
-const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0 };
+const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0 };
 
 class Stop extends Error {}
 
@@ -282,45 +282,47 @@ async function main() {
   console.log(
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
       `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
-      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; tagged ${tally.tagged}`,
+      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; tagged ${tally.tagged}, taken down ${tally.refusedLooks}`,
   );
   return 0;
 }
 
 /**
- * Found skins with no tags yet, tagged with what is left of the run (tools/skin-tagger.mjs).
+ * Found skins the tagger has not judged yet, tagged and checked with what is left of the run
+ * (tools/skin-tagger.mjs): the never tagged, and the tagged before the tagger was asked about
+ * safety. The site takes down what the check refuses.
  *
  * After the players and not before: a name somebody is waiting for matters more than a tag.
  * But never with nothing left: the players stop `TAG_MINUTES` before the end (see above).
- * Newest first, as the site lists them, so a skin found this run is tagged this run when
- * there is time; the rest wait for the next. Without GEMINI_API_KEY nothing is tagged and
- * the skins stay untagged, which the site shows as they are.
+ * Newest first, so a skin found this run is checked this run when there is time; the rest
+ * wait for the next. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
   const { readPng, look, askGemini } = await import('./skin-tagger.mjs');
   const model = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
   const pause = model.includes('lite') ? 4500 : 6500;
-  for (let page = 1; taggingLeft(); page++) {
-    const said = await (await fetch(`${SITE}/api/found?page=${page}`, { headers: { 'user-agent': AGENT } })).json();
-    for (const skin of said.models.filter((one) => one.tags.length === 0)) {
-      if (!taggingLeft()) return;
-      try {
-        const png = readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer()));
-        const answer = await askGemini(look(png, skin.version === 'slim'), { key: GEMINI_KEY, model, tries: 1 });
-        if (answer.tags.length) {
-          await site(`/api/bot/skins/${skin.id}/look`, {
-            method: 'PUT',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ category: answer.category, tags: answer.tags, name: answer.title }),
-          });
-          tally.tagged++;
+  const { skins } = await site('/api/bot/unchecked');
+  for (const skin of skins) {
+    if (!taggingLeft()) return;
+    try {
+      const png = readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer()));
+      const answer = await askGemini(look(png, skin.version === 'slim'), { key: GEMINI_KEY, model, tries: 1 });
+      if (answer.tags.length || answer.safety) {
+        await site(`/api/bot/skins/${skin.id}/look`, {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ category: answer.category, tags: answer.tags, name: answer.title, safety: answer.safety }),
+        });
+        tally.tagged++;
+        if (answer.safety && answer.safety !== 'ok') {
+          tally.refusedLooks++;
+          console.log(`taken down ${skin.id}: ${answer.safety}`);
         }
-      } catch (why) {
-        console.warn(`tagging ${skin.id}: ${why.message}`);
       }
-      await sleep(pause);
+    } catch (why) {
+      console.warn(`tagging ${skin.id}: ${why.message}`);
     }
-    if (page >= said.pages) return;
+    await sleep(pause);
   }
 }
 
