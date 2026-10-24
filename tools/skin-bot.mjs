@@ -39,6 +39,13 @@
 //                      most half of it); GEMINI_MODELS lists the models to ask in turn,
 //                      default `LOOKERS` in tools/skin-tagger.mjs: when one has spent its
 //                      free day, the next one checks.
+//   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_AI_TOKEN
+//                      optional: with both, every skin found in the run is asked at once
+//                      whether it has a photo of a real person on it (Workers AI's
+//                      clef-flash, `askPhoto` in tools/skin-tagger.mjs), and taken down if
+//                      so, without waiting for its turn with Gemini. Within
+//                      `PHOTO_NEURONS_A_DAY`, under the free allowance: the token needs
+//                      Workers AI and Account Analytics (read), to see the day's spending.
 //
 // Mojang's limits are per address and not published exactly; minecraft.wiki gives about
 // 200 requests per two minutes for most of the API and about 400 per ten seconds for
@@ -68,6 +75,9 @@ const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
 /** The end of a run kept for tagging, in minutes, when there is a key to tag with. */
 const TAG_MINUTES = Math.min(Number(process.env.SKIN_BOT_TAG_MINUTES || 3), MINUTES / 2);
 
+const CF_ACCOUNT = (process.env.CLOUDFLARE_ACCOUNT_ID || '').trim();
+const CF_AI_TOKEN = (process.env.CLOUDFLARE_AI_TOKEN || '').trim();
+
 const deadline = Date.now() + MINUTES * 60_000;
 // The players stop short of the end when there is tagging to do. An open list of thirteen
 // thousand players is work that does not run out within a run, and with the players taking
@@ -78,7 +88,7 @@ const timeLeft = () => Date.now() < playersUntil;
 const taggingLeft = () => Date.now() < deadline;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
-const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '' };
+const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
 
 class Stop extends Error {}
 
@@ -175,8 +185,70 @@ async function profileOf(uuid) {
   return textures?.signature ? { value: textures.value, signature: textures.signature } : null;
 }
 
+/**
+ * Which skins the signed answers say are worn slim, by texture hash: the `metadata.model` of
+ * the SKIN in each answer's `textures` (base64 JSON). Only for drawing the picture the photo
+ * question gets; the site decides a skin's arms for itself.
+ */
+function slimOf(profiles) {
+  const slim = new Set();
+  for (const profile of profiles) {
+    try {
+      const skin = JSON.parse(Buffer.from(profile.value, 'base64').toString('utf8')).textures?.SKIN;
+      const hash = String(skin?.url ?? '').split('/').pop();
+      if (hash && skin?.metadata?.model === 'slim') slim.add(hash);
+    } catch {
+      // A value that does not read is the site's to refuse; here it is just not slim.
+    }
+  }
+  return slim;
+}
+
+/** The photo question's state for the run: the tagger's functions and the day's budget, made at first use. */
+let photos = null;
+
+/**
+ * A skin found this run, asked whether it has a photo of a real person on it, and taken
+ * down when clef-flash says so (`PHOTO_AT`). Anything else leaves it as it was, unchecked,
+ * for Gemini. Without Cloudflare's account and token, or with the day's budget spent, the
+ * question is not asked.
+ */
+async function photoCheck(model, bytes, slim) {
+  if (!CF_ACCOUNT || !CF_AI_TOKEN) return;
+  if (!photos) {
+    const tagger = await import('./skin-tagger.mjs');
+    const budget = await tagger.photoBudget({ account: CF_ACCOUNT, token: CF_AI_TOKEN });
+    photos = { ...tagger, budget, stopped: false };
+    console.log(
+      Number.isFinite(budget.spentBefore)
+        ? `photo check: Workers AI spent ${Math.round(budget.spentBefore)} of ${tagger.PHOTO_NEURONS_A_DAY} neurons today before this run`
+        : 'photo check: could not read what Workers AI spent today, so no photo questions this run',
+    );
+  }
+  if (!photos.budget.allows()) {
+    if (!photos.stopped) console.log("photo check: the day's neurons are spent; the rest wait for Gemini");
+    photos.stopped = true;
+    return;
+  }
+  try {
+    const picture = photos.look(photos.readPng(bytes), slim);
+    const yes = await photos.askPhoto(picture, { account: CF_ACCOUNT, token: CF_AI_TOKEN, budget: photos.budget });
+    tally.photosAsked++;
+    if (yes === null || yes < photos.PHOTO_AT) return;
+    await site(`/api/bot/skins/${model}/look`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ safety: 'photo' }),
+    });
+    tally.photosDown++;
+    console.log(`taken down ${model}: photo (${yes.toFixed(2)})`);
+  } catch (why) {
+    console.warn(`photo check ${model}: ${why.message}`);
+  }
+}
+
 /** The skin files the site still needs: each fetched from Mojang and handed over. */
-async function sendSkins(hashes) {
+async function sendSkins(hashes, slim = new Set()) {
   for (const hash of hashes) {
     const response = await fetch(`https://textures.minecraft.net/texture/${hash}`, { headers: { 'user-agent': AGENT } });
     if (!response.ok) {
@@ -194,6 +266,8 @@ async function sendSkins(hashes) {
       console.log(`skin ${hash}: refused (${said.refused})`);
     } else {
       tally.skins++;
+      // A found skin (nobody published this drawing), new to the site with this file.
+      if (said.model && said.authored === false && !said.already) await photoCheck(said.model, bytes, slim.has(hash));
     }
   }
 }
@@ -237,10 +311,11 @@ async function round(seen, extra = []) {
     });
     tally.sent += said.taken;
     tally.refused += said.refused;
+    const slim = slimOf(batch);
     pendingNames = [];
     batch = [];
     gone = [];
-    if (said.need.length) await sendSkins(said.need);
+    if (said.need.length) await sendSkins(said.need, slim);
   };
 
   for (const uuid of uuids) {
@@ -283,7 +358,8 @@ async function main() {
   console.log(
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
       `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
-      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}`,
+      `skins sent ${tally.skins}, refused ${tally.skinsRefused}; photo check ${tally.photosAsked}, taken down ${tally.photosDown}; ` +
+      `tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}`,
   );
   return 0;
 }
@@ -299,7 +375,7 @@ async function main() {
  * wait for the next. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
-  const { readPng, look, lookersOf, askAny } = await import('./skin-tagger.mjs');
+  const { readPng, look, closeup, lookersOf, askAny } = await import('./skin-tagger.mjs');
   const lookers = lookersOf(process.env, GEMINI_KEY);
   const { skins } = await site('/api/bot/unchecked');
   try {
@@ -318,7 +394,8 @@ async function tagFound() {
   async function tagOne(skin) {
     try {
       const png = readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer()));
-      const asked = await askAny(lookers, look(png, skin.version === 'slim'), { until: deadline });
+      const slim = skin.version === 'slim';
+      const asked = await askAny(lookers, look(png, slim), { until: deadline, close: closeup(png, slim) });
       if (!asked) return false;
       const answer = asked.answer;
       if (answer.tags.length || answer.safety) {

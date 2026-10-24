@@ -14,6 +14,18 @@
 // Safety, in the same request: whether the skin shows what the site must not show to anybody
 // who opens a launcher (`SAFETY`). Nobody published a found skin, so nobody has looked at it;
 // this is the only look it gets before it is listed, and a skin it refuses is taken down.
+// A second picture goes with the first: the front of the torso and hips, large (`closeup`).
+// Nudity on a skin is a pixel or two of pink or a darker shade; in the whole-body picture
+// alone the model called three naked skins out of four "ok". With the close-up and a rule
+// that says what to look for, asked about safety alone, it caught all four and let eleven
+// of twelve skins in swimwear pass; asked for tags in the same request, two of the four,
+// which is why the answer now describes the torso (`body`) before it decides
+// (docs/skin-bot-plan.md).
+//
+// Photos, before all that and apart from it (`askPhoto`): Cloudflare's clef-flash answers
+// one yes-or-no question for about two of Workers AI's "neurons", so every new skin can be
+// asked the moment it is found, long before its turn with Gemini comes. It is asked about
+// photos only: on nudity it could not tell a naked body from swimwear, and Gemini can.
 //
 // Usage:
 //   node tools/skin-tagger.mjs --site URL --dry DIR [--limit N]
@@ -70,9 +82,12 @@ export const SAFETY = ['ok', 'photo', 'sexual', 'gore', 'hate'];
 
 const PROMPT = `You tag Minecraft player skins for a catalogue.
 The picture shows one skin worn by the Minecraft player model: the front on the left, the back on the right, on a grey background.
+The second picture is a close-up of the front of the same skin: the torso, the arms and the top of the legs.
 
 Answer with JSON only, in this shape:
-{"category": "...", "tags": ["...", "..."], "title": "...", "safety": "..."}
+{"category": "...", "tags": ["...", "..."], "title": "...", "body": "...", "safety": "..."}
+
+body: one short sentence on what is drawn on the torso and the hips in the second picture, written before safety is decided.
 
 category, exactly one of:
 - "girls": a girl or a woman
@@ -91,7 +106,7 @@ For an animal, give the animal itself (cat, fox, ...) when it is on the list, as
 
 safety, exactly one of, for a catalogue children use:
 - "photo": a photograph or a photo-like picture of a real person anywhere on the skin, such as a face pasted onto the body or the head, even when pixelated, small or in grey. A face drawn in pixel art, however detailed or shaded, is not a photo.
-- "sexual": nudity, a body drawn as naked, or sexual content
+- "sexual": a body drawn naked, in skin colour or in any other colour (blue, green, orange, pale): the hips not covered by any clothing, or a woman's breasts not covered; genitals, or nipples on a woman's breasts, drawn even as a single pixel or two of pink, red or a darker shade; white or coloured fluid on the face or body, or anything else suggesting a sexual act. Skins are tiny pixel art, so these details are only a pixel or two: look closely at the second picture. A man's bare chest, even with nipples, is not sexual when his hips are covered by swimwear, underwear, shorts or trousers; nor is a woman in a bikini or a swimsuit.
 - "gore": blood, wounds, organs or severed body parts shown in detail
 - "hate": hate symbols (such as a swastika), slurs or insults written on the skin
 - "ok": none of these`;
@@ -277,6 +292,114 @@ export function look(png, slim, scale = 10) {
   return writePng(width, height, out);
 }
 
+/**
+ * The front of the torso, the arms and the top of the legs from `look`'s picture, at
+ * `scale` pixels to a skin pixel: the second picture Gemini gets, where a pixel of detail is
+ * a square big enough to see. In `look`'s units the front view's body runs from y 10 to 22
+ * and its arms from x 2 to 18; this takes x 0 to 20 and y 9 to 28.
+ */
+export function closeup(png, slim, scale = 24) {
+  const whole = readPng(look(png, slim, scale));
+  const left = 0, top = 9 * scale, width = 20 * scale, height = 19 * scale;
+  const out = new Uint8Array(width * height * 3);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const s = ((top + y) * whole.width + left + x) * 4;
+      const d = (y * width + x) * 3;
+      out[d] = whole.rgba[s];
+      out[d + 1] = whole.rgba[s + 1];
+      out[d + 2] = whole.rgba[s + 2];
+    }
+  }
+  return writePng(width, height, out);
+}
+
+/* Asking Workers AI about photos. */
+
+/**
+ * From this probability up, clef-flash's "is there a photo of a real person" is taken as a
+ * yes and the skin comes down at once. Measured on 2 000 found skins: the five at 0.23 and
+ * above were all photos (looked at one by one), the next was 0.16 and drawn; SEK_Nico's
+ * grey pasted face was 0.60. Below it nothing is decided: Gemini still looks.
+ */
+export const PHOTO_AT = 0.2;
+
+/** Workers AI's neurons spent in a day before photos stop being asked; 10 000 a day are free. */
+export const PHOTO_NEURONS_A_DAY = 8000;
+
+/**
+ * Neurons one question costs, counted on the safe side: 2.2 measured (2 014 questions,
+ * 4 429 neurons on Cloudflare's own count), and the count here is what stops the spending,
+ * so it rounds up.
+ */
+const NEURONS_A_PHOTO = 3;
+
+const PHOTO_QUESTION =
+  'Is there a photograph or photo-like picture of a real person anywhere on the skin, such as a face pasted onto the body or the head, even when pixelated, small or in grey? A face drawn in pixel art, however detailed or shaded, is not a photo.';
+
+/**
+ * What a day of photo questions may still spend, for one run.
+ *
+ * Cloudflare has no cap on what Workers AI costs past the free 10 000 neurons a day on the
+ * paid plan: it bills. So the stop is here. At the start of a run Cloudflare is asked what
+ * today (UTC, when its free day turns) has spent so far; after that every question is
+ * counted here, because Cloudflare's own count runs minutes behind: during 2 000 questions in
+ * a row it stayed at the number it had before them. Runs are half an hour apart, one at a
+ * time (the workflow's `concurrency`), so the count at the start of the next run has caught
+ * up. When Cloudflare cannot be asked, nothing is spent.
+ */
+export async function photoBudget({ account, token, ceiling = PHOTO_NEURONS_A_DAY }) {
+  const day = new Date().toISOString().slice(0, 10);
+  const query = `{ viewer { accounts(filter: {accountTag: "${account}"}) { aiInferenceAdaptiveGroups(limit: 100, filter: {date: "${day}"}) { sum { totalNeurons } } } } }`;
+  let spent = Infinity;
+  try {
+    const answer = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const said = await answer.json();
+    const groups = said.data?.viewer?.accounts?.[0]?.aiInferenceAdaptiveGroups;
+    if (answer.ok && Array.isArray(groups)) spent = groups.reduce((sum, one) => sum + (one.sum?.totalNeurons ?? 0), 0);
+  } catch {
+    // Left at Infinity: an unknown spend allows nothing.
+  }
+  return {
+    spentBefore: spent,
+    asked: 0,
+    allows() {
+      return spent + (this.asked + 1) * NEURONS_A_PHOTO <= ceiling;
+    },
+  };
+}
+
+/**
+ * The probability clef-flash gives that the picture (`look`'s) has a photo of a real person
+ * on it, or null when it did not answer. Counted against `budget` whether it answered or not.
+ */
+export async function askPhoto(picture, { account, token, budget }) {
+  budget.asked++;
+  try {
+    const answer = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/@cf/cloudflare/clef-flash`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 'clef-flash',
+        state: 'The picture shows one Minecraft player skin worn by the player model: the front on the left, the back on the right, on a grey background.',
+        images: [`data:image/png;base64,${picture.toString('base64')}`],
+        questions: { photo: { type: 'noul', instructions: PHOTO_QUESTION } },
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+    const said = await answer.json();
+    const yes = said.result?.answers?.photo?.noul;
+    return typeof yes === 'number' ? yes : null;
+  } catch {
+    return null;
+  }
+}
+
 /* Asking Gemini. */
 
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
@@ -301,11 +424,15 @@ export class Busy extends Error {
  * `tries` is how many times a busy Gemini (429, 500, 503) is waited out before `Busy` is
  * thrown; a 429 that names the daily allowance is not waited out at all. The bot asks once
  * and moves on to the next model (`askAny`): a run spent waiting is a run that checked nothing.
+ * `close` is `closeup`'s picture of the same skin; without it the prompt's second picture is
+ * missing and nudity goes unseen far more often.
  */
-export async function askGemini(picture, { key, model, tries: most = 5 }) {
+export async function askGemini(picture, { key, model, tries: most = 5, close = null }) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+  const parts = [{ text: PROMPT }, { inline_data: { mime_type: 'image/png', data: picture.toString('base64') } }];
+  if (close) parts.push({ inline_data: { mime_type: 'image/png', data: close.toString('base64') } });
   const body = {
-    contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: 'image/png', data: picture.toString('base64') } }] }],
+    contents: [{ parts }],
     generationConfig: { temperature: 0, responseMimeType: 'application/json' },
   };
   for (let tries = 0; ; tries++) {
@@ -403,9 +530,10 @@ export function lookersOf(env, key = (env.GEMINI_API_KEY ?? '').trim()) {
  *
  * In the list's order, so the first model answers whenever its pace allows and the next only
  * while it may not; a model that answers busy rests a minute, one whose day is spent is not
- * asked again. When every model is resting, this waits for the first to be free.
+ * asked again. When every model is resting, this waits for the first to be free. `close` is
+ * passed on to `askGemini`.
  */
-export async function askAny(lookers, picture, { until = Infinity } = {}) {
+export async function askAny(lookers, picture, { until = Infinity, close = null } = {}) {
   for (;;) {
     const open = lookers.filter((one) => !one.spent);
     if (!open.length) return null;
@@ -420,7 +548,7 @@ export async function askAny(lookers, picture, { until = Infinity } = {}) {
     if (now >= until) return null;
     free.next = now + free.gap;
     try {
-      const answer = await askGemini(picture, { key: free.key, model: free.model, tries: 1 });
+      const answer = await askGemini(picture, { key: free.key, model: free.model, tries: 1, close });
       free.answered++;
       return { answer, by: free.model };
     } catch (why) {
@@ -470,7 +598,7 @@ async function main() {
     const png = readPng(new Uint8Array(await (await fetch(`${site}/api/skins/${model_.id}.png?for=view`)).arrayBuffer()));
     const picture = look(png, model_.version === 'slim');
     try {
-      const asked = await askAny(lookers, picture);
+      const asked = await askAny(lookers, picture, { close: closeup(png, model_.version === 'slim') });
       if (!asked) {
         console.log('every model has spent its day; the rest wait for tomorrow');
         break;

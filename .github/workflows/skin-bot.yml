@@ -18,6 +18,11 @@
 #   secrets.GEMINI_API_KEY optional: found skins get a category, tags and a name from
 #                          Google's Gemini (tools/skin-tagger.mjs). Without it they stay
 #                          untagged and nothing else changes.
+#   secrets.CLOUDFLARE_ACCOUNT_ID, secrets.CLOUDFLARE_AI_TOKEN
+#                          optional: every skin found is asked at once whether it carries a
+#                          photo of a real person (Workers AI), and taken down if so. The
+#                          token needs only Workers AI and Account Analytics (read); the bot
+#                          stops asking before the day's free neurons run out.
 #
 # The site, to wake it, needs a token of its own (SKIN_BOT_DISPATCH_TOKEN on the
 # Worker): a fine-grained token for this one repository with "Actions: read and write".
@@ -80,6 +85,9 @@ jobs:
           SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}
           # Optional: tags found skins in the time left after the players.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # Optional: the photo question for every skin found (Workers AI).
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_AI_TOKEN: ${{ secrets.CLOUDFLARE_AI_TOKEN }}
           SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
           SKIN_BOT_MINUTES: '10'
           SEED: ${{ inputs.seed && '--seed tools/skin-bot-seed.txt' || '' }}
