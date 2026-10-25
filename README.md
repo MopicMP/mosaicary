@@ -1,15 +1,16 @@
 # Mosaicary
 
-A Blockbench plugin with two halves.
+**Formerly glTF to Minecraft.** A Blockbench plugin that turns glTF and GLB models,
+from an archive, a folder or straight from Sketchfab, into Minecraft models, and opens
+the free models of [mosaicary.com](https://mosaicary.com) inside the editor.
 
+- **A converter for glTF, GLB and Sketchfab models.** A model is rebuilt out of cubes
+  Minecraft can use: a GeckoLib or Bedrock model with bones and animations, a still
+  Java block or item model, or a Customizable Player Models skin.
 - **The Mosaicary catalogue inside the editor.** Find a model on
   [mosaicary.com](https://mosaicary.com), turn it around with its animations, and
   open it as a project. A model there was made in Blockbench, so it opens as its
   author saved it: nothing is converted. Your own models go up from the same window.
-- **A converter for everything else.** A glTF model — from an archive, a folder or
-  straight from Sketchfab — is rebuilt out of cubes Minecraft can use: a GeckoLib or
-  Bedrock model with bones and animations, a still Java block or item model, or a
-  Customizable Player Models skin.
 
 ![The Models window on the Mosaicary catalogue](docs/images/catalogue.png)
 
