@@ -19,11 +19,18 @@ jobs:
           date=$(date -u +%Y-%m-%d)
           echo "$date,$count" >> stats/installs.csv
           echo "Recorded: $date $count"
+      # GitHub keeps a repository's views, clones and referrers for fourteen days only; these
+      # are kept here day by day (.github/scripts/traffic.mjs). Reading them takes a token with
+      # "Administration: read" on this repository: without TRAFFIC_TOKEN the step does nothing.
+      - name: Traffic
+        env:
+          TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+        run: node .github/scripts/traffic.mjs
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add stats/installs.csv
+          git add stats/installs.csv stats/traffic-*.csv 2>/dev/null || git add stats/installs.csv
           git diff --cached --quiet && echo 'nothing new' && exit 0
           git commit -m "stats: $( tail -1 stats/installs.csv )"
           git push
