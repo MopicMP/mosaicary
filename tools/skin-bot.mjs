@@ -332,7 +332,10 @@ async function round(seen, extra = []) {
     } catch (why) {
       console.warn(`player ${uuid}: ${why.message}`);
     }
-    if (batch.length >= REPORT_SIZE) await flush();
+    // The site takes at most REPORT_SIZE of each in one report, the gone included: the end of an
+    // old list is many accounts in a row that no longer exist, and a report carrying more of
+    // them than that was refused, which ended the run (2026-10-28, four runs in a row).
+    if (batch.length >= REPORT_SIZE || gone.length >= REPORT_SIZE) await flush();
     await sleep(PROFILE_GAP);
   }
   await flush();
