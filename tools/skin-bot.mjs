@@ -402,13 +402,16 @@ async function tagFound() {
       if (!asked) return false;
       const answer = asked.answer;
       if (answer.tags.length || answer.safety) {
-        await site(`/api/bot/skins/${skin.id}/look`, {
+        const said = await site(`/api/bot/skins/${skin.id}/look`, {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ category: answer.category, tags: answer.tags, name: answer.title, safety: answer.safety }),
         });
         tally.tagged++;
-        if (answer.safety && answer.safety !== 'ok') {
+        // A skin a person published is never taken down by the bot: the site puts it in the
+        // review queue instead (`dressPublished` in site/worker/players.ts).
+        if (said?.review) console.log(`sent to review ${skin.id}: ${answer.safety}`);
+        else if (answer.safety && answer.safety !== 'ok') {
           tally.refusedLooks++;
           console.log(`taken down ${skin.id}: ${answer.safety}`);
         }
