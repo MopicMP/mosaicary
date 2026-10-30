@@ -131,10 +131,30 @@ async function site(path, init = {}) {
   }
 }
 
+/** How long to wait before asking Mojang's side again after the connection itself failed. */
+const NET_RETRIES = [3_000, 10_000];
+
+/**
+ * A fetch from Mojang's side that asks again when the connection itself fails, a few seconds
+ * apart. Its servers stand on Microsoft's network, and a connection there now and then times
+ * out (ETIMEDOUT to 150.171.109.x, 2026-10-29 and 10-30): once, that ended the whole run.
+ */
+async function fetchAgain(url, init = {}) {
+  for (let tries = 0; ; tries++) {
+    try {
+      return await fetch(url, init);
+    } catch (why) {
+      if (tries >= NET_RETRIES.length) throw why;
+      console.warn(`${url}: ${why.cause?.code ?? why.message}; asking again`);
+      await sleep(NET_RETRIES[tries]);
+    }
+  }
+}
+
 /** A request to Mojang, waiting out 429s. Null for an answer with nothing in it. */
 async function mojang(url, init = {}) {
   for (let tries = 0; tries < 5; tries++) {
-    const response = await fetch(url, { ...init, headers: { 'user-agent': AGENT, ...(init.headers ?? {}) } });
+    const response = await fetchAgain(url, { ...init, headers: { 'user-agent': AGENT, ...(init.headers ?? {}) } });
     if (response.status === 429) {
       const wait = Number(response.headers.get('retry-after')) * 1000 || BACK_OFF;
       console.log(`Mojang said 429, waiting ${Math.round(wait / 1000)} s`);
@@ -250,7 +270,14 @@ async function photoCheck(model, bytes, slim) {
 /** The skin files the site still needs: each fetched from Mojang and handed over. */
 async function sendSkins(hashes, slim = new Set()) {
   for (const hash of hashes) {
-    const response = await fetch(`https://textures.minecraft.net/texture/${hash}`, { headers: { 'user-agent': AGENT } });
+    let response;
+    try {
+      response = await fetchAgain(`https://textures.minecraft.net/texture/${hash}`, { headers: { 'user-agent': AGENT } });
+    } catch (why) {
+      // Left for the next report, which names the files still missing again.
+      console.warn(`skin ${hash}: textures.minecraft.net did not answer (${why.cause?.code ?? why.message})`);
+      continue;
+    }
     if (!response.ok) {
       console.warn(`skin ${hash}: textures.minecraft.net answered ${response.status}`);
       continue;
