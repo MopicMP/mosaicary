@@ -144,44 +144,65 @@ export function readPng(bytes) {
     else if (name === 'IEND') break;
     at += 12 + length;
   }
-  if (interlace) throw new Error('interlaced PNG');
   const channels = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[type];
   if (!channels) throw new Error(`colour type ${type}`);
   const bitsPerPixel = channels * depth;
-  const stride = Math.ceil((width * bitsPerPixel) / 8);
   const step = Math.max(1, bitsPerPixel >> 3);
   const raw = inflateSync(Buffer.concat(data));
-  const rows = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y++) {
-    const filter = raw[y * (stride + 1)];
-    const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
-    for (let x = 0; x < stride; x++) {
-      const a = x >= step ? rows[y * stride + x - step] : 0;
-      const b = y > 0 ? rows[(y - 1) * stride + x] : 0;
-      const c = x >= step && y > 0 ? rows[(y - 1) * stride + x - step] : 0;
-      const v = line[x];
-      rows[y * stride + x] = (filter === 0 ? v : filter === 1 ? v + a : filter === 2 ? v + b : filter === 3 ? v + ((a + b) >> 1) : v + paeth(a, b, c)) & 255;
-    }
-  }
   const rgba = new Uint8Array(width * height * 4);
-  const sample = (y, index) => {
-    if (depth === 8) return rows[y * stride + index];
-    if (depth === 16) return rows[y * stride + index * 2];
-    const bit = index * depth;
-    const value = (rows[y * stride + (bit >> 3)] >> (8 - depth - (bit & 7))) & ((1 << depth) - 1);
-    return type === 3 ? value : Math.round((value * 255) / ((1 << depth) - 1));
-  };
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const o = (y * width + x) * 4;
-      if (type === 3) {
-        const i = sample(y, x);
-        rgba.set([palette[i * 3], palette[i * 3 + 1], palette[i * 3 + 2], alphaTable && i < alphaTable.length ? alphaTable[i] : 255], o);
-      } else if (type === 0 || type === 4) {
-        const g = sample(y, x * channels);
-        rgba.set([g, g, g, type === 4 ? sample(y, x * channels + 1) : 255], o);
-      } else {
-        rgba.set([sample(y, x * channels), sample(y, x * channels + 1), sample(y, x * channels + 2), type === 6 ? sample(y, x * channels + 3) : 255], o);
+  // Grey and RGB pictures may name one colour that stands for transparent (tRNS): its
+  // samples, at the picture's own depth.
+  const key = alphaTable && (type === 0 || type === 2) ? Array.from({ length: type === 0 ? 1 : 3 }, (_, n) => alphaTable.readUInt16BE(n * 2)) : null;
+  // A picture saved interlaced comes as seven smaller ones (Adam7), each filtered on its own
+  // and placed on its own grid; one saved plainly is the first of them covering everything.
+  const passes = interlace
+    ? [[0, 0, 8, 8], [4, 0, 8, 8], [0, 4, 4, 8], [2, 0, 4, 4], [0, 2, 2, 4], [1, 0, 2, 2], [0, 1, 1, 2]]
+    : [[0, 0, 1, 1]];
+  let from = 0;
+  for (const [left, top, across, down] of passes) {
+    const w = Math.ceil((width - left) / across);
+    const h = Math.ceil((height - top) / down);
+    if (w <= 0 || h <= 0) continue;
+    const stride = Math.ceil((w * bitsPerPixel) / 8);
+    const rows = Buffer.alloc(stride * h);
+    for (let y = 0; y < h; y++) {
+      const filter = raw[from + y * (stride + 1)];
+      const line = raw.subarray(from + y * (stride + 1) + 1, from + (y + 1) * (stride + 1));
+      for (let x = 0; x < stride; x++) {
+        const a = x >= step ? rows[y * stride + x - step] : 0;
+        const b = y > 0 ? rows[(y - 1) * stride + x] : 0;
+        const c = x >= step && y > 0 ? rows[(y - 1) * stride + x - step] : 0;
+        const v = line[x];
+        rows[y * stride + x] = (filter === 0 ? v : filter === 1 ? v + a : filter === 2 ? v + b : filter === 3 ? v + ((a + b) >> 1) : v + paeth(a, b, c)) & 255;
+      }
+    }
+    from += h * (stride + 1);
+    /** A sample as stored, at the picture's depth. */
+    const stored = (y, index) => {
+      if (depth === 8) return rows[y * stride + index];
+      if (depth === 16) return rows.readUInt16BE(y * stride + index * 2);
+      const bit = index * depth;
+      return (rows[y * stride + (bit >> 3)] >> (8 - depth - (bit & 7))) & ((1 << depth) - 1);
+    };
+    const sample = (y, index) => {
+      const value = stored(y, index);
+      if (type === 3 || depth === 8) return value;
+      if (depth === 16) return value >> 8;
+      return Math.round((value * 255) / ((1 << depth) - 1));
+    };
+    const keyed = (y, x) => key !== null && key.every((one, n) => stored(y, x * channels + n) === one);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const o = ((top + y * down) * width + left + x * across) * 4;
+        if (type === 3) {
+          const i = sample(y, x);
+          rgba.set([palette[i * 3], palette[i * 3 + 1], palette[i * 3 + 2], alphaTable && i < alphaTable.length ? alphaTable[i] : 255], o);
+        } else if (type === 0 || type === 4) {
+          const g = sample(y, x * channels);
+          rgba.set([g, g, g, type === 4 ? sample(y, x * channels + 1) : keyed(y, x) ? 0 : 255], o);
+        } else {
+          rgba.set([sample(y, x * channels), sample(y, x * channels + 1), sample(y, x * channels + 2), type === 6 ? sample(y, x * channels + 3) : keyed(y, x) ? 0 : 255], o);
+        }
       }
     }
   }
@@ -256,6 +277,16 @@ export function look(png, slim, scale = 10) {
     const o = (sy * png.width + sx) * 4;
     return [png.rgba[o], png.rgba[o + 1], png.rgba[o + 2], png.rgba[o + 3]];
   };
+  // The old layout's hat is cleared when nothing in the right half of the sheet down to row
+  // 32 is see-through: a solid hat once meant "no hat", and the face under it is what the game
+  // shows (`gameView` in site/shared/skin.ts). Drawn here, a whole series of skins were blank
+  // white heads, and a photo pasted on such a face was never seen.
+  let solidHat = legacy;
+  for (let y = 0; y < 32 && solidHat; y++) {
+    for (let x = 32; x < 64 && solidHat; x++) {
+      if (pixel(x, y)[3] < 128) solidHat = false;
+    }
+  }
   const viewW = 16, viewH = 32, gap = 4, margin = 2;
   const width = (margin * 2 + viewW * 2 + gap) * scale;
   const height = (margin * 2 + viewH) * scale;
@@ -275,6 +306,7 @@ export function look(png, slim, scale = 10) {
     for (const [part, [w, h, d], frontAt, backAt] of partsOf(slim, legacy)) {
       const [px, py] = side === 'front' ? frontAt : backAt;
       for (const [layer, [u, v]] of [['base', part.base], ['outer', part.outer]]) {
+        if (layer === 'outer' && solidHat) continue;
         // Front face at (u+d, v+d); back face at (u+2d+w, v+d), seen from behind.
         const fx = side === 'front' ? u + d : u + 2 * d + w;
         const fy = v + d;
