@@ -34,11 +34,11 @@
 //   SITE_ORIGIN        where the site is, default https://mosaicary.com
 //   SKIN_BOT_MINUTES   how long a run may work, default 8. The workflow stops a run at 15.
 //   GEMINI_API_KEY     optional: with it, found skins that have no tags are tagged and named
-//                      (tools/skin-tagger.mjs) in whatever time the players leave, and never
-//                      in less than the last SKIN_BOT_TAG_MINUTES of a run (default 3, at
-//                      most half of it); GEMINI_MODELS lists the models to ask in turn,
-//                      default `LOOKERS` in tools/skin-tagger.mjs: when one has spent its
-//                      free day, the next one checks.
+//                      (tools/skin-tagger.mjs) for the whole run, alongside the players,
+//                      SKIN_BOT_TAG_WORKERS skins at a time (default 4), each in a request
+//                      of its own; GEMINI_MODELS lists the models to ask in turn, default
+//                      `LOOKERS` in tools/skin-tagger.mjs: when one has spent its free day,
+//                      the next one checks.
 //   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_AI_TOKEN
 //                      optional: with both, every skin found in the run is asked at once
 //                      whether it has a photo of a real person on it (Workers AI's
@@ -72,21 +72,32 @@ const BACK_OFF = 60_000;
 const REPORT_SIZE = 10;
 
 const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
-/** The end of a run kept for tagging, in minutes, when there is a key to tag with. */
-const TAG_MINUTES = Math.min(Number(process.env.SKIN_BOT_TAG_MINUTES || 3), MINUTES / 2);
+/**
+ * How many skins are being asked about at once. Never in one request: asked in a batch, the
+ * models missed the photo they caught when asked about it alone (docs/skin-bot-plan.md).
+ * One at a time, though, a run spent most of its minutes waiting on answers of 2 to 6 seconds
+ * while the pace of three models allowed one every 1.5 seconds between them.
+ */
+const TAG_WORKERS = Math.max(1, Number(process.env.SKIN_BOT_TAG_WORKERS || 4));
+/** How often the work is asked for again while there is none, so a name looked up meanwhile is answered within the run. */
+const WORK_POLL = 30_000;
 
 const CF_ACCOUNT = (process.env.CLOUDFLARE_ACCOUNT_ID || '').trim();
 const CF_AI_TOKEN = (process.env.CLOUDFLARE_AI_TOKEN || '').trim();
 
 const deadline = Date.now() + MINUTES * 60_000;
-// The players stop short of the end when there is tagging to do. An open list of thirteen
-// thousand players is work that does not run out within a run, and with the players taking
-// all of it no skin found meanwhile was ever named or tagged: the shelf filled with
-// "Skin 3f2a9c1b" and a category filter that found nothing.
-const playersUntil = GEMINI_KEY && !dry ? deadline - TAG_MINUTES * 60_000 : deadline;
-const timeLeft = () => Date.now() < playersUntil;
-const taggingLeft = () => Date.now() < deadline;
+// The players and the tagging share the whole run: Mojang's pace holds the one and Gemini's the
+// other, so neither waits for the other. Run one after the other, an open list of thousands of
+// players took every minute, and no skin found meanwhile was named or checked.
+const timeLeft = () => Date.now() < deadline;
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
+/** A pause of `ms`, cut short by the end of the run. */
+const pause = (ms) => sleep(Math.max(0, Math.min(ms, deadline - Date.now())));
+
+/** Where the players stand, for the tagging to know whether more found skins may still come this run. */
+const playerWork = { idle: false, done: false };
+/** Whether the tagging is over for this run: every model's day spent, or nothing left to check. */
+let taggingOver = !GEMINI_KEY || dry;
 
 const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
 
@@ -379,12 +390,25 @@ async function main() {
   // and the rounds after it carry on with what the site asks for.
   let extra = seedFile ? seedNames(seedFile) : [];
   if (seedFile) console.log(`seed: ${extra.length} names from ${seedFile}`);
-  while (timeLeft()) {
-    const worked = await round(seen, extra);
-    extra = [];
-    if (!worked || once) break;
+  // Held, not awaited, so the players go on meanwhile; a failure stops the run after them.
+  const tagging = taggingOver ? Promise.resolve(null) : tagFound().then(() => null, (why) => why);
+  try {
+    while (timeLeft()) {
+      const worked = await round(seen, extra);
+      extra = [];
+      playerWork.idle = !worked;
+      if (once || dry) break;
+      if (worked) continue;
+      // Nothing to do now. While the tagging goes on, the work is asked for again, so a name
+      // somebody looks up meanwhile is answered in this run and not after it.
+      if (taggingOver) break;
+      await pause(WORK_POLL);
+    }
+  } finally {
+    playerWork.done = true;
   }
-  if (GEMINI_KEY && !dry) await tagFound();
+  const failed = await tagging;
+  if (failed) throw failed;
   console.log(
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
       `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
@@ -395,28 +419,60 @@ async function main() {
 }
 
 /**
- * Found skins the tagger has not judged yet, tagged and checked with what is left of the run
- * (tools/skin-tagger.mjs): the never tagged, and the tagged before the tagger was asked about
- * safety. The site takes down what the check refuses.
+ * Skins the tagger has not judged yet, tagged and checked for the whole run
+ * (tools/skin-tagger.mjs): the published ones first, then the found ones never tagged, and the
+ * tagged before the tagger was asked about safety. The site takes down what the check refuses.
  *
- * After the players and not before: a name somebody is waiting for matters more than a tag.
- * But never with nothing left: the players stop `TAG_MINUTES` before the end (see above).
- * Newest first, so a skin found this run is checked this run when there is time; the rest
- * wait for the next. Without GEMINI_API_KEY nothing is tagged or checked.
+ * `TAG_WORKERS` at a time, sharing the models' pace (`askAny`), alongside the players. The
+ * list is asked for again whenever it runs out, newest first, so a skin found this run is
+ * checked this run when the models allow. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
   const { readPng, look, closeup, lookersOf, askAny } = await import('./skin-tagger.mjs');
   const lookers = lookersOf(process.env, GEMINI_KEY);
-  const { skins } = await site('/api/bot/unchecked');
-  try {
-    for (const skin of skins) {
-      if (!taggingLeft()) return;
+  // Every skin handed to a worker this run: the list asked for again still has the ones being
+  // asked about, and one that failed waits for the next run rather than coming round again.
+  const taken = new Set();
+  let waiting = [];
+  let asking = null;
+
+  /** The next skin nobody in this run has had, or null when the site has none for now. */
+  async function next() {
+    if (!waiting.length) {
+      asking ??= site('/api/bot/unchecked')
+        .then(({ skins }) => {
+          waiting = skins.filter((one) => !taken.has(one.id));
+        })
+        .finally(() => {
+          asking = null;
+        });
+      await asking;
+    }
+    const skin = waiting.shift() ?? null;
+    if (skin) taken.add(skin.id);
+    return skin;
+  }
+
+  async function worker() {
+    while (!taggingOver && timeLeft()) {
+      const skin = await next();
+      if (!skin) {
+        // More can come only from the players, and only while they still have work.
+        if (playerWork.idle || playerWork.done) return;
+        await pause(WORK_POLL);
+        continue;
+      }
       if (!(await tagOne(skin))) {
-        if (lookers.every((one) => one.spent)) console.log('every model has spent its free day; the rest wait for tomorrow');
-        return;
+        if (!taggingOver && lookers.every((one) => one.spent)) console.log('every model has spent its free day; the rest wait for tomorrow');
+        taggingOver = true;
       }
     }
+  }
+
+  try {
+    await Promise.all(Array.from({ length: TAG_WORKERS }, worker));
   } finally {
+    taggingOver = true;
     tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.model} ${one.answered}`).join(', ');
   }
 

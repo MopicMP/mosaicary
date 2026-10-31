@@ -482,10 +482,11 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
 /* Asking more than one model. */
 
 /**
- * The models asked by default, in order. Each has its own free allowance for the day (500
- * requests for gemini-3.5-flash-lite on 2026-10-24, which `gemini-flash-lite-latest` was
- * then), so every model here is another day's worth of checks: when one answers that its day
- * is spent, the rest go on. The light ones first, being quicker.
+ * The models asked by default, in order. Each has its own free allowance for the day, so every
+ * model here is another day's worth of checks: when one answers that its day is spent, the
+ * rest go on. The light ones first, being quicker. Their 429s name the allowance
+ * (`quotaValue`, 2026-10-31): 500 a day for each of the three light ones, 20 for each of the
+ * others, so one key checks about 1 560 skins a day at most, however fast it asks.
  *
  * Only models that called SEK_Nico's skin a photo are here (docs/skin-bot-plan.md, "Как
  * проверять больше тысячи в сутки"): asked in a batch, or asked of the free models on
