@@ -1,0 +1,52 @@
+# The skin bot's feed: hands the site the players open lists name, for the bot to ask
+# Mojang about (tools/skin-bot-feed.mjs; its header lists the lists).
+#
+# Every hour: the site's hourly cron asks GitHub to run it (workflow_dispatch, `wakeFeed` in
+# site/worker/players.ts), since GitHub's own schedule fires a small part of the times it
+# says. Each run takes that hour's share, so a run that never happens costs one hour's
+# share and nothing else. The schedule below is only the fallback for when the site cannot
+# wake it, a few times a day.
+#
+# Its own workflow and its own queue, apart from the bot's: a run here is a minute or two
+# of other servers' APIs, and in the bot's queue it would hold up a name somebody looked
+# up and is waiting for.
+#
+# What it needs: secrets.SKIN_BOT_KEY, as the bot; vars.SITE_ORIGIN if the site moves.
+name: Skin bot feed
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      daily:
+        description: 'Also the once-a-day lists (leaderboards and tops), whatever the hour'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skin-bot-feed
+  cancel-in-progress: false
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            tools/skin-bot-feed.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Feed
+        env:
+          SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}
+          SITE_ORIGIN: ${{ vars.SITE_ORIGIN }}
+          DAILY: ${{ inputs.daily && '--daily' || '' }}
+        run: node tools/skin-bot-feed.mjs $DAILY
