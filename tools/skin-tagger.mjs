@@ -27,6 +27,12 @@
 // asked the moment it is found, long before its turn with Gemini comes. It is asked about
 // photos only: on nudity it could not tell a naked body from swimwear, and Gemini can.
 //
+// How well it is drawn, in the same request (`quality`), so a new skin's grade costs no request
+// of its own; asked with the rest, the safety answers stayed as they were on 200 skins out of 200
+// (docs/skin-quality-plan.md). Skins checked before the question was added are graded four to a
+// picture (`gradeSheet`, `askGrades`): good enough for a grade, and never for safety, which a
+// shared picture lets through.
+//
 // Usage:
 //   node tools/skin-tagger.mjs --site URL --dry DIR [--limit N]
 //       tag the found skins of a site without writing anything: the pictures and the
@@ -86,7 +92,7 @@ The picture shows one skin worn by the Minecraft player model: the front on the 
 The second picture is a close-up of the front of the same skin: the torso, the arms and the top of the legs.
 
 Answer with JSON only, in this shape:
-{"category": "...", "tags": ["...", "..."], "title": "...", "body": "...", "safety": "..."}
+{"category": "...", "tags": ["...", "..."], "title": "...", "body": "...", "safety": "...", "quality": 0}
 
 body: one short sentence on what is drawn on the torso and the hips in the second picture, written before safety is decided.
 
@@ -110,7 +116,36 @@ safety, exactly one of, for a catalogue children use:
 - "sexual": a body drawn naked, in skin colour or in any other colour (blue, green, orange, pale): the hips not covered by any clothing, or a woman's breasts not covered; genitals, or nipples on a woman's breasts, drawn even as a single pixel or two of pink, red or a darker shade; white or coloured fluid on the face or body, or anything else suggesting a sexual act. Skins are tiny pixel art, so these details are only a pixel or two: look closely at the second picture. A man's bare chest, even with nipples, is not sexual when his hips are covered by swimwear, underwear, shorts or trousers; nor is a woman in a bikini or a swimsuit.
 - "gore": blood, wounds, organs or severed body parts shown in detail
 - "hate": hate symbols (such as a swastika), slurs or insults written on the skin
-- "ok": none of these`;
+- "ok": none of these
+
+quality: a whole number from 1 to 10, how well the skin is drawn, as somebody choosing which skins a catalogue shows first would judge it. Judge the craft and not the subject: clean shading, a readable face, a consistent style and palette, details that belong there, the back drawn as carefully as the front, and the outer layer used for depth.
+- 1 to 3: blank, unfinished, noisy, or a default skin recoloured
+- 4 to 6: ordinary
+- 7 to 8: well made
+- 9 to 10: excellent, one to show first`;
+
+/** A grade as it came, or null for anything but a whole number from 1 to 10. */
+function gradeIn(said) {
+  return Number.isInteger(said) && said >= 1 && said <= 10 ? said : null;
+}
+
+/** The skins to one picture when only the grade is asked: at eight the agreement fell, at four it did not. */
+export const GRADES_PER_PICTURE = 4;
+
+/** Where a grade from a shared picture says it came from, as the site's scales name it (site/shared/skinQuality.ts). */
+export function gradesSource(model) {
+  return `${model} x${GRADES_PER_PICTURE}`;
+}
+
+const GRADES_ASK = (count) => `The picture shows ${count} Minecraft player skins in numbered cells, each drawn from the front and from the back on a grey background.
+
+For each cell give quality: a whole number from 1 to 10, how well the skin is drawn, as somebody choosing which skins a catalogue shows first would judge it. Judge the craft and not the subject: clean shading, a readable face, a consistent style and palette, details that belong there, the back drawn as carefully as the front, and the outer layer used for depth. Judge each skin on its own and not against its neighbours.
+- 1 to 3: blank, unfinished, noisy, or a default skin recoloured
+- 4 to 6: ordinary
+- 7 to 8: well made
+- 9 to 10: excellent, one to show first
+
+Answer with JSON only: {"grades": [{"n": 1, "quality": 0}]} with one entry for each cell.`;
 
 /* Reading a PNG, enough for skins: 8 or 16 bits, grey, RGB, palette, with or without alpha, not interlaced. */
 
@@ -325,6 +360,50 @@ export function look(png, slim, scale = 10) {
   return writePng(width, height, out);
 }
 
+/** The numbers on a sheet's cells, five cells wide and seven tall. */
+const DIGITS = {
+  1: ['00100', '01100', '00100', '00100', '00100', '00100', '01110'],
+  2: ['01110', '10001', '00001', '00110', '01000', '10000', '11111'],
+  3: ['01110', '10001', '00001', '00110', '00001', '10001', '01110'],
+  4: ['00010', '00110', '01010', '10010', '11111', '00010', '00010'],
+};
+
+/**
+ * Up to `GRADES_PER_PICTURE` skins in a row of numbered cells on grey, each as `look` draws it:
+ * what `askGrades` asks about. Every cell is the same whether or not its neighbours are there.
+ */
+export function gradeSheet(skins) {
+  const cellW = 300, cellH = 256, scale = 7;
+  const width = cellW * GRADES_PER_PICTURE;
+  const out = new Uint8Array(width * cellH * 3).fill(128);
+  const paint = (x, y, r, g, b) => {
+    const o = (y * width + x) * 3;
+    out[o] = r;
+    out[o + 1] = g;
+    out[o + 2] = b;
+  };
+  skins.forEach(({ png, slim }, at) => {
+    const left = at * cellW;
+    const figure = readPng(look(png, slim, scale));
+    const fromX = left + Math.floor((cellW - figure.width) / 2);
+    const fromY = Math.floor((cellH - figure.height) / 2);
+    for (let y = 0; y < figure.height; y++) {
+      for (let x = 0; x < figure.width; x++) {
+        const s = (y * figure.width + x) * 4;
+        paint(fromX + x, fromY + y, figure.rgba[s], figure.rgba[s + 1], figure.rgba[s + 2]);
+      }
+    }
+    for (let y = 0; y < 30; y++) for (let x = 0; x < 30; x++) paint(left + x, y, 255, 255, 255);
+    DIGITS[at + 1].forEach((row, y) => {
+      [...row].forEach((on, x) => {
+        if (on !== '1') return;
+        for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) paint(left + 8 + x * 3 + dx, 5 + y * 3 + dy, 0, 0, 0);
+      });
+    });
+  });
+  return writePng(width, cellH, out);
+}
+
 /**
  * The front of the torso, the arms and the top of the legs from `look`'s picture, at
  * `scale` pixels to a skin pixel: the second picture Gemini gets, where a pixel of detail is
@@ -472,9 +551,33 @@ export class Refused extends Error {
  * missing and nudity goes unseen far more often.
  */
 export async function askGemini(picture, { key, model, tries: most = 5, close = null }) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
   const parts = [{ text: PROMPT }, { inline_data: { mime_type: 'image/png', data: picture.toString('base64') } }];
   if (close) parts.push({ inline_data: { mime_type: 'image/png', data: close.toString('base64') } });
+  const { parsed, usage } = await askForJson(parts, { key, model, most });
+  const tags = [...new Set((Array.isArray(parsed.tags) ? parsed.tags : []).map((one) => String(one).toLowerCase().trim()))];
+  return {
+    category: SKIN_CATEGORIES.includes(parsed.category) ? parsed.category : null,
+    tags: tags.filter((one) => SKIN_TAGS.includes(one)).slice(0, 8),
+    dropped: tags.filter((one) => !SKIN_TAGS.includes(one)),
+    title: typeof parsed.title === 'string' ? parsed.title.replace(/[^\p{L}\p{N} '\-]/gu, '').trim().slice(0, 60) : null,
+    // Anything but one of the answers is no answer: the skin stays unchecked and is asked again.
+    safety: SAFETY.includes(parsed.safety) ? parsed.safety : null,
+    quality: gradeIn(parsed.quality),
+    usage,
+  };
+}
+
+/** What a model says of a `gradeSheet` of `count` skins: a grade or null for each, in the cells' order. */
+export async function askGrades(sheet, { key, model, count, tries: most = 1 }) {
+  const parts = [{ text: GRADES_ASK(count) }, { inline_data: { mime_type: 'image/png', data: sheet.toString('base64') } }];
+  const { parsed } = await askForJson(parts, { key, model, most });
+  const said = Array.isArray(parsed.grades) ? parsed.grades : [];
+  return Array.from({ length: count }, (_, at) => gradeIn(said.find((one) => one?.n === at + 1)?.quality));
+}
+
+/** One question to a model, answered in JSON: what `askGemini` says about busy models and spent days holds here. */
+async function askForJson(parts, { key, model, most }) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
   const body = {
     contents: [{ parts }],
     generationConfig: { temperature: 0, responseMimeType: 'application/json' },
@@ -510,22 +613,11 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
     }
     const said = await answer.json();
     const text = said.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('') ?? '';
-    let parsed;
     try {
-      parsed = JSON.parse(text);
+      return { parsed: JSON.parse(text), usage: said.usageMetadata ?? null };
     } catch {
       throw new Error(`not JSON: ${text.slice(0, 120)}`);
     }
-    const tags = [...new Set((Array.isArray(parsed.tags) ? parsed.tags : []).map((one) => String(one).toLowerCase().trim()))];
-    return {
-      category: SKIN_CATEGORIES.includes(parsed.category) ? parsed.category : null,
-      tags: tags.filter((one) => SKIN_TAGS.includes(one)).slice(0, 8),
-      dropped: tags.filter((one) => !SKIN_TAGS.includes(one)),
-      title: typeof parsed.title === 'string' ? parsed.title.replace(/[^\p{L}\p{N} '\-]/gu, '').trim().slice(0, 60) : null,
-      // Anything but one of the answers is no answer: the skin stays unchecked and is asked again.
-      safety: SAFETY.includes(parsed.safety) ? parsed.safety : null,
-      usage: said.usageMetadata ?? null,
-    };
   }
 }
 
@@ -551,6 +643,20 @@ export const LOOKERS = [
   'gemini-3.5-flash',
   'gemini-3.6-flash',
 ];
+
+/**
+ * The model that grades the skins checked before the grade was asked for, under the last key, while
+ * there are any: one of the six light allowances, 500 pictures and so 2 000 skins a day. Kept apart
+ * rather than shared, because the checks spend the whole day's allowance within hours of its
+ * coming back and would leave it nothing. When the site has none left to grade the checks have it
+ * back (`tagFound` in tools/skin-bot.mjs).
+ */
+export const GRADER = 'gemini-3.1-flash-lite-preview';
+
+export function graderOf(lookers) {
+  const mine = lookers.filter((one) => one.model === GRADER);
+  return mine[mine.length - 1] ?? null;
+}
 
 /** The least time between two questions to one model, in milliseconds: the free tier's pace. */
 const LOOKER_GAP = { lite: 4500, other: 6500 };
@@ -591,15 +697,15 @@ export function lookersOf(env, keys = keysOf(env)) {
 }
 
 /**
- * A picture asked of the first model free to answer it: `{ answer, by }`, or null when every
- * model's day is spent or `until` comes first.
+ * A picture asked of the first model free to answer it: `{ answer, by, model }`, or null when every
+ * model's day is spent or `until` comes first. `ask` says what is asked, `askGemini` by default.
  *
  * In the list's order, so the first model answers whenever its pace allows and the next only
  * while it may not; a model that answers busy rests a minute, one whose day is spent is not
  * asked again, nor one that refused its key, and the picture goes on to the next. When every
  * model is resting, this waits for the first to be free. `close` is passed on to `askGemini`.
  */
-export async function askAny(lookers, picture, { until = Infinity, close = null } = {}) {
+export async function askAny(lookers, picture, { until = Infinity, close = null, ask = null } = {}) {
   for (;;) {
     const open = lookers.filter((one) => !one.spent);
     if (!open.length) return null;
@@ -614,9 +720,9 @@ export async function askAny(lookers, picture, { until = Infinity, close = null 
     if (now >= until) return null;
     free.next = now + free.gap;
     try {
-      const answer = await askGemini(picture, { key: free.key, model: free.model, tries: 1, close });
+      const answer = ask ? await ask(free) : await askGemini(picture, { key: free.key, model: free.model, tries: 1, close });
       free.answered++;
-      return { answer, by: free.name };
+      return { answer, by: free.name, model: free.model };
     } catch (why) {
       if (why instanceof Refused) {
         for (const one of lookers) {
@@ -698,7 +804,7 @@ async function main() {
         const answer = await fetch(`${site}/api/bot/skins/${model_.id}/look`, {
           method: 'PUT',
           headers: { 'x-bot-key': process.env.SKIN_BOT_KEY ?? '', 'content-type': 'application/json' },
-          body: JSON.stringify({ category: said.category, tags: said.tags, name: said.title, safety: said.safety }),
+          body: JSON.stringify({ category: said.category, tags: said.tags, name: said.title, safety: said.safety, quality: said.quality, by: asked.model }),
         });
         if (!answer.ok) console.warn(`  the site answered ${answer.status}: ${await answer.text()}`);
       }

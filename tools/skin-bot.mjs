@@ -102,7 +102,7 @@ const playerWork = { idle: false, done: false };
 /** Whether the tagging is over for this run: every model's day spent, or nothing left to check. */
 let taggingOver = !GEMINI_KEY || dry;
 
-const tally = { rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
+const tally = { graded: 0, rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
 
 class Stop extends Error {}
 
@@ -416,7 +416,7 @@ async function main() {
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
       `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
       `skins sent ${tally.skins}, refused ${tally.skinsRefused}; photo check ${tally.photosAsked}, taken down ${tally.photosDown}; ` +
-      `tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}`,
+      `tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}, graded ${tally.graded}`,
   );
   return 0;
 }
@@ -431,8 +431,12 @@ async function main() {
  * checked this run when the models allow. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
-  const { readPng, look, closeup, lookersOf, askAny, keysGone } = await import('./skin-tagger.mjs');
-  const lookers = lookersOf(process.env);
+  const { readPng, look, closeup, lookersOf, askAny, keysGone, graderOf } = await import('./skin-tagger.mjs');
+  const everyLooker = lookersOf(process.env);
+  // One model is held back while checked skins wait for a grade, and comes back to the checks after.
+  const grader = graderOf(everyLooker);
+  const toGrade = grader ? (await site('/api/bot/ungraded?limit=1').catch(() => ({ skins: [] }))).skins.length > 0 : false;
+  const lookers = toGrade ? everyLooker.filter((one) => one !== grader) : everyLooker;
   // Every skin handed to a worker this run: the list asked for again still has the ones being
   // asked about, and one that failed waits for the next run rather than coming round again.
   const taken = new Set();
@@ -473,10 +477,10 @@ async function tagFound() {
   }
 
   try {
-    await Promise.all(Array.from({ length: TAG_WORKERS }, worker));
+    await Promise.all([...Array.from({ length: TAG_WORKERS }, worker), ...(toGrade ? [gradeChecked(grader)] : [])]);
   } finally {
     taggingOver = true;
-    tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.name} ${one.answered}`).join(', ');
+    tally.lookers = everyLooker.filter((one) => one.answered).map((one) => `${one.name} ${one.answered}`).join(', ');
   }
 
   // One key gone leaves the others working, so the run stays green with a notice on its page and
@@ -505,7 +509,7 @@ async function tagFound() {
         const said = await site(`/api/bot/skins/${skin.id}/look`, {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ category: answer.category, tags: answer.tags, name: answer.title, safety: answer.safety }),
+          body: JSON.stringify({ category: answer.category, tags: answer.tags, name: answer.title, safety: answer.safety, quality: answer.quality, by: asked.model }),
         });
         tally.tagged++;
         // A skin a person published is never taken down by the bot: the site puts it in the
@@ -520,6 +524,51 @@ async function tagFound() {
       console.warn(`tagging ${skin.id}: ${why.message}`);
     }
     return true;
+  }
+
+  /**
+   * The skins checked before the grade was asked for, a picture of four at a time on `looker`'s own
+   * allowance, for as long as the run and the allowance last. A skin that got no grade waits for
+   * the next run rather than coming round again in this one.
+   */
+  async function gradeChecked(looker) {
+    const { gradeSheet, askGrades, gradesSource, GRADES_PER_PICTURE } = await import('./skin-tagger.mjs');
+    const taken = new Set();
+    let waiting = [];
+    while (timeLeft() && !looker.spent) {
+      if (waiting.length < GRADES_PER_PICTURE) {
+        const { skins } = await site(`/api/bot/ungraded?limit=${GRADES_PER_PICTURE * 10}`);
+        waiting = skins.filter((one) => !taken.has(one.id));
+        if (!waiting.length) return;
+      }
+      const group = waiting.splice(0, GRADES_PER_PICTURE);
+      for (const one of group) taken.add(one.id);
+      try {
+        const files = await Promise.all(
+          group.map(async (skin) => ({
+            png: readPng(new Uint8Array(await (await fetch(`${SITE}/api/skins/${skin.id}.png?for=view`)).arrayBuffer())),
+            slim: skin.version === 'slim',
+          })),
+        );
+        const sheet = gradeSheet(files);
+        const asked = await askAny([looker], sheet, {
+          until: deadline,
+          ask: ({ key, model }) => askGrades(sheet, { key, model, count: group.length }),
+        });
+        if (!asked) return;
+        const grades = group.map((skin, at) => ({ id: skin.id, quality: asked.answer[at] })).filter((one) => one.quality !== null);
+        if (grades.length) {
+          await site('/api/bot/grades', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ by: gradesSource(asked.model), grades }),
+          });
+          tally.graded += grades.length;
+        }
+      } catch (why) {
+        console.warn(`grading ${group.map((one) => one.id).join(' ')}: ${why.message}`);
+      }
+    }
   }
 }
 
