@@ -17,6 +17,7 @@
 #   secrets.GEMINI_API_KEY optional: found skins get a category, tags and a name from
 #                          Google's Gemini (tools/skin-tagger.mjs). Without it they stay
 #                          untagged and nothing else changes.
+#   secrets.GEMINI_API_KEY2 optional: another key, asked alongside the first.
 #   secrets.CLOUDFLARE_ACCOUNT_ID, secrets.CLOUDFLARE_AI_TOKEN
 #                          optional: every skin found is asked at once whether it carries a
 #                          photo of a real person (Workers AI), and taken down if so. The
@@ -71,6 +72,7 @@ jobs:
           SKIN_BOT_KEY: ${{ secrets.SKIN_BOT_KEY }}
           # Optional: tags and checks found skins, alongside the players.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY2: ${{ secrets.GEMINI_API_KEY2 }}
           # Optional: the photo question for every skin found (Workers AI).
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_AI_TOKEN: ${{ secrets.CLOUDFLARE_AI_TOKEN }}

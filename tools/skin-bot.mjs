@@ -39,6 +39,9 @@
 //                      of its own; GEMINI_MODELS lists the models to ask in turn, default
 //                      `LOOKERS` in tools/skin-tagger.mjs: when one has spent its free day,
 //                      the next one checks.
+//   GEMINI_API_KEY2    optional: another key, its models asked alongside the first key's. When
+//                      Gemini refuses a key the others go on and the run page says so; when it
+//                      refuses them all the run fails.
 //   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_AI_TOKEN
 //                      optional: with both, every skin found in the run is asked at once
 //                      whether it has a photo of a real person on it (Workers AI's
@@ -71,7 +74,7 @@ const BACK_OFF = 60_000;
 /** How many signed answers go in one report: the site takes at most ten (BOT_PROFILES_MOST). */
 const REPORT_SIZE = 10;
 
-const GEMINI_KEY = (process.env.GEMINI_API_KEY || '').trim();
+const GEMINI_KEY = (process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY2 || '').trim();
 /**
  * How many skins are being asked about at once. Never in one request: asked in a batch, the
  * models missed the photo they caught when asked about it alone (docs/skin-bot-plan.md).
@@ -429,7 +432,7 @@ async function main() {
  */
 async function tagFound() {
   const { readPng, look, closeup, lookersOf, askAny } = await import('./skin-tagger.mjs');
-  const lookers = lookersOf(process.env, GEMINI_KEY);
+  const lookers = lookersOf(process.env);
   // Every skin handed to a worker this run: the list asked for again still has the ones being
   // asked about, and one that failed waits for the next run rather than coming round again.
   const taken = new Set();
@@ -463,7 +466,7 @@ async function tagFound() {
         continue;
       }
       if (!(await tagOne(skin))) {
-        if (!taggingOver && lookers.every((one) => one.spent)) console.log('every model has spent its free day; the rest wait for tomorrow');
+        if (!taggingOver && lookers.every((one) => one.spent) && !lookers.every((one) => one.refused)) console.log('every model has spent its free day; the rest wait for tomorrow');
         taggingOver = true;
       }
     }
@@ -473,8 +476,14 @@ async function tagFound() {
     await Promise.all(Array.from({ length: TAG_WORKERS }, worker));
   } finally {
     taggingOver = true;
-    tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.model} ${one.answered}`).join(', ');
+    tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.name} ${one.answered}`).join(', ');
   }
+
+  // One key gone leaves the others working, so the run stays green with a notice on its page.
+  // With none left no skin can be checked, and a failed run is what reaches the owner.
+  const refused = lookers.filter((one) => one.refused);
+  if (refused.length) console.log(`::warning::Gemini refused the key for ${refused.map((one) => one.name).join(', ')}`);
+  if (refused.length === lookers.length) throw new Error('Gemini refused every key: no skin can be checked until there is a working one');
 
   /** One skin asked and written; false when no model will answer before the run ends. */
   async function tagOne(skin) {

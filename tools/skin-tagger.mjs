@@ -36,6 +36,7 @@
 //
 // Read from the environment:
 //   GEMINI_API_KEY    the key for Google's Gemini API. Required.
+//   GEMINI_API_KEY2   optional: another key, and GEMINI_API_KEY3 and on after it (`keysOf`)
 //   GEMINI_MODELS     the models to ask, a comma list in order of preference, default `LOOKERS`;
 //                     GEMINI_MODEL, one model, is still read when GEMINI_MODELS is not set
 //   SKIN_BOT_KEY      the site's bot key, for --write
@@ -450,6 +451,9 @@ export class Busy extends Error {
   }
 }
 
+/** Gemini will not take this key for this model, whatever the skin: asking again changes nothing. */
+export class Refused extends Error {}
+
 /**
  * What Gemini said about a picture, held to the list and the categories.
  *
@@ -489,7 +493,11 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
       await sleep(20_000 * (tries + 1));
       continue;
     }
-    if (!answer.ok) throw new Error(`Gemini answered ${answer.status}: ${(await answer.text()).slice(0, 200)}`);
+    if (!answer.ok) {
+      const why = await answer.text();
+      if (answer.status === 401 || answer.status === 403 || /API_KEY_INVALID/.test(why)) throw new Refused(`${model} answered ${answer.status}`);
+      throw new Error(`Gemini answered ${answer.status}: ${why.slice(0, 200)}`);
+    }
     const said = await answer.json();
     const text = said.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('') ?? '';
     let parsed;
@@ -518,7 +526,8 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
  * model here is another day's worth of checks: when one answers that its day is spent, the
  * rest go on. The light ones first, being quicker. Their 429s name the allowance
  * (`quotaValue`, 2026-10-31): 500 a day for each of the three light ones, 20 for each of the
- * others, so one key checks about 1 560 skins a day at most, however fast it asks.
+ * others, so one key checks about 1 560 skins a day at most, however fast it asks. With more
+ * than one key in the environment each model is asked under each of them (`lookersOf`).
  *
  * Only models that called SEK_Nico's skin a photo are here (docs/skin-bot-plan.md, "Как
  * проверять больше тысячи в сутки"): asked in a batch, or asked of the free models on
@@ -538,23 +547,36 @@ const LOOKER_GAP = { lite: 4500, other: 6500 };
 /** How long a model that answered busy is left alone, in milliseconds. */
 const LOOKER_REST = 60_000;
 
+/** The keys in the environment, each once: `GEMINI_API_KEY`, then `GEMINI_API_KEY2` and on. */
+export function keysOf(env) {
+  const keys = [env.GEMINI_API_KEY];
+  for (let n = 2; env[`GEMINI_API_KEY${n}`]; n++) keys.push(env[`GEMINI_API_KEY${n}`]);
+  return [...new Set(keys.map((one) => (one ?? '').trim()).filter(Boolean))];
+}
+
 /**
  * The models to ask, from the environment: `GEMINI_MODELS` (a comma list), else
- * `GEMINI_MODEL` alone, else `LOOKERS`. Each with when it may next be asked.
+ * `GEMINI_MODEL` alone, else `LOOKERS`. One entry for each model under each key, a model's keys
+ * next to each other so the list's order stays the order of preference. Each with when it may
+ * next be asked: the pace and the day's allowance belong to the model and the key together.
  */
-export function lookersOf(env, key = (env.GEMINI_API_KEY ?? '').trim()) {
+export function lookersOf(env, keys = keysOf(env)) {
   const names = (env.GEMINI_MODELS || env.GEMINI_MODEL || LOOKERS.join(','))
     .split(',')
     .map((one) => one.trim())
     .filter(Boolean);
-  return names.map((model) => ({
-    model,
-    key,
-    gap: model.includes('lite') ? LOOKER_GAP.lite : LOOKER_GAP.other,
-    next: 0,
-    spent: false,
-    answered: 0,
-  }));
+  return names.flatMap((model) =>
+    keys.map((key, at) => ({
+      model,
+      key,
+      name: at ? `${model} (key ${at + 1})` : model,
+      gap: model.includes('lite') ? LOOKER_GAP.lite : LOOKER_GAP.other,
+      next: 0,
+      spent: false,
+      refused: false,
+      answered: 0,
+    })),
+  );
 }
 
 /**
@@ -563,8 +585,8 @@ export function lookersOf(env, key = (env.GEMINI_API_KEY ?? '').trim()) {
  *
  * In the list's order, so the first model answers whenever its pace allows and the next only
  * while it may not; a model that answers busy rests a minute, one whose day is spent is not
- * asked again. When every model is resting, this waits for the first to be free. `close` is
- * passed on to `askGemini`.
+ * asked again, nor one that refused its key, and the picture goes on to the next. When every
+ * model is resting, this waits for the first to be free. `close` is passed on to `askGemini`.
  */
 export async function askAny(lookers, picture, { until = Infinity, close = null } = {}) {
   for (;;) {
@@ -583,8 +605,14 @@ export async function askAny(lookers, picture, { until = Infinity, close = null 
     try {
       const answer = await askGemini(picture, { key: free.key, model: free.model, tries: 1, close });
       free.answered++;
-      return { answer, by: free.model };
+      return { answer, by: free.name };
     } catch (why) {
+      if (why instanceof Refused) {
+        free.spent = true;
+        free.refused = true;
+        console.warn(`${free.name}: ${why.message}, not asked again this run`);
+        continue;
+      }
       if (!(why instanceof Busy)) throw why;
       if (why.forTheDay) free.spent = true;
       else free.next = Date.now() + LOOKER_REST;
@@ -601,9 +629,8 @@ async function main() {
   const site = (option('--site') ?? '').replace(/\/+$/, '');
   const dry = option('--dry');
   const limit = Number(option('--limit') ?? Infinity);
-  const key = (process.env.GEMINI_API_KEY ?? '').trim();
-  const lookers = lookersOf(process.env, key);
-  if (!site || !key || (!dry && !args.includes('--write'))) {
+  const lookers = lookersOf(process.env);
+  if (!site || !lookers.length || (!dry && !args.includes('--write'))) {
     console.error('usage: GEMINI_API_KEY=… node tools/skin-tagger.mjs --site URL (--dry DIR | --write) [--limit N]');
     return 2;
   }
@@ -624,7 +651,7 @@ async function main() {
     }
   }
   const todo = found.slice(0, limit);
-  console.log(`${todo.length} skins, models ${lookers.map((one) => one.model).join(', ')}`);
+  console.log(`${todo.length} skins, models ${lookers.map((one) => one.name).join(', ')}`);
   const results = [];
   let tokens = 0;
   for (const [at, model_] of todo.entries()) {
@@ -633,7 +660,7 @@ async function main() {
     try {
       const asked = await askAny(lookers, picture, { close: closeup(png, model_.version === 'slim') });
       if (!asked) {
-        console.log('every model has spent its day; the rest wait for tomorrow');
+        console.log(lookers.every((one) => one.refused) ? 'Gemini refused every key' : 'every model has spent its day; the rest wait for tomorrow');
         break;
       }
       const said = asked.answer;
@@ -654,7 +681,7 @@ async function main() {
     }
   }
   if (dry) writeFileSync(join(dry, 'results.json'), `${JSON.stringify(results, null, 2)}\n`);
-  console.log(`done: ${results.length} tagged, ${tokens} tokens in all`);
+  console.log(`done: ${results.length} tagged, ${tokens} tokens in all; ${lookers.filter((one) => one.answered).map((one) => `${one.name} ${one.answered}`).join(', ')}`);
   return 0;
 }
 
