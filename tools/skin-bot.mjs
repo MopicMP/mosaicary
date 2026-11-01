@@ -40,8 +40,8 @@
 //                      `LOOKERS` in tools/skin-tagger.mjs: when one has spent its free day,
 //                      the next one checks.
 //   GEMINI_API_KEY2    optional: another key, its models asked alongside the first key's. When
-//                      Gemini refuses a key the others go on and the run page says so; when it
-//                      refuses them all the run fails.
+//                      Gemini refuses a key the others go on, the run page says so and the site
+//                      sends a mail; when it refuses them all the run fails as well.
 //   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_AI_TOKEN
 //                      optional: with both, every skin found in the run is asked at once
 //                      whether it has a photo of a real person on it (Workers AI's
@@ -431,7 +431,7 @@ async function main() {
  * checked this run when the models allow. Without GEMINI_API_KEY nothing is tagged or checked.
  */
 async function tagFound() {
-  const { readPng, look, closeup, lookersOf, askAny } = await import('./skin-tagger.mjs');
+  const { readPng, look, closeup, lookersOf, askAny, keysGone } = await import('./skin-tagger.mjs');
   const lookers = lookersOf(process.env);
   // Every skin handed to a worker this run: the list asked for again still has the ones being
   // asked about, and one that failed waits for the next run rather than coming round again.
@@ -479,11 +479,19 @@ async function tagFound() {
     tally.lookers = lookers.filter((one) => one.answered).map((one) => `${one.name} ${one.answered}`).join(', ');
   }
 
-  // One key gone leaves the others working, so the run stays green with a notice on its page.
-  // With none left no skin can be checked, and a failed run is what reaches the owner.
+  // One key gone leaves the others working, so the run stays green with a notice on its page and
+  // the site says so by mail, once a day for each key. With none left no skin can be checked, and
+  // the run fails as well.
   const refused = lookers.filter((one) => one.refused);
   if (refused.length) console.log(`::warning::Gemini refused the key for ${refused.map((one) => one.name).join(', ')}`);
-  if (refused.length === lookers.length) throw new Error('Gemini refused every key: no skin can be checked until there is a working one');
+  const gone = keysGone(lookers);
+  const left = new Set(lookers.map((one) => one.keyNumber)).size - gone.length;
+  for (const key of gone) {
+    await site('/api/bot/key-refused', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key, left }) }).catch((why) =>
+      console.warn(`the site was not told about key ${key}: ${why.message}`),
+    );
+  }
+  if (gone.length && !left) throw new Error('Gemini refused every key: no skin can be checked until there is a working one');
 
   /** One skin asked and written; false when no model will answer before the run ends. */
   async function tagOne(skin) {

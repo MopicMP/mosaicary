@@ -451,8 +451,16 @@ export class Busy extends Error {
   }
 }
 
-/** Gemini will not take this key for this model, whatever the skin: asking again changes nothing. */
-export class Refused extends Error {}
+/**
+ * Gemini will not answer under this key, whatever the skin: asking again changes nothing. `wholeKey`
+ * when the key itself was turned down, otherwise only the one model has no allowance under it.
+ */
+export class Refused extends Error {
+  constructor(message, wholeKey) {
+    super(message);
+    this.wholeKey = wholeKey;
+  }
+}
 
 /**
  * What Gemini said about a picture, held to the list and the categories.
@@ -487,6 +495,8 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
     }
     if (answer.status === 429 || answer.status === 500 || answer.status === 503) {
       const said = await answer.text();
+      // An allowance of nothing does not come back at midnight.
+      if (answer.status === 429 && /"quotaValue":\s*"0"|limit: 0\b/.test(said)) throw new Refused(`${model} has no allowance`, false);
       // Gemini names the allowance it ran out of: "…PerDay…" is spent until midnight Pacific.
       const forTheDay = answer.status === 429 && /PerDay/i.test(said);
       if (forTheDay || tries + 1 >= most) throw new Busy(`${model} answered ${answer.status}`, forTheDay);
@@ -495,7 +505,7 @@ export async function askGemini(picture, { key, model, tries: most = 5, close = 
     }
     if (!answer.ok) {
       const why = await answer.text();
-      if (answer.status === 401 || answer.status === 403 || /API_KEY_INVALID/.test(why)) throw new Refused(`${model} answered ${answer.status}`);
+      if (answer.status === 401 || answer.status === 403 || /API_KEY_INVALID/.test(why)) throw new Refused(`${model} answered ${answer.status}`, true);
       throw new Error(`Gemini answered ${answer.status}: ${why.slice(0, 200)}`);
     }
     const said = await answer.json();
@@ -569,6 +579,7 @@ export function lookersOf(env, keys = keysOf(env)) {
     keys.map((key, at) => ({
       model,
       key,
+      keyNumber: at + 1,
       name: at ? `${model} (key ${at + 1})` : model,
       gap: model.includes('lite') ? LOOKER_GAP.lite : LOOKER_GAP.other,
       next: 0,
@@ -608,8 +619,11 @@ export async function askAny(lookers, picture, { until = Infinity, close = null 
       return { answer, by: free.name };
     } catch (why) {
       if (why instanceof Refused) {
-        free.spent = true;
-        free.refused = true;
+        for (const one of lookers) {
+          if (one !== free && !(why.wholeKey && one.key === free.key)) continue;
+          one.spent = true;
+          one.refused = true;
+        }
         console.warn(`${free.name}: ${why.message}, not asked again this run`);
         continue;
       }
@@ -618,6 +632,18 @@ export async function askAny(lookers, picture, { until = Infinity, close = null 
       else free.next = Date.now() + LOOKER_REST;
     }
   }
+}
+
+/**
+ * The numbers of the keys that are gone: refused, with no answer under them this run and no model
+ * saying its day is spent, which a working key would. Models not reached yet do not save a key.
+ */
+export function keysGone(lookers) {
+  const numbers = [...new Set(lookers.map((one) => one.keyNumber))];
+  return numbers.filter((number) => {
+    const mine = lookers.filter((one) => one.keyNumber === number);
+    return mine.some((one) => one.refused) && mine.every((one) => !one.answered && (one.refused || !one.spent));
+  });
 }
 
 /* The command. */
