@@ -19,8 +19,13 @@
 //   2. Mojang: names -> UUIDs, ten at a time; then each player's signed profile
 //   3. POST /api/bot/report          the signed answers, ten to a report, and the names
 //   4. PUT  /api/bot/textures/<hash> every skin file the site says it still needs
-// The work is asked for again after every round, so a name looked for on the site while
-// a run is going is picked up within one round rather than at the next run.
+//   5. POST /api/bot/release         the players a list named that the round did not get to,
+//                                    so they wait again and the site's day counts only those
+//                                    asked about (docs/defense/skin-intake-2026-11-15.md)
+// The players due a check and those a list named take turns, so a round that runs out of time
+// leaves some of each. Names looked for on the site meanwhile are asked for every
+// `NAMES_POLL` (/api/bot/work?only=names) and answered first, so a long round keeps nobody
+// waiting for it to end.
 //
 // Usage:
 //   node tools/skin-bot.mjs           work until there is nothing left or the time is up
@@ -53,7 +58,15 @@
 // Mojang's limits are per address and not published exactly; minecraft.wiki gives about
 // 200 requests per two minutes for most of the API and about 400 per ten seconds for
 // profiles. This keeps far under both, waits out a 429, and the addresses of GitHub's
-// runners are shared with everybody else's jobs, which is one more reason to be slow.
+// runners are shared with everybody else's jobs, which is one more reason to be slow: after
+// each 429 it asks less often, up to `MOST_GAP`, and a little faster again with each answer.
+//
+// A 429 from the session server is brief. Measured 2026-11-16 from one address: one profile every
+// half second was refused 20 times in 90 s and the next request half a second later was answered
+// nearly every time; one a second, twice in a minute. Waiting a whole minute on each, as this did
+// until then, cost seven of a run's ten minutes on a busy day and the day most of its new players
+// (docs/defense/skin-intake-2026-11-15.md in the site's project). So the waits grow from seconds
+// (`BACK_OFFS`), and a minute only when Mojang keeps refusing the same request.
 
 import { readFileSync } from 'node:fs';
 
@@ -66,11 +79,16 @@ const seedAt = process.argv.indexOf('--seed');
 const seedFile = seedAt >= 0 ? process.argv[seedAt + 1] : null;
 
 const AGENT = 'mosaicary-skin-bot (+https://mosaicary.com)';
-/** Pauses between requests to Mojang, in milliseconds. */
+/** Pauses between requests to Mojang, in milliseconds: the least, and the most a run of 429s makes it. */
 const PROFILE_GAP = 300;
+const MOST_GAP = 2_000;
+/** The pause between profiles now: longer after a 429, back towards `PROFILE_GAP` with every answer. */
+let gap = PROFILE_GAP;
+/** How often a long round asks whether somebody looked a name up meanwhile. */
+const NAMES_POLL = 45_000;
 const NAMES_GAP = 1000;
-/** How long to wait when Mojang says 429 and does not say how long. */
-const BACK_OFF = 60_000;
+/** How long to wait when Mojang says 429 and does not say how long, try by try of the same request. */
+const BACK_OFFS = [2_000, 5_000, 15_000, 30_000, 60_000];
 /** How many signed answers go in one report: the site takes at most ten (BOT_PROFILES_MOST). */
 const REPORT_SIZE = 10;
 
@@ -102,7 +120,7 @@ const playerWork = { idle: false, done: false };
 /** Whether the tagging is over for this run: every model's day spent, or nothing left to check. */
 let taggingOver = !GEMINI_KEY || dry;
 
-const tally = { graded: 0, rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
+const tally = { graded: 0, rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, released: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
 
 class Stop extends Error {}
 
@@ -167,19 +185,23 @@ async function fetchAgain(url, init = {}) {
 
 /** A request to Mojang, waiting out 429s. Null for an answer with nothing in it. */
 async function mojang(url, init = {}) {
-  for (let tries = 0; tries < 5; tries++) {
+  for (let tries = 0; tries < BACK_OFFS.length; tries++) {
     const response = await fetchAgain(url, { ...init, headers: { 'user-agent': AGENT, ...(init.headers ?? {}) } });
     if (response.status === 429) {
-      const wait = Number(response.headers.get('retry-after')) * 1000 || BACK_OFF;
-      console.log(`Mojang said 429, waiting ${Math.round(wait / 1000)} s`);
-      await sleep(wait);
+      const wait = Number(response.headers.get('retry-after')) * 1000 || BACK_OFFS[tries];
+      gap = Math.min(MOST_GAP, Math.round(gap * 1.5));
+      console.log(`Mojang said 429, waiting ${Math.round(wait / 1000)} s, then one every ${gap} ms`);
+      // Cut short by the end of the run: what is left is handed back, not waited for.
+      await pause(wait);
+      if (!timeLeft()) throw new Error(`${url}: 429, and the run's time is up`);
       continue;
     }
+    gap = Math.max(PROFILE_GAP, Math.round(gap * 0.95));
     if (response.status === 204 || response.status === 404) return null;
     if (!response.ok) throw new Error(`${url}: ${response.status}`);
     return response.json();
   }
-  throw new Error(`${url}: still 429 after five tries`);
+  throw new Error(`${url}: still 429 after ${BACK_OFFS.length} tries`);
 }
 
 /** Names to UUIDs, ten at a time. A name Mojang leaves out of its answer has no player. */
@@ -321,65 +343,113 @@ function seedNames(file) {
     .filter((line) => /^[A-Za-z0-9_]{1,16}$/.test(line));
 }
 
+/** Two lists one from each in turn, the rest of the longer one after. */
+function inTurn(one, other) {
+  const out = [];
+  for (let at = 0; at < Math.max(one.length, other.length); at++) {
+    if (at < one.length) out.push(one[at]);
+    if (at < other.length) out.push(other[at]);
+  }
+  return out;
+}
+
+/** A list's players handed out and not asked about, back to the site: waiting again, off the day's count. */
+async function handBack(candidates) {
+  const said = await site('/api/bot/release', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ candidates }),
+  });
+  tally.released += said.released;
+}
+
+/** Names looked for on the site since the round began, answered: their UUIDs go to the front of the round. */
+async function namesMeanwhile(seen) {
+  const work = await site('/api/bot/work?only=names');
+  const names = work.names.filter((name) => !seen.has(`name:${name.toLowerCase()}`));
+  for (const name of names) seen.add(`name:${name.toLowerCase()}`);
+  return names.length ? resolve(names) : [];
+}
+
 /** One round: the work, Mojang's answers, the reports, the files. False when there was nothing new to do. */
 async function round(seen, extra = []) {
   const work = await site('/api/bot/work');
   const asked = [...work.names, ...extra.filter((name) => !work.names.some((one) => one.toLowerCase() === name.toLowerCase()))];
   const names = asked.filter((name) => !seen.has(`name:${name.toLowerCase()}`));
-  // Players to check again, then players a list named whom the site has never asked about:
-  // the second come last, so a run that runs out of time leaves them and not the checks.
-  const players = [...work.players, ...(work.candidates ?? [])].filter((uuid) => !seen.has(uuid));
+  // The players due a check and those a list named, in turn: one waiting for the other spent the
+  // whole run on the checks whenever Mojang was slow, and the day's new players with it.
+  const candidates = work.candidates ?? [];
+  const players = inTurn(work.players, candidates).filter((uuid) => !seen.has(uuid));
   if (dry) {
     console.log(JSON.stringify({ names, players }, null, 2));
+    // Asking for work took the list's players: a run that asks Mojang nothing hands them all back.
+    if (candidates.length) await handBack(candidates);
     return false;
   }
   if (!names.length && !players.length) return false;
   tally.rounds++;
   for (const name of names) seen.add(`name:${name.toLowerCase()}`);
 
-  const answered = await resolve(names);
-  const uuids = [...new Set([...answered.flatMap((one) => (one.uuid ? [one.uuid] : [])), ...players])];
-  let pendingNames = answered;
-  let batch = [];
-  let gone = [];
+  // The candidates Mojang answered for this round; the rest are handed back at its end.
+  const answeredFor = new Set();
+  try {
+    const answered = await resolve(names);
+    const queue = [...new Set([...answered.flatMap((one) => (one.uuid ? [one.uuid] : [])), ...players])];
+    let pendingNames = answered;
+    let batch = [];
+    let gone = [];
+    let namesAt = Date.now();
 
-  const flush = async () => {
-    if (!batch.length && !pendingNames.length && !gone.length) return;
-    const said = await site('/api/bot/report', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ names: pendingNames, profiles: batch, gone }),
-    });
-    tally.sent += said.taken;
-    tally.refused += said.refused;
-    const slim = slimOf(batch);
-    pendingNames = [];
-    batch = [];
-    gone = [];
-    if (said.need.length) await sendSkins(said.need, slim);
-  };
+    const flush = async () => {
+      if (!batch.length && !pendingNames.length && !gone.length) return;
+      const said = await site('/api/bot/report', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ names: pendingNames, profiles: batch, gone }),
+      });
+      tally.sent += said.taken;
+      tally.refused += said.refused;
+      const slim = slimOf(batch);
+      pendingNames = [];
+      batch = [];
+      gone = [];
+      if (said.need.length) await sendSkins(said.need, slim);
+    };
 
-  for (const uuid of uuids) {
-    if (!timeLeft()) break;
-    seen.add(uuid);
-    try {
-      const profile = await profileOf(uuid);
-      tally.profiles++;
-      if (profile) batch.push(profile);
-      else {
-        gone.push(uuid);
-        tally.gone++;
+    while (queue.length && timeLeft()) {
+      if (Date.now() - namesAt >= NAMES_POLL) {
+        namesAt = Date.now();
+        const more = await namesMeanwhile(seen);
+        pendingNames.push(...more);
+        queue.unshift(...more.flatMap((one) => (one.uuid && !seen.has(one.uuid) ? [one.uuid] : [])));
       }
-    } catch (why) {
-      console.warn(`player ${uuid}: ${why.message}`);
+      const uuid = queue.shift();
+      if (seen.has(uuid)) continue;
+      seen.add(uuid);
+      try {
+        const profile = await profileOf(uuid);
+        tally.profiles++;
+        answeredFor.add(uuid);
+        if (profile) batch.push(profile);
+        else {
+          gone.push(uuid);
+          tally.gone++;
+        }
+      } catch (why) {
+        console.warn(`player ${uuid}: ${why.message}`);
+      }
+      // The site takes at most REPORT_SIZE of each in one report, the gone included: the end of an
+      // old list is many accounts in a row that no longer exist, and a report carrying more of
+      // them than that was refused, which ended the run (2026-10-28, four runs in a row).
+      if (batch.length >= REPORT_SIZE || gone.length >= REPORT_SIZE) await flush();
+      await sleep(gap);
     }
-    // The site takes at most REPORT_SIZE of each in one report, the gone included: the end of an
-    // old list is many accounts in a row that no longer exist, and a report carrying more of
-    // them than that was refused, which ended the run (2026-10-28, four runs in a row).
-    if (batch.length >= REPORT_SIZE || gone.length >= REPORT_SIZE) await flush();
-    await sleep(PROFILE_GAP);
+    await flush();
+  } finally {
+    // Whatever of the list's players the round did not get to waits again, off the day's count.
+    const left = candidates.filter((uuid) => !answeredFor.has(uuid));
+    if (left.length) await handBack(left);
   }
-  await flush();
   return true;
 }
 
@@ -414,7 +484,7 @@ async function main() {
   if (failed) throw failed;
   console.log(
     `rounds ${tally.rounds}; names ${tally.names} (found ${tally.found}, missing ${tally.missing}); ` +
-      `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; ` +
+      `profiles ${tally.profiles} (gone ${tally.gone}); kept ${tally.sent}, refused ${tally.refused}; handed back ${tally.released}; ` +
       `skins sent ${tally.skins}, refused ${tally.skinsRefused}; photo check ${tally.photosAsked}, taken down ${tally.photosDown}; ` +
       `tagged ${tally.tagged}${tally.lookers ? ` (${tally.lookers})` : ''}, taken down ${tally.refusedLooks}, graded ${tally.graded}`,
   );
