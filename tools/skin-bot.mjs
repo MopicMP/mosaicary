@@ -122,7 +122,23 @@ let taggingOver = !GEMINI_KEY || dry;
 
 const tally = { graded: 0, rounds: 0, names: 0, found: 0, missing: 0, profiles: 0, gone: 0, released: 0, sent: 0, refused: 0, skins: 0, skinsRefused: 0, tagged: 0, refusedLooks: 0, lookers: '', photosAsked: 0, photosDown: 0 };
 
-class Stop extends Error {}
+class Stop extends Error {
+  /** @param {{ no?: string | null }} [answer] the site's own word for the refusal, when it said one */
+  constructor(message, answer = {}) {
+    super(message);
+    this.no = answer.no ?? null;
+  }
+}
+
+/** The `no` of a refusal the site sent as JSON, or null. */
+function refusalOf(text) {
+  try {
+    const said = JSON.parse(text);
+    return typeof said?.no === 'string' ? said.no : null;
+  } catch {
+    return null;
+  }
+}
 
 /** How long to wait before asking the site again after it failed, try by try. */
 const SITE_RETRIES = [5_000, 15_000];
@@ -158,7 +174,10 @@ async function site(path, init = {}) {
       await sleep(SITE_RETRIES[tries]);
       continue;
     }
-    if (!response.ok) throw new Stop(`${init.method ?? 'GET'} ${path}: ${response.status} ${await response.text()}`);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Stop(`${init.method ?? 'GET'} ${path}: ${response.status} ${text}`, { no: refusalOf(text) });
+    }
     return response.json();
   }
 }
@@ -319,11 +338,22 @@ async function sendSkins(hashes, slim = new Set()) {
       continue;
     }
     const bytes = new Uint8Array(await response.arrayBuffer());
-    const said = await site(`/api/bot/textures/${hash}`, {
-      method: 'PUT',
-      headers: { 'content-type': 'image/png', 'content-length': String(bytes.length) },
-      body: bytes,
-    });
+    let said;
+    try {
+      said = await site(`/api/bot/textures/${hash}`, {
+        method: 'PUT',
+        headers: { 'content-type': 'image/png', 'content-length': String(bytes.length) },
+        body: bytes,
+      });
+    } catch (why) {
+      // textures.minecraft.net can serve, under a hash, a file that does not hash to it (an old
+      // 64x32 skin, 2026-11-24). The site rightly refuses it and keeps asking for it, so it is
+      // one file the site goes without, not a reason to stop the run.
+      if (!(why instanceof Stop && why.no === 'print_mismatch')) throw why;
+      tally.skinsRefused++;
+      console.warn(`skin ${hash}: textures.minecraft.net sent a file that is not the one this hash names; left out`);
+      continue;
+    }
     if (said.refused) {
       tally.skinsRefused++;
       console.log(`skin ${hash}: refused (${said.refused})`);
